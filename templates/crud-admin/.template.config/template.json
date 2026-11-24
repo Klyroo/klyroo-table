@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "LuxStack contributors",
+  "classifications": [ "Web", "Blazor", "MAUI", "LuxStack" ],
+  "identity": "Lux.Table.Admin",
+  "name": "LuxStack Table CRUD Admin Portal",
+  "shortName": "lux-table-admin",
+  "sourceName": "LuxApp",
+  "preferNameDirectory": true,
+  "tags": {
+    "language": "C#",
+    "type": "project",
+    "luxstack": "table"
+  }
+}

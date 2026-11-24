@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Blux.UI.Tools</RootNamespace>
+    <PackageId>Lux.Table</PackageId>
+    <Description>LuxStack Table for Blazor Web &amp; .NET MAUI Hybrid: DataList (Table, Grid, Virtualization, Grouping, Tree, Summaries, Saved Views, Export).</Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591;BL0007</NoWarn>
+    <IsTrimmable>true</IsTrimmable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Lux.Table.Core\Lux.Table.Core.csproj" />
+    <ProjectReference Include="..\..\..\lux-query\src\Lux.Query.Core\Lux.Query.Core.csproj" />
+    <ProjectReference Include="..\..\..\lux-query\src\Lux.Query\Lux.Query.csproj" />
+    <ProjectReference Include="..\..\..\blux-ui\src\Blux.UI\Blux.UI.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Lux.Table.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+    <SupportedPlatform Include="ios" />
+    <SupportedPlatform Include="android" />
+    <SupportedPlatform Include="maccatalyst" />
+    <SupportedPlatform Include="windows" />
+  </ItemGroup>
+</Project>

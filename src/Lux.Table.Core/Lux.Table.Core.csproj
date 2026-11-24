@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Blux.UI.Tools</RootNamespace>
+    <PackageId>Lux.Table.Core</PackageId>
+    <Description>LuxStack Table Core: Headless DataList tree hierarchy and summary row models.</Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <IsTrimmable>true</IsTrimmable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" />
+    <ProjectReference Include="..\..\..\lux-query\src\Lux.Query.Core\Lux.Query.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Lux.Table" />
+    <InternalsVisibleTo Include="Lux.Table.Tests" />
+  </ItemGroup>
+</Project>
