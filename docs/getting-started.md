@@ -1,6 +1,6 @@
 # Getting Started with Lux.Table
 
-The .NET counterpart to TanStack Table paired with Nuxt UI Tools polish: table and card grid layouts, NativeAOT tree hierarchy (DataListTree<TItem>), visual grouping, footer aggregations, 2px loading progress line, automatic Sort/Hide HeaderMenu, 60fps virtualization, and responsive mobile summary rows.
+Headless-powered data tables and card grids for .NET: NativeAOT tree hierarchy (DataListTree<TItem>), visual grouping, footer aggregations, 2px loading progress line, automatic Sort/Hide HeaderMenu, 60fps virtualization, and responsive mobile summary rows.
 
 ## 1. Choose Your Package
 

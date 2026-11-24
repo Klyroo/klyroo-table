@@ -1,6 +1,6 @@
 # Architecture — Lux.Table
 
-Lux.Table follows the strict TanStack two-layer architecture shared across every repository in **LuxStack**:
+Lux.Table follows the strict headless two-layer architecture shared across every repository in **LuxStack**:
 
 ```text
 +-------------------------------------------------------------------+

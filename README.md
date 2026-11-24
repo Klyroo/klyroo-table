@@ -2,7 +2,7 @@
 
 > **Headless tree hierarchy engine & high-density enterprise BxDataList**
 
-The .NET counterpart to TanStack Table paired with Nuxt UI Tools polish: table and card grid layouts, NativeAOT tree hierarchy (DataListTree<TItem>), visual grouping, footer aggregations, 2px loading progress line, automatic Sort/Hide HeaderMenu, 60fps virtualization, and responsive mobile summary rows.
+Headless-powered data tables and card grids for .NET: NativeAOT tree hierarchy (DataListTree<TItem>), visual grouping, footer aggregations, 2px loading progress line, automatic Sort/Hide HeaderMenu, 60fps virtualization, and responsive mobile summary rows.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
 [![.NET 10](https://img.shields.io/badge/.NET-10.0-512BD4.svg)](https://dotnet.microsoft.com/)
@@ -11,7 +11,7 @@ The .NET counterpart to TanStack Table paired with Nuxt UI Tools polish: table a
 
 ---
 
-## Architecture (TanStack Two-Layer Split)
+## Architecture (Two-Layer Headless Split)
 
 - **`Lux.Table.Core`** — 100% headless C#, zero UI dependencies, `<IsAotCompatible>true</IsAotCompatible>`, `<IsTrimmable>true</IsTrimmable>`. Runs in Minimal APIs, background workers, CLI apps, and native C# .NET MAUI ViewModels.
 - **`Lux.Table`** — Multiplatform Blazor Web (Static SSR, Interactive Server, WebAssembly, Auto) & `.NET MAUI Blazor Hybrid` (`browser`, `ios`, `android`, `maccatalyst`, `windows`).
@@ -19,7 +19,7 @@ The .NET counterpart to TanStack Table paired with Nuxt UI Tools polish: table a
 ## Highlights
 
 - **NativeAOT Tree Hierarchy** (`Headless Tree`) — Lux.Table.Core builds and flattens hierarchical trees (DataListTree<TItem>) with depth tracking and continuation rails without any UI dependency.
-- **Nuxt UI Tools Polish Included** (`UX Polish`) — 2px indeterminate progress line during reloads, automatic Sort Asc/Desc/Hide HeaderMenu, adaptive skeletons, and first-use EmptyState CTAs.
+- **Built-In UX Polish** (`UX Polish`) — 2px indeterminate progress line during reloads, automatic Sort Asc/Desc/Hide HeaderMenu, adaptive skeletons, and first-use EmptyState CTAs.
 - **Grouping, Summaries & Pinning** (`Enterprise Grid`) — Visual row grouping (DataListGroupBy), footer Sum/Avg/Min/Max aggregations, column resizing, and left/right sticky column pinning.
 - **Responsive Summary Rows on Phone** (`Mobile Ready`) — Automatically switches to scannable summary rows (DataListRowSummary) below 768px on iOS and Android phones.
 
