@@ -17,6 +17,12 @@ jobs:
         run: dotnet build Lux.Table.slnx -c Release --nologo
       - name: Run Tests
         run: dotnet test Lux.Table.slnx -c Release --no-build --nologo
+      - name: Verify Trim & NativeAOT Analyzers on Core Libraries
+        run: |
+          for core in src/*.Core/*.csproj; do
+            [ -f "$core" ] && dotnet build "$core" -c Release -p:EnableAotAnalyzer=true -p:EnableTrimAnalyzer=true --nologo
+          done
+
       - name: Pack NuGet Artifacts
         run: dotnet pack Lux.Table.slnx -c Release --no-build -o ./artifacts/nupkgs --nologo
       - uses: actions/upload-artifact@v4

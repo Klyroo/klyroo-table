@@ -1,5 +1,7 @@
 # Lux.Table (LuxStack)
 
+[![CI](https://github.com/luxstack/lux-table/actions/workflows/ci.yml/badge.svg)](https://github.com/luxstack/lux-table/actions/workflows/ci.yml) [![NuGet](https://img.shields.io/badge/NuGet-0.1.0--preview.1-004880.svg)](https://www.nuget.org/packages/Lux.Table) [![.NET 10](https://img.shields.io/badge/.NET-10.0-512BD4.svg)](https://dotnet.microsoft.com/) [![NativeAOT](https://img.shields.io/badge/NativeAOT-Compatible-10b981.svg)](https://luxstack.dev/why) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+
 > **Headless tree hierarchy engine & high-density enterprise LxDataList**
 
 Headless-powered data tables and card grids for .NET: NativeAOT tree hierarchy (DataListTree<TItem>), visual grouping, footer aggregations, 2px loading progress line, automatic Sort/Hide HeaderMenu, 60fps virtualization, and responsive mobile summary rows.
