@@ -5,5 +5,10 @@
     <LangVersion>latest</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <Version>0.1.0-alpha.1</Version>
+    <Authors>LuxStack Contributors</Authors>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>luxstack;blazor;maui;dotnet;headless;nativeaot</PackageTags>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 </Project>
