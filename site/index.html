@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="fr" data-theme="dark">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lux.Table · Headless tree/grouping models &amp; high-density enterprise BxDataList</title>
+  <title>Lux.Table · Headless tree hierarchy engine &amp; high-density enterprise BxDataList</title>
   <style>
     :root { --accent: #00d8ff; --accent-soft: rgba(0, 216, 255, 0.14); }
     
@@ -185,7 +185,11 @@ footer { padding: 36px 0; font-size: 12.5px; color: var(--text-muted); display: 
           <h1>Supercharged tables<br /><span class="accent">&amp; headless datagrids.</span></h1>
         </div>
         <div>
-          <p class="lead">L&#x27;équivalent .NET de TanStack Table allié à la finition de Nuxt UI Tools : vue table, grille de cartes, hiérarchie arborescente NativeAOT (DataListTree), regroupement, agrégations de pied de page, barre de progression fine 2px, menu d&#x27;en-tête Tri/Masquer et lignes résumées mobiles.</p>
+          <p class="lead">The .NET counterpart to TanStack Table paired with Nuxt UI Tools polish: table and card grid layouts, NativeAOT tree hierarchy (DataListTree&lt;TItem&gt;), visual grouping, footer aggregations, 2px loading progress line, automatic Sort/Hide HeaderMenu, 60fps virtualization, and responsive mobile summary rows.</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px">
+            <a class="btn btn-accent" href="../docs/getting-started.md">Read Documentation →</a>
+            <a class="btn" href="../docs/api-reference.md">API Reference</a>
+          </div>
           <div class="install-stack">
             <button class="cmd mono" type="button" onclick="copyCmd(this,'dotnet add package Lux.Table')">
               <span>$ dotnet add package <strong>Lux.Table</strong> <span class="comment"># Blazor + MAUI Hybrid</span></span>
@@ -196,7 +200,7 @@ footer { padding: 36px 0; font-size: 12.5px; color: var(--text-muted); display: 
               <span class="copy-tag">Copy</span>
             </button>
           </div>
-          <div class="platforms"><span class="plat mono">Headless C# / NativeAOT</span><span class="plat mono">Blazor Web &amp; MAUI Hybrid</span><span class="plat mono">Responsive Mobile Summary Rows</span><span class="plat mono">EF Core Ready</span></div>
+          <div class="platforms"><span class="plat mono">Headless C# / NativeAOT</span><span class="plat mono">Blazor Server / WASM / Auto</span><span class="plat mono">.NET MAUI Blazor Hybrid</span><span class="plat mono">Responsive Mobile Summary Rows</span></div>
         </div>
       </div>
 
@@ -233,7 +237,7 @@ footer { padding: 36px 0; font-size: 12.5px; color: var(--text-muted); display: 
     <div class="wrap">
       <div class="eyebrow mono">Why Lux.Table</div>
       <h2>Headless C# engine.<br /><span style="color:var(--accent)">Production-ready UI.</span></h2>
-      <div class="grid-4"><article class="card"><span class="tag mono">Headless Tree</span><h3>Hiérarchie Arborescente NativeAOT</h3><p>Lux.Table.Core construit et aplatit des arbres hiérarchiques (DataListTree&lt;T&gt;) avec profondeur et rails visuels sans dépendance UI.</p></article><article class="card"><span class="tag mono">UX Polish</span><h3>Finition Nuxt UI Tools incluse</h3><p>Barre de progression 2px pendant le chargement, menu d&#x27;en-tête auto Tri Asc/Desc/Masquer, skeletons adaptatifs et EmptyState 1er usage.</p></article><article class="card"><span class="tag mono">Enterprise Grid</span><h3>Groupes, Agrégations &amp; Pinning</h3><p>Regroupement visuel (DataListGroupBy), totaux Sum/Avg/Min/Max en pied de tableau, redimensionnement et épinglage de colonnes.</p></article><article class="card"><span class="tag mono">Mobile Ready</span><h3>Lignes résumées automatiques</h3><p>Bascule automatiquement en DataListRowSummary scannable sous 768px sur smartphones iOS/Android.</p></article></div>
+      <div class="grid-4"><article class="card"><span class="tag mono">Headless Tree</span><h3>NativeAOT Tree Hierarchy</h3><p>Lux.Table.Core builds and flattens hierarchical trees (DataListTree&lt;TItem&gt;) with depth tracking and continuation rails without any UI dependency.</p></article><article class="card"><span class="tag mono">UX Polish</span><h3>Nuxt UI Tools Polish Included</h3><p>2px indeterminate progress line during reloads, automatic Sort Asc/Desc/Hide HeaderMenu, adaptive skeletons, and first-use EmptyState CTAs.</p></article><article class="card"><span class="tag mono">Enterprise Grid</span><h3>Grouping, Summaries &amp; Pinning</h3><p>Visual row grouping (DataListGroupBy), footer Sum/Avg/Min/Max aggregations, column resizing, and left/right sticky column pinning.</p></article><article class="card"><span class="tag mono">Mobile Ready</span><h3>Responsive Summary Rows on Phone</h3><p>Automatically switches to scannable summary rows (DataListRowSummary) below 768px on iOS and Android phones.</p></article></div>
     </div>
   </section>
 
@@ -253,13 +257,14 @@ var tree = new DataListTree&lt;Employee&gt;
 };
 
 var (roots, allNodes) = tree.BuildTree(employees, schema);
-// Chaque noeud expose Depth, Parent, IsLast &amp; AncestorContinuations</code></pre>
+// Every node carries Depth, Parent, IsLast &amp; AncestorContinuations</code></pre>
         </div>
         <div class="code-panel">
           <div class="code-head mono"><span>Lux.Table · BxDataList &amp; BxDataListTable</span><span class="layer-ui">UI · Blazor &amp; MAUI</span></div>
           <pre><code>&lt;BxDataList TItem=&quot;Employee&quot; Schema=&quot;@_schema&quot; Items=&quot;@_employees&quot; UrlSync=&quot;false&quot;&gt;
     &lt;BxDataListTable TItem=&quot;Employee&quot;
                      HeaderMenu=&quot;true&quot;
+                     ShowProgressLine=&quot;true&quot;
                      Summaries=&quot;@(new DataListSummaries&lt;Employee&gt;())&quot;&gt;
         &lt;BxDataListColumn TItem=&quot;Employee&quot; Field=&quot;name&quot; Title=&quot;Name&quot; /&gt;
         &lt;BxDataListColumn TItem=&quot;Employee&quot; Field=&quot;salary&quot; Title=&quot;Salary&quot;
@@ -273,12 +278,27 @@ var (roots, allNodes) = tree.BuildTree(employees, schema);
 
   <section class="band">
     <div class="wrap">
-      <div class="eyebrow mono">Package Exports &amp; Components</div>
+      <div class="eyebrow mono">Exhaustive Documentation</div>
+      <h2>Guides, Architecture &amp; API Reference</h2>
+      <div class="grid-4" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+            <a class="card" href="../docs/getting-started.md"><span class="tag mono">GUIDE</span><h3>Getting Started</h3><p>Package installation, DI setup, namespace imports, and your first example.</p></a>
+            <a class="card" href="../docs/architecture.md"><span class="tag mono">CORE + UI</span><h3>Architecture</h3><p>Strict two-layer headless NativeAOT Core vs Blazor &amp; MAUI Hybrid UI split.</p></a>
+            <a class="card" href="../docs/api-reference.md"><span class="tag mono">EXHAUSTIVE API</span><h3>Complete API Reference</h3><p>Every public class, enum, property, method, and Razor parameter extracted from source.</p></a>
+            <a class="card" href="../docs/maui-and-aot.md"><span class="tag mono">MULTIPLATFORM</span><h3>.NET MAUI &amp; NativeAOT</h3><p>Setup for iOS, Android, macOS Catalyst, Windows, and NativeAOT builds.</p></a>
+            <a class="card" href="../docs/recipes.md"><span class="tag mono">RECIPES</span><h3>Recipes &amp; Testing</h3><p>Production patterns and xUnit / bUnit testing examples.</p></a>
+            <a class="card" href="http://localhost:5180/docs/lux-table"><span class="tag mono">PLAYGROUND</span><h3>Interactive Playground Docs</h3><p>Live documentation page with interactive examples and XML-backed API tables.</p></a>
+            </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <div class="eyebrow mono">Package Exports</div>
       <h2>Included in Lux.Table</h2>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Export</th><th>Layer</th><th>NuGet Package</th><th>Description</th></tr></thead>
-          <tbody><tr><td class="mono" style="font-weight:600;color:var(--text-strong)">DataListTree&lt;TItem&gt;</td><td><span class="mono layer-core">Core</span></td><td class="mono">Lux.Table.Core</td><td style="color:var(--text-muted)">Moteur d&#x27;arbre hiérarchique 100% NativeAOT avec rails d&#x27;indentation.</td></tr><tr><td class="mono" style="font-weight:600;color:var(--text-strong)">BxDataList&lt;TItem&gt;</td><td><span class="mono layer-ui">UI</span></td><td class="mono">Lux.Table</td><td style="color:var(--text-muted)">Conteneur complet : table, grille, barre de filtres et pagination.</td></tr><tr><td class="mono" style="font-weight:600;color:var(--text-strong)">BxDataListTable&lt;TItem&gt;</td><td><span class="mono layer-ui">UI</span></td><td class="mono">Lux.Table</td><td style="color:var(--text-muted)">Table haute densité avec HeaderMenu, totaux, arbre et redimensionnement.</td></tr><tr><td class="mono" style="font-weight:600;color:var(--text-strong)">DataListRowSummary&lt;TItem&gt;</td><td><span class="mono layer-ui">UI</span></td><td class="mono">Lux.Table</td><td style="color:var(--text-muted)">Présentation mobile compacte automatique sous le breakpoint md.</td></tr></tbody>
+          <tbody><tr><td class="mono" style="font-weight:600;color:var(--text-strong)">&lt;BxDataList&gt;</td><td><span class="mono layer-ui">UI</span></td><td class="mono">Lux.Table</td><td style="color:var(--text-muted)">15 Razor parameters · <code>src/Lux.Table/Components/DataList/BxDataList.razor</code></td></tr><tr><td class="mono" style="font-weight:600;color:var(--text-strong)">&lt;BxDataListActionsDropdown&gt;</td><td><span class="mono layer-ui">UI</span></td><td class="mono">Lux.Table</td><td style="color:var(--text-muted)">2 Razor parameters · <code>src/Lux.Table/Components/DataList/BxDataListActionsDropdown.razor</code></td></tr><tr><td class="mono" style="font-weight:600;color:var(--text-strong)">&lt;BxDataListAddFilter&gt;</td><td><span class="mono layer-ui">UI</span></td><td class="mono">Lux.Table</td><td style="color:var(--text-muted)">3 Razor parameters · <code>src/Lux.Table/Components/DataList/BxDataListAddFilter.razor</code></td></tr><tr><td class="mono" style="font-weight:600;color:var(--text-strong)">&lt;BxDataListClearFilters&gt;</td><td><span class="mono layer-ui">UI</span></td><td class="mono">Lux.Table</td><td style="color:var(--text-muted)">2 Razor parameters · <code>src/Lux.Table/Components/DataList/BxDataListClearFilters.razor</code></td></tr><tr><td class="mono" style="font-weight:600;color:var(--text-strong)">&lt;BxDataListColumnPanel&gt;</td><td><span class="mono layer-ui">UI</span></td><td class="mono">Lux.Table</td><td style="color:var(--text-muted)">5 Razor parameters · <code>src/Lux.Table/Components/DataList/BxDataListColumnPanel.razor</code></td></tr><tr><td class="mono" style="font-weight:600;color:var(--text-strong)">&lt;BxDataListEmpty&gt;</td><td><span class="mono layer-ui">UI</span></td><td class="mono">Lux.Table</td><td style="color:var(--text-muted)">6 Razor parameters · <code>src/Lux.Table/Components/DataList/BxDataListEmpty.razor</code></td></tr><tr><td class="mono" style="font-weight:600;color:var(--text-strong)">&lt;BxDataListErrorState&gt;</td><td><span class="mono layer-ui">UI</span></td><td class="mono">Lux.Table</td><td style="color:var(--text-muted)">2 Razor parameters · <code>src/Lux.Table/Components/DataList/BxDataListErrorState.razor</code></td></tr><tr><td class="mono" style="font-weight:600;color:var(--text-strong)">&lt;BxDataListFilterEditor&gt;</td><td><span class="mono layer-ui">UI</span></td><td class="mono">Lux.Table</td><td style="color:var(--text-muted)">5 Razor parameters · <code>src/Lux.Table/Components/DataList/BxDataListFilterEditor.razor</code></td></tr><tr><td class="mono" style="font-weight:600;color:var(--text-strong)">DataListTreeSelectionMode</td><td><span class="mono layer-core">Core</span></td><td class="mono">Lux.Table.Core</td><td style="color:var(--text-muted)">Which rows of a hierarchical tree table can be selected with checkboxes.</td></tr><tr><td class="mono" style="font-weight:600;color:var(--text-strong)">DataListTreeNode&lt;TItem&gt;</td><td><span class="mono layer-core">Core</span></td><td class="mono">Lux.Table.Core</td><td style="color:var(--text-muted)">One node in the flattened hierarchy produced by `DataListTree{TItem}` over the loaded top-level rows of a data list. The row type.</td></tr><tr><td class="mono" style="font-weight:600;color:var(--text-strong)">DataListTree&lt;TItem&gt;</td><td><span class="mono layer-core">Core</span></td><td class="mono">Lux.Table.Core</td><td style="color:var(--text-muted)">Hierarchical tree configuration for `BxDataListTable{TItem}`. Child rows travel with their parent item (`Children`), expand and collapse with a chevron button (mouse, Enter/Space, or ArrowRight/ArrowLeft) and visual rail connectors, and participate in row selection according to `Selectable`. When a tree is configured on `BxDataListTable{TItem}`, summary rows and visual groups are disabled on the table. The row type.</td></tr><tr><td class="mono" style="font-weight:600;color:var(--text-strong)">BluxToolsOptions</td><td><span class="mono layer-ui">UI</span></td><td class="mono">Lux.Table</td><td style="color:var(--text-muted)">Configuration of Blux.UI.Tools: its component themes and its message tables. It is an extension of `BluxOptions` (`Extension{T}`), so its themes freeze with the ones of Blux.UI and the Tailwind class extractor and the docs bundle find them. Configure it with `services.AddBluxUiTools(t =&amp;gt; ...)`, in code shared by the server and the WebAssembly client. Partial: each family of components declares its themes in its own file.</td></tr><tr><td class="mono" style="font-weight:600;color:var(--text-strong)">BxToolsComponentBase</td><td><span class="mono layer-ui">UI</span></td><td class="mono">Lux.Table</td><td style="color:var(--text-muted)">Base of the components of Blux.UI.Tools: the theme resolution of `BxComponentBase`, plus the options and the texts of this package.</td></tr><tr><td class="mono" style="font-weight:600;color:var(--text-strong)">BxDataList&lt;TItem&gt;</td><td><span class="mono layer-ui">UI</span></td><td class="mono">Lux.Table</td><td style="color:var(--text-muted)">Public class</td></tr><tr><td class="mono" style="font-weight:600;color:var(--text-strong)">BxDataList&lt;TItem&gt;</td><td><span class="mono layer-ui">UI</span></td><td class="mono">Lux.Table</td><td style="color:var(--text-muted)">Public class</td></tr><tr><td class="mono" style="font-weight:600;color:var(--text-strong)">BxDataListColumn&lt;TItem&gt;</td><td><span class="mono layer-ui">UI</span></td><td class="mono">Lux.Table</td><td style="color:var(--text-muted)">A column of `BxDataListTable{TItem}`. Renders nothing itself: it registers with its list (`Columns`). What a cell shows comes from one of three places: `Template`, `Property` or `Field`. The row type.</td></tr><tr><td class="mono" style="font-weight:600;color:var(--text-strong)">BxDataListFilterEditor&lt;TItem&gt;</td><td><span class="mono layer-ui">UI</span></td><td class="mono">Lux.Table</td><td style="color:var(--text-muted)">Public class</td></tr><tr><td class="mono" style="font-weight:600;color:var(--text-strong)">DataListActionPartBase&lt;TItem&gt;</td><td><span class="mono layer-ui">UI</span></td><td class="mono">Lux.Table</td><td style="color:var(--text-muted)">Public class</td></tr></tbody>
         </table>
       </div>
     </div>
