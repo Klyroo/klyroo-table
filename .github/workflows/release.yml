@@ -1,0 +1,25 @@
+name: Release NuGet
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Build, Test & Pack
+        run: |
+          dotnet build Lux.Table.slnx -c Release --nologo
+          dotnet test Lux.Table.slnx -c Release --no-build --nologo
+          dotnet pack Lux.Table.slnx -c Release --no-build -o ./artifacts/nupkgs --nologo
+      - name: Push to NuGet.org
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          dotnet nuget push "./artifacts/nupkgs/*.nupkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
