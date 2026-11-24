@@ -1,7 +1,7 @@
-using Blux.UI.Tools.Query;
+using Lux.Query;
 using Microsoft.AspNetCore.Components;
 
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 /// <summary>How a data list pages its rows.</summary>
 public enum DataListPagingMode

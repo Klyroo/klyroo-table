@@ -1,5 +1,5 @@
-using Blux.UI.Tools;
-using Blux.UI.Tools.Query;
+using Lux.Table;
+using Lux.Query;
 using Bunit;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.DependencyInjection;

@@ -2,7 +2,7 @@ using System.ComponentModel;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 /// <summary>
 /// What the parts that show actions share (<see cref="BxDataListSelectionActions{TItem}"/>, <see cref="BxDataListActionsDropdown{TItem}"/>): which actions are visible, disabled or running,

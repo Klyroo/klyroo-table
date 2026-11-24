@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 /// <summary>The bytes the data lists of one prerendered page hand to the interactive render, so that together they stay under what a Server circuit accepts at start.</summary>
 internal static class DataListPersistBudget

@@ -1,9 +1,9 @@
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 /// <summary>
-/// The message tables of Blux.UI.Tools, one per locale of <see cref="BxLocales.All"/> and keyed by the same codes. A component picks the table
+/// The message tables of Lux.Table, one per locale of <see cref="BxLocales.All"/> and keyed by the same codes. A component picks the table
 /// of the current <see cref="BxLocale.Code"/> with <see cref="BxLocales.ResolveCode"/>, so "pt-PT" gets "pt" and an unknown language gets English.
-/// Change a table with <see cref="BluxToolsOptions.Messages"/>.
+/// Change a table with <see cref="LuxTableOptions.Messages"/>.
 /// </summary>
 public static partial class BxToolsLocales
 {

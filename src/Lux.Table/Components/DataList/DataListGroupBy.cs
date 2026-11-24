@@ -1,8 +1,8 @@
 using System.Globalization;
-using Blux.UI.Tools.Query;
+using Lux.Query;
 using Microsoft.AspNetCore.Components;
 
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 /// <summary>
 /// One visual group of rows produced by <see cref="DataListGroupBy{TItem}"/> over the loaded rows of a data list.

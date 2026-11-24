@@ -1,4 +1,5 @@
-using Blux.UI.Tools;
+using Lux.Table;
+using Lux.Query;
 
 var tree = new DataListTree<Node> { Children = n => n.Children, DefaultExpanded = true };
 var (_, allNodes) = tree.BuildTree([new Node("Root", [new Node("Child")])]);

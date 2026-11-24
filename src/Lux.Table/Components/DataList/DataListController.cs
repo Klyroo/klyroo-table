@@ -1,6 +1,6 @@
-using Blux.UI.Tools.Query;
+using Lux.Query;
 
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 /// <summary>
 /// Loads the rows of a data list: turns a <see cref="DataListState"/> into a request, runs it against the source, cancels the request a newer one

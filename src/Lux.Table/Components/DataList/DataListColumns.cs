@@ -2,7 +2,7 @@ using System.Globalization;
 using System.Text;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 /// <summary>Which horizontal edge a column of <see cref="BxDataListTable{TItem}"/> is pinned to.</summary>
 public enum DataListPin

@@ -1,6 +1,6 @@
-using Blux.UI.Tools.Query;
+using Lux.Query;
 
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 /// <summary>
 /// Runs the queries a data list builds for a <c>Queryable</c> source (<see cref="QueryableDataList.Apply{T}"/>): the count of the matching rows and the page. The list asks the
@@ -26,7 +26,7 @@ public interface IDataListQueryExecutor
 /// <summary>
 /// The default executor: <c>Count()</c> and <c>ToList()</c>, on the thread that asks. <b>It blocks that thread while the database answers</b>: in Blazor Server
 /// that is the thread of the circuit, in WebAssembly the only thread of the page. Use it for tests, small local databases and providers with no asynchronous API;
-/// register an asynchronous executor for a real database (<c>AddBluxUiToolsEntityFrameworkAdapter()</c> of Blux.UI.Tools.EntityFrameworkCore for EF Core).
+/// register an asynchronous executor for a real database (<c>AddLuxTableEntityFrameworkAdapter()</c> of Lux.Table.EntityFrameworkCore for EF Core).
 /// The cancellation token is checked before each query, not during it.
 /// </summary>
 public sealed class SynchronousDataListQueryExecutor : IDataListQueryExecutor

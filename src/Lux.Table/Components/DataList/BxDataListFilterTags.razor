@@ -1,13 +1,13 @@
-@namespace Blux.UI.Tools
+@namespace Lux.Table
 @typeparam TItem
 @inherits DataListPartBase<TItem>
-@using Blux.UI.Tools.Query
+@using Lux.Query
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.JSInterop
 
 @*
     One tag per active filter: "Status is Active, Paused +2". A click opens the editor of the filter in a popover anchored to the tag, the x removes the filter. The tags are a list whose name says how many
-    filters are on. Statically rendered the x is a link; the popover and the forms and links inside it need only the script of Blux.UI, no .NET.
+    filters are on. Statically rendered the x is a link; the popover and the forms and links inside it need only the script of Lux.UI, no .NET.
 *@
 @if (Context.Schema is not null && (_active.Count > 0 || (ShowAdd && Context.EditableFilterKeys.Count > 0)))
 {

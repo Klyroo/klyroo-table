@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 /// <summary>
 /// Placeholder shape drawn inside a column cell while the initial rows of <see cref="BxDataListTable{TItem}"/> load.

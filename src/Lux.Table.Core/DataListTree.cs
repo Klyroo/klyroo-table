@@ -1,6 +1,6 @@
-using Blux.UI.Tools.Query;
+using Lux.Query;
 
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 /// <summary>Which rows of a hierarchical tree table can be selected with checkboxes.</summary>
 public enum DataListTreeSelectionMode

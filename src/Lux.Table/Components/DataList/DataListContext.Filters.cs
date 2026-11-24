@@ -1,8 +1,8 @@
 using System.Globalization;
-using Blux.UI.Tools.Query;
+using Lux.Query;
 using Microsoft.Extensions.Logging;
 
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 /// <summary>How a filter editor applies what the user changes.</summary>
 public enum DataListApplyMode

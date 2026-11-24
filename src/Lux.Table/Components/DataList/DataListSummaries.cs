@@ -1,7 +1,7 @@
 using System.Globalization;
-using Blux.UI.Tools.Query;
+using Lux.Query;
 
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 /// <summary>Built-in column aggregation kinds for the summary footer (<c>&lt;tfoot&gt;</c>) of <see cref="BxDataListTable{TItem}"/>.</summary>
 public enum DataListSummaryKind

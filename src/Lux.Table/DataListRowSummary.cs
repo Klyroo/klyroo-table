@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 /// <summary>
 /// Compact summary-row presentation for <c>BxDataListTable{TItem}</c>: one scannable row per record with an optional leading visual,

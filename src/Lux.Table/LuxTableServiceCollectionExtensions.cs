@@ -1,16 +1,16 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 public static class LuxTableServiceCollectionExtensions
 {
-    public static IServiceCollection AddLuxTable(this IServiceCollection services, Action<BluxToolsOptions>? configure = null)
+    public static IServiceCollection AddLuxTable(this IServiceCollection services, Action<LuxTableOptions>? configure = null)
     {
         ArgumentNullException.ThrowIfNull(services);
-        services.AddBluxUi(options =>
+        services.AddLuxUi(options =>
         {
-            var tools = options.Extension<BluxToolsOptions>();
+            var tools = options.Extension<LuxTableOptions>();
             configure?.Invoke(tools);
         });
         services.AddLuxQuery();

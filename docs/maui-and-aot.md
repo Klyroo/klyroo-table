@@ -18,8 +18,8 @@ builder.Services.AddLuxTable();
 ### 2. Reference Stylesheets in `wwwroot/index.html`
 
 ```html
-<link rel="stylesheet" href="_content/Blux.UI/blux.preflight.css" />
-<link rel="stylesheet" href="_content/Blux.UI/blux.css" />
+<link rel="stylesheet" href="_content/Lux.UI/lux.preflight.css" />
+<link rel="stylesheet" href="_content/Lux.UI/lux.css" />
 ```
 
 ## Native C# .NET MAUI (Without BlazorWebView)

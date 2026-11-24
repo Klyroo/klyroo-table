@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 /// <summary>
 /// Base of the parts of a <see cref="BxDataList{TItem}"/>: takes the cascaded <see cref="DataListContext{TItem}"/> and renders again when it changes.

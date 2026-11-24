@@ -1,8 +1,8 @@
-using Blux.UI.Theming;
+using Lux.UI.Theming;
 
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
-public sealed partial class BluxToolsOptions
+public sealed partial class LuxTableOptions
 {
     /// <summary>The empty state of a data list.</summary>
     public ComponentTheme DataListEmpty { get; } = ToolsThemes.DataListEmpty();
@@ -14,7 +14,7 @@ public sealed partial class BluxToolsOptions
 
     /// <summary>
     /// Milliseconds of quiet after the last keystroke before the search field of a data list searches (300 by default), unless the field sets its own
-    /// <c>Debounce</c>. Enter searches at once. Set it in <c>AddBluxUiTools</c>.
+    /// <c>Debounce</c>. Enter searches at once. Set it in <c>AddLuxTable</c>.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The value is negative.</exception>
     public int SearchDebounce
@@ -33,7 +33,7 @@ public sealed partial class BluxToolsOptions
     /// <summary>
     /// The most bytes (state, loaded state and result with its facets, as JSON) one data list hands from its prerender to the interactive render (16 KB by default). A bigger result is not persisted:
     /// the interactive render loads it again once, and a warning names the list and the size. The limit exists because the client sends everything persisted to the server when a Server circuit starts,
-    /// and SignalR refuses messages past 32 KB. Set it in <c>AddBluxUiTools</c>.
+    /// and SignalR refuses messages past 32 KB. Set it in <c>AddLuxTable</c>.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException">The value is negative.</exception>
     public int PersistMaxBytes

@@ -1,6 +1,6 @@
-using Blux.UI.Theming;
+using Lux.UI.Theming;
 
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 /// <summary>Per-instance class overrides of the slots of the data list parts (<see cref="BxDataList{TItem}"/>, <see cref="BxDataListTable{TItem}"/>, <see cref="BxDataListPagination{TItem}"/>...).</summary>
 public sealed record DataListUi : ISlotOverrides

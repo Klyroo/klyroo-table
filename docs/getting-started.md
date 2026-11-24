@@ -27,9 +27,10 @@ builder.Services.AddLuxTable();
 In `_Imports.razor`:
 
 ```razor
-@using Blux.UI
-@using Blux.UI.Tools
-@using Blux.UI.Tools.Query
+@using Lux.UI
+@using Lux.Table
+@using Lux.Query
+@using Lux.Query
 ```
 
 ## 4. First Example
@@ -37,7 +38,8 @@ In `_Imports.razor`:
 ### Headless C# (`Lux.Table.Core`)
 
 ```csharp
-using Blux.UI.Tools;
+using Lux.Table;
+using Lux.Query;
 
 var tree = new DataListTree<Employee>
 {

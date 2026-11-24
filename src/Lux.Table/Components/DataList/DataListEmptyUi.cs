@@ -1,6 +1,6 @@
-using Blux.UI.Theming;
+using Lux.UI.Theming;
 
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 /// <summary>Per-instance class overrides of <see cref="BxDataListEmpty"/> slots.</summary>
 public sealed record DataListEmptyUi : ISlotOverrides

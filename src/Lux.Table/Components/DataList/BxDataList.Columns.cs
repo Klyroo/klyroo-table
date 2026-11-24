@@ -1,9 +1,9 @@
-using Blux.UI.Tools.Query;
+using Lux.Query;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 // Column preferences: visibility, order, pinning and pixel widths. With a PreferencesKey they live in a cookie (a localStorage entry in a Blazor Hybrid web view), so a static render or a
 // prerender reads them from the request and paints the user's columns at once; an interactive render takes them from the prerender (persistent state) or from the browser.
@@ -32,7 +32,7 @@ public partial class BxDataList<TItem>
     /// <summary>
     /// Name under which column visibility, order, pinning and widths are saved in the grouped cookie <c>blux-dl-cols</c> (scoped to the path base of the app like the other Blux cookies, SameSite=Lax, a year,
     /// capped at 3,000 characters across up to 32 lists with least-recently-updated eviction, and 600 characters per list), or a localStorage entry of the same name in a Blazor Hybrid web view (MAUI),
-    /// where there is no server to read a cookie. Statically rendered and prerendered lists read it from the request when the server calls <c>AddBluxServer()</c> (package <c>Blux.UI.Server</c>), so the first
+    /// where there is no server to read a cookie. Statically rendered and prerendered lists read it from the request when the server calls <c>AddBluxServer()</c> (package <c>Lux.UI.Server</c>), so the first
     /// paint already has the user's columns; an interactive list takes it from the prerender or from the browser. Only letters, digits, <c>_</c> and <c>-</c> are kept (64 characters at most). Without a key
     /// the preferences stay in memory for the life of the component. Never part of the URL.
     /// </summary>

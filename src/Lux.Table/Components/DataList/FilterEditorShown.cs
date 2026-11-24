@@ -1,4 +1,4 @@
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 /// <summary>Whether the part that holds a filter editor shows it now (an open popover, an expanded panel section). A cascading value with two shared instances, so a change is a new reference.</summary>
 internal sealed class FilterEditorShown

@@ -1,9 +1,9 @@
 using System.Globalization;
 using System.Linq.Expressions;
-using Blux.UI.Tools.Query;
+using Lux.Query;
 using Microsoft.AspNetCore.Components;
 
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 /// <summary>
 /// A column of <see cref="BxDataListTable{TItem}"/>. Renders nothing itself: it registers with its list (<see cref="DataListContext{TItem}.Columns"/>).

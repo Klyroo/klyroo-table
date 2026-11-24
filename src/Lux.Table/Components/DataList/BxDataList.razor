@@ -1,4 +1,4 @@
-@namespace Blux.UI.Tools
+@namespace Lux.Table
 @typeparam TItem
 @inherits BxToolsComponentBase
 @implements IDisposable
@@ -6,7 +6,7 @@
 @using System.Linq.Expressions
 @using System.Text.Json
 @using System.Text.Json.Serialization.Metadata
-@using Blux.UI.Tools.Query
+@using Lux.Query
 @using System.Diagnostics.CodeAnalysis
 @using Microsoft.JSInterop
 @using Microsoft.Extensions.Logging
@@ -94,7 +94,7 @@
     /// <summary>
     /// A query of a database provider (an EF Core <c>DbSet</c>, with the filters that are not the user's already applied): the list turns each request into queries with
     /// <see cref="QueryableDataList"/> and runs them through the <see cref="IDataListQueryExecutor"/> of the container. Needs a <see cref="Schema"/>. The default executor
-    /// <b>blocks the thread</b> while the database answers: register an asynchronous one (<c>AddBluxUiToolsEntityFrameworkAdapter()</c> for EF Core). An <c>AsQueryable()</c> over a list is rejected: use <see cref="Items"/>.
+    /// <b>blocks the thread</b> while the database answers: register an asynchronous one (<c>AddLuxTableEntityFrameworkAdapter()</c> for EF Core). An <c>AsQueryable()</c> over a list is rejected: use <see cref="Items"/>.
     /// A DbContext allows one query at a time: give the list a context of its own (a factory) when the page has several.
     /// </summary>
     [Parameter] public IQueryable<TItem>? Queryable { get; set; }
@@ -158,7 +158,7 @@
 
     internal CancellationToken LifetimeToken => _lifetime.Token;
 
-    internal ILogger? Logger => (Services.GetService(typeof(ILoggerFactory)) as ILoggerFactory)?.CreateLogger("Blux.UI.Tools.DataList");
+    internal ILogger? Logger => (Services.GetService(typeof(ILoggerFactory)) as ILoggerFactory)?.CreateLogger("Lux.Table.DataList");
 
     internal DataListSchema<TItem>? CurrentSchema => _schema;
 
@@ -655,8 +655,8 @@
 
     private void Log(ILoggerFactory factory, string key, long bytes)
     {
-        factory.CreateLogger("Blux.UI.Tools.DataList").LogWarning(
-            "The data list '{Key}' did not hand its prerendered result to the interactive render: it is {Bytes} bytes, over the {List}-byte limit of one list or the {Page}-byte budget of the page (BluxToolsOptions.PersistMaxBytes, PersistPageMaxBytes). The interactive render loads it again once. Use a smaller first page, or no ResultJson.",
+        factory.CreateLogger("Lux.Table.DataList").LogWarning(
+            "The data list '{Key}' did not hand its prerendered result to the interactive render: it is {Bytes} bytes, over the {List}-byte limit of one list or the {Page}-byte budget of the page (LuxTableOptions.PersistMaxBytes, PersistPageMaxBytes). The interactive render loads it again once. Use a smaller first page, or no ResultJson.",
             key, bytes, ToolsOptions.PersistMaxBytes, ToolsOptions.PersistPageMaxBytes);
     }
 

@@ -1,10 +1,10 @@
-using Blux.UI.Tools.Query;
+using Lux.Query;
 using Microsoft.AspNetCore.Components;
 
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 // The options of a filter that come from a remote source (DataListFilter.WithRemoteOptions), and the "show more" of a long list of options. The paging, the search, the cancellation of stale requests and the
-// error state are RemoteOptions of Blux.UI, the logic behind BxSelectMenu with an OptionsProvider; this part only adapts the filter's delegates to it and keeps its own state across renders.
+// error state are RemoteOptions of Lux.UI, the logic behind BxSelectMenu with an OptionsProvider; this part only adapts the filter's delegates to it and keeps its own state across renders.
 public partial class BxDataListFilterEditor<TItem>
 {
     // The pause of the typing before a search is sent to the remote source.

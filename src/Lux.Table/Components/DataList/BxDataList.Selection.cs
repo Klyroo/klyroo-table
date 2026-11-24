@@ -1,7 +1,7 @@
-using Blux.UI.Tools.Query;
+using Lux.Query;
 using Microsoft.AspNetCore.Components;
 
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 // Row selection: the ticked rows, which of them survive a new result, and what a bulk action targets. The rules (table.md 2.14) are:
 // a list over a provider or a queryable keeps the ticked rows of the page on screen; a list of rows in memory keeps them across pages while the search and the filters still match them.

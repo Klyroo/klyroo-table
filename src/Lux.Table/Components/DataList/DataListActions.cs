@@ -1,6 +1,6 @@
-using Blux.UI.Tools.Query;
+using Lux.Query;
 
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 /// <summary>Which rows a bulk or toolbar action targets.</summary>
 public enum DataListActionScope
@@ -130,7 +130,7 @@ public sealed class DataListAction<TItem>
     /// <summary>The text of the button.</summary>
     public required string Label { get; init; }
 
-    /// <summary>The name of an icon shown before the label (<c>trash</c>), one of the icons of Blux.UI.</summary>
+    /// <summary>The name of an icon shown before the label (<c>trash</c>), one of the icons of Lux.UI.</summary>
     public string? Icon { get; init; }
 
     /// <summary>The color of the button; <see cref="BxColor.Error"/> for a destructive action.</summary>

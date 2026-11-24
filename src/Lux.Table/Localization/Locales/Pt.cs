@@ -1,4 +1,4 @@
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 public static partial class BxToolsLocales
 {

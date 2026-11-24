@@ -1,4 +1,4 @@
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 /// <summary>What a row action receives when it runs: the row, its key and place, and a way to report a failure without throwing.</summary>
 /// <typeparam name="TItem">The row type.</typeparam>
@@ -76,7 +76,7 @@ public sealed class DataListRowAction<TItem>
     /// <summary>The text of the button or of the menu entry.</summary>
     public required string Label { get; init; }
 
-    /// <summary>The name of an icon shown before the label (<c>copy</c>), one of the icons of Blux.UI.</summary>
+    /// <summary>The name of an icon shown before the label (<c>copy</c>), one of the icons of Lux.UI.</summary>
     public string? Icon { get; init; }
 
     /// <summary>The color; <see cref="BxColor.Error"/> for a destructive action.</summary>

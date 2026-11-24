@@ -41,7 +41,8 @@ builder.Services.AddLuxTable();
 ### Headless Core (`Lux.Table.Core`)
 
 ```csharp
-using Blux.UI.Tools;
+using Lux.Table;
+using Lux.Query;
 
 var tree = new DataListTree<Employee>
 {
@@ -86,8 +87,8 @@ var (roots, allNodes) = tree.BuildTree(employees, schema);
 | `DataListTreeSelectionMode` | `enum` | `Lux.Table.Core` | Which rows of a hierarchical tree table can be selected with checkboxes. |
 | `DataListTreeNode<TItem>` | `class` | `Lux.Table.Core` | One node in the flattened hierarchy produced by `DataListTree{TItem}` over the loaded top-level rows of a data list. The row type. |
 | `DataListTree<TItem>` | `class` | `Lux.Table.Core` | Hierarchical tree configuration for `BxDataListTable{TItem}`. Child rows travel with their parent item (`Children`), expand and collapse with a chevron button (mouse, Enter/Space, or ArrowRight/ArrowLeft) and visual rail connectors, and participate in row selection according to `Selectable`. When a tree is configured on `BxDataListTable{TItem}`, summary rows and visual groups are disabled on the table. The row type. |
-| `BluxToolsOptions` | `class` | `Lux.Table` | Configuration of Blux.UI.Tools: its component themes and its message tables. It is an extension of `BluxOptions` (`Extension{T}`), so its themes freeze with the ones of Blux.UI and the Tailwind class extractor and the docs bundle find them. Configure it with `services.AddBluxUiTools(t =&gt; ...)`, in code shared by the server and the WebAssembly client. Partial: each family of components declares its themes in its own file. |
-| `BxToolsComponentBase` | `class` | `Lux.Table` | Base of the components of Blux.UI.Tools: the theme resolution of `BxComponentBase`, plus the options and the texts of this package. |
+| `LuxTableOptions` | `class` | `Lux.Table` | Configuration of Lux.Table: its component themes and its message tables. It is an extension of `LuxOptions` (`Extension{T}`), so its themes freeze with the ones of Lux.UI and the Tailwind class extractor and the docs bundle find them. Configure it with `services.AddLuxTable(t =&gt; ...)`, in code shared by the server and the WebAssembly client. Partial: each family of components declares its themes in its own file. |
+| `BxToolsComponentBase` | `class` | `Lux.Table` | Base of the components of Lux.Table: the theme resolution of `BxComponentBase`, plus the options and the texts of this package. |
 | `BxDataList<TItem>` | `class` | `Lux.Table` | Public API type |
 | `BxDataList<TItem>` | `class` | `Lux.Table` | Public API type |
 | `BxDataListColumn<TItem>` | `class` | `Lux.Table` | A column of `BxDataListTable{TItem}`. Renders nothing itself: it registers with its list (`Columns`). What a cell shows comes from one of three places: `Template`, `Property` or `Field`. The row type. |

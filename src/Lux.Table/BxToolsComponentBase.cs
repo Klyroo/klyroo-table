@@ -1,15 +1,15 @@
-using Blux.UI.Theming;
+using Lux.UI.Theming;
 
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 /// <summary>
-/// Base of the components of Blux.UI.Tools: the theme resolution of <see cref="BxComponentBase"/>, plus the options and the texts of this package.
+/// Base of the components of Lux.Table: the theme resolution of <see cref="BxComponentBase"/>, plus the options and the texts of this package.
 /// </summary>
 public abstract class BxToolsComponentBase : BxComponentBase
 {
-    /// <summary>The options of Blux.UI.Tools: its themes and message overrides.</summary>
-    protected BluxToolsOptions ToolsOptions => Options.Extension<BluxToolsOptions>();
+    /// <summary>The options of Lux.Table: its themes and message overrides.</summary>
+    protected LuxTableOptions ToolsOptions => Options.Extension<LuxTableOptions>();
 
-    /// <summary>The texts of the locale of this component (the same locale as <c>Messages</c> of Blux.UI), with the changes of <see cref="BluxToolsOptions.Messages"/> applied.</summary>
+    /// <summary>The texts of the locale of this component (the same locale as <c>Messages</c> of Lux.UI), with the changes of <see cref="LuxTableOptions.Messages"/> applied.</summary>
     protected BxToolsMessages ToolsMessages => ToolsOptions.ResolveMessages(CurrentLocale.Code);
 }

@@ -1,8 +1,8 @@
-using Blux.UI.Theming;
+using Lux.UI.Theming;
 
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
-/// <summary>Default themes of Blux.UI.Tools. Every class is a literal, so the class extractor and Tailwind see it.</summary>
+/// <summary>Default themes of Lux.Table. Every class is a literal, so the class extractor and Tailwind see it.</summary>
 internal static partial class ToolsThemes
 {
     public static ComponentTheme DataListEmpty() =>
@@ -13,7 +13,7 @@ internal static partial class ToolsThemes
             .Slot("description", "max-w-sm text-sm text-(--blux-text-muted)")
             .Slot("actions", "mt-2 flex flex-wrap items-center justify-center gap-2");
 
-    /// <summary>The look of the table follows the one of <c>BxTable</c> in Blux.UI; the padding of the cells comes from the density variant.</summary>
+    /// <summary>The look of the table follows the one of <c>BxTable</c> in Lux.UI; the padding of the cells comes from the density variant.</summary>
     public static ComponentTheme DataList() =>
         new ComponentTheme("dataList",
                 "root", "toolbar", "search", "searchField", "searchInput", "searchClear", "searchClearIcon", "searchSubmit", "resultCount", "refresh", "refreshIcon", "refreshIconBusy",

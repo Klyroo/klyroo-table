@@ -1,6 +1,6 @@
-using Blux.UI.Tools.Query;
+using Lux.Query;
 
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 /// <summary>
 /// The changes the editors of a filter panel in the Submit apply mode have staged: each editor still builds its rule the way it does inside a popover (same operators, presets and parsing),

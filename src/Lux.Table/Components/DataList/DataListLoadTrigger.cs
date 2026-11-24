@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 /// <summary>
 /// Starts the first load of a list that has no schema yet. The table places it after its columns: they register while they render, so by the time it

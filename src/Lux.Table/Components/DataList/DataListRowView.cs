@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 /// <summary>
 /// A row of the table. It renders its cells again only when its row, or the <c>Revision</c> the table gives it, changes: the table renders for every flag of the

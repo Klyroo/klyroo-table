@@ -1,7 +1,7 @@
-@namespace Blux.UI.Tools
+@namespace Lux.Table
 @typeparam TItem
 @inherits DataListPartBase<TItem>
-@using Blux.UI.Tools.Query
+@using Lux.Query
 @using Microsoft.JSInterop
 
 @*
@@ -64,7 +64,7 @@ else
     [Parameter] public string? AriaLabel { get; set; }
 
     /// <summary>
-    /// Milliseconds of quiet after the last keystroke before the list searches. Without it, <c>SearchDebounce</c> of <see cref="BluxToolsOptions"/> (300). Enter searches at once.
+    /// Milliseconds of quiet after the last keystroke before the list searches. Without it, <c>SearchDebounce</c> of <see cref="LuxTableOptions"/> (300). Enter searches at once.
     /// Statically rendered, nothing is searched before Enter or the search button.
     /// </summary>
     [Parameter] public int? Debounce { get; set; }
@@ -106,7 +106,7 @@ else
         return trimmed.Length >= MinLength ? trimmed : "";
     }
 
-    // A statically rendered field has nothing to report to: without a callback the script of Blux.UI does not guard its value, so an enhanced navigation (Back) can write the text of the address into it.
+    // A statically rendered field has nothing to report to: without a callback the script of Lux.UI does not guard its value, so an enhanced navigation (Back) can write the text of the address into it.
     private EventCallback<string?> TextChanged => EventCallback.Factory.Create<string?>(this, OnTextAsync);
 
     private RenderFragment Field(bool form) => @<BxInput @ref="_input" Id="@_id" Name="@(form ? Context.FieldName("q") : null)" Type="search" Value="@(form ? Context.State.Search : _text)"

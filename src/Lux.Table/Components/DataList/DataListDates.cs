@@ -1,7 +1,7 @@
 using System.Globalization;
-using Blux.UI.Tools.Query;
+using Lux.Query;
 
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 /// <summary>The presets of a date filter editor.</summary>
 internal enum DatePreset

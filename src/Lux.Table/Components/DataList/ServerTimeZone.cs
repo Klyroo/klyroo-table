@@ -1,11 +1,11 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 /// <summary>
 /// The time zone the browser told the server in its cookie (<c>blux-timezone</c>, see <c>js/time-zone-cookie.js</c>), for the renders that have a request and no browser: a static render and a
-/// prerender. The request is reached only through <see cref="IBxRequestCookies"/> of Blux.UI, which the package <c>Blux.UI.Server</c> implements (<c>AddBluxServer()</c>); in WebAssembly and
+/// prerender. The request is reached only through <see cref="IBxRequestCookies"/> of Lux.UI, which the package <c>Lux.UI.Server</c> implements (<c>AddBluxServer()</c>); in WebAssembly and
 /// MAUI nothing implements it and the zone is unknown.
 /// </summary>
 internal static class ServerTimeZone
@@ -46,8 +46,8 @@ internal sealed class MissingServerWarning(Func<string?> environment)
     {
         if (!string.Equals(environment(), "Development", StringComparison.OrdinalIgnoreCase)) return;
         if (Interlocked.Exchange(ref _warned, 1) != 0) return;
-        services.GetService<ILoggerFactory>()?.CreateLogger("Blux.UI.Tools.DataList").LogWarning(
-            "A data list rendered on the server (static rendering or prerendering) without access to the request, so it cuts the days of its date filters in UTC until the browser is interactive. Call services.AddBluxServer() from the package Blux.UI.Server in the server Program.cs to use the time zone cookie of the browser.");
+        services.GetService<ILoggerFactory>()?.CreateLogger("Lux.Table.DataList").LogWarning(
+            "A data list rendered on the server (static rendering or prerendering) without access to the request, so it cuts the days of its date filters in UTC until the browser is interactive. Call services.AddBluxServer() from the package Lux.UI.Server in the server Program.cs to use the time zone cookie of the browser.");
     }
 
     /// <summary>The same warning for a list with a <c>PreferencesKey</c>: its static render and its prerender cannot read the column cookie and paint the default columns.</summary>
@@ -55,7 +55,7 @@ internal sealed class MissingServerWarning(Func<string?> environment)
     {
         if (!string.Equals(environment(), "Development", StringComparison.OrdinalIgnoreCase)) return;
         if (Interlocked.Exchange(ref _warnedColumns, 1) != 0) return;
-        services.GetService<ILoggerFactory>()?.CreateLogger("Blux.UI.Tools.DataList").LogWarning(
-            "A data list with a PreferencesKey rendered on the server (static rendering or prerendering) without access to the request, so it paints its default columns until the browser is interactive. Call services.AddBluxServer() from the package Blux.UI.Server in the server Program.cs to read the column cookie on the first paint.");
+        services.GetService<ILoggerFactory>()?.CreateLogger("Lux.Table.DataList").LogWarning(
+            "A data list with a PreferencesKey rendered on the server (static rendering or prerendering) without access to the request, so it paints its default columns until the browser is interactive. Call services.AddBluxServer() from the package Lux.UI.Server in the server Program.cs to read the column cookie on the first paint.");
     }
 }

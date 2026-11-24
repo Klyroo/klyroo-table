@@ -1,4 +1,4 @@
-@namespace Blux.UI.Tools
+@namespace Lux.Table
 @inherits BxToolsComponentBase
 
 <div class="@_slots["root"]" data-slot="root" @attributes="AdditionalAttributes">
@@ -29,7 +29,7 @@
     /// <summary>The text under the title. Without it, the localized hint to change the search or the filters; an empty string shows none.</summary>
     [Parameter] public string? Description { get; set; }
 
-    /// <summary>The icon above the title, by name (any icon name Blux.UI accepts). Defaults to <c>search-x</c>; an empty string shows none.</summary>
+    /// <summary>The icon above the title, by name (any icon name Lux.UI accepts). Defaults to <c>search-x</c>; an empty string shows none.</summary>
     [Parameter] public string? Icon { get; set; }
 
     /// <summary>Extra content between the description and the actions.</summary>

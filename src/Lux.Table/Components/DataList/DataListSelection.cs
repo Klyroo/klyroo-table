@@ -1,4 +1,4 @@
-namespace Blux.UI.Tools;
+namespace Lux.Table;
 
 /// <summary>
 /// The rows ticked in a data list, by row key. The rows themselves are kept too (a bulk action wants them, and a row ticked on another page is no longer in the list's rows); a key the

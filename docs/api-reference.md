@@ -11,7 +11,7 @@ Complete public API reference extracted directly from the source code of `Lux.Ta
 | :--- | :--- | :--- |
 | `Schema` | `DataListSchema<TItem>?` | What a request may ask for: which fields sort, which filter, the default sort and page size. The schema is fixed for the life of the list: a new instance given after the first render is ignored (build it once, in a static field or a cached service; an inline `DataListSchema.For&lt;T&gt;(...)` in markup would create a new one on every render), and giving another schema means re-keying the list with `@@key`. Optional for a list of rows in memory whose `BxDataListColumn{TItem}`s name a `Property`: those columns then describe the schema (every one sortable unless it says otherwise). A provider or a queryable needs a schema, because it is the schema that drops what a request must not ask for. |
 | `Items` | `IEnumerable<TItem>?` | The rows, kept in memory: the list sorts and pages them itself, with the semantics of `InMemoryDataList`. Give a stable collection (a field, not a new list on every render): a new reference loads the list again. A list takes one source: `Items`, `Queryable` or `Provider`. |
-| `Queryable` | `IQueryable<TItem>?` | A query of a database provider (an EF Core `DbSet`, with the filters that are not the user's already applied): the list turns each request into queries with `QueryableDataList` and runs them through the `IDataListQueryExecutor` of the container. Needs a `Schema`. The default executor blocks the thread while the database answers: register an asynchronous one (`AddBluxUiToolsEntityFrameworkAdapter()` for EF Core). An `AsQueryable()` over a list is rejected: use `Items`. A DbContext allows one query at a time: give the list a context of its own (a factory) when the page has several. |
+| `Queryable` | `IQueryable<TItem>?` | A query of a database provider (an EF Core `DbSet`, with the filters that are not the user's already applied): the list turns each request into queries with `QueryableDataList` and runs them through the `IDataListQueryExecutor` of the container. Needs a `Schema`. The default executor blocks the thread while the database answers: register an asynchronous one (`AddLuxTableEntityFrameworkAdapter()` for EF Core). An `AsQueryable()` over a list is rejected: use `Items`. A DbContext allows one query at a time: give the list a context of its own (a factory) when the page has several. |
 | `Provider` | `DataListProvider<TItem>?` | Loads a page of rows for a request, from a database, an HTTP API or anything else. It receives a token that is cancelled when a newer request replaces it. |
 | `State` | `DataListState?` | The search, filters, sort, page and page size. Bind it with `@bind-State` to read or set it from outside: a value you set (a reset button) is written to the URL (a history entry) with `UrlSync`, or loaded directly without it. With `UrlSync` the URL wins at the start: this value only starts the list when the URL holds none of its keys. |
 | `StateChanged` | `EventCallback<DataListState>` | Raised when the state changes, from the list or, with URL sync, from the URL (a link, Back and Forward, a typed address). |
@@ -68,7 +68,7 @@ Complete public API reference extracted directly from the source code of `Lux.Ta
 | :--- | :--- | :--- |
 | `Title` | `string?` | The title. Without it, the localized "No results". |
 | `Description` | `string?` | The text under the title. Without it, the localized hint to change the search or the filters; an empty string shows none. |
-| `Icon` | `string?` | The icon above the title, by name (any icon name Blux.UI accepts). Defaults to `search-x`; an empty string shows none. |
+| `Icon` | `string?` | The icon above the title, by name (any icon name Lux.UI accepts). Defaults to `search-x`; an empty string shows none. |
 | `ChildContent` | `RenderFragment?` | Extra content between the description and the actions. |
 | `Actions` | `RenderFragment?` | Buttons or links shown under the text, for example one that clears the filters. |
 | `Ui` | `DataListEmptyUi?` | Per-instance classes for each slot. |
@@ -204,7 +204,7 @@ _No public `[Parameter]` properties._
 | :--- | :--- | :--- |
 | `Placeholder` | `string?` | The placeholder of the field. Without it, the localized "Search…". |
 | `AriaLabel` | `string?` | The accessible name of the field and of its search landmark. Without it, "Search &lt;label of the list&gt;" for a list with a label, else the localized "Search". |
-| `Debounce` | `int?` | Milliseconds of quiet after the last keystroke before the list searches. Without it, `SearchDebounce` of `BluxToolsOptions` (300). Enter searches at once. Statically rendered, nothing is searched before Enter or the search button. |
+| `Debounce` | `int?` | Milliseconds of quiet after the last keystroke before the list searches. Without it, `SearchDebounce` of `LuxTableOptions` (300). Enter searches at once. Statically rendered, nothing is searched before Enter or the search button. |
 | `MinLength` | `int` | The fewest characters (once the spaces around the text are trimmed) a search must have: a shorter text searches nothing, so the rows come back as if the field were empty. Zero by default. Statically rendered, the browser refuses to submit a shorter text. |
 | `Size` | `BxSize?` | The size of the field. Defaults to medium. |
 
@@ -331,19 +331,19 @@ Hierarchical tree configuration for `BxDataListTable{TItem}`. Child rows travel 
         IReadOnlyList<TItem> rootItems,
         DataListSchema<TItem>? schema = null)` | `(IReadOnlyList<DataListTreeNode<TItem>> Roots, IReadOnlyList<DataListTreeNode<TItem>> AllNodes)` | — |
 
-### `class BluxToolsOptions`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/BluxToolsOptions.cs`
+### `class LuxTableOptions`
+*Package*: `Lux.Table` · *Source*: `src/Lux.Table/LuxTableOptions.cs`
 
-Configuration of Blux.UI.Tools: its component themes and its message tables. It is an extension of `BluxOptions` (`Extension{T}`), so its themes freeze with the ones of Blux.UI and the Tailwind class extractor and the docs bundle find them. Configure it with `services.AddBluxUiTools(t =&gt; ...)`, in code shared by the server and the WebAssembly client. Partial: each family of components declares its themes in its own file.
+Configuration of Lux.Table: its component themes and its message tables. It is an extension of `LuxOptions` (`Extension{T}`), so its themes freeze with the ones of Lux.UI and the Tailwind class extractor and the docs bundle find them. Configure it with `services.AddLuxTable(t =&gt; ...)`, in code shared by the server and the WebAssembly client. Partial: each family of components declares its themes in its own file.
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
-| `Messages(string localeCode, Func<BxToolsMessages, BxToolsMessages> change)` | `BluxToolsOptions` | Changes the texts of a locale, like `Extend` does for Blux.UI: `change` receives the table the locale resolves to and returns the one to use, usually `m =&gt; m with { ... }`. `localeCode` is a code of `All` ("fr"), or the code of a locale you added ("en-AU", "tlh"): a locale without a table of its own starts from the table `ResolveCode` picks for it, then its changes apply. Like the themes, the messages become read-only the first time a component resolves a text. A component has already resolved a text. |
+| `Messages(string localeCode, Func<BxToolsMessages, BxToolsMessages> change)` | `LuxTableOptions` | Changes the texts of a locale, like `Extend` does for Lux.UI: `change` receives the table the locale resolves to and returns the one to use, usually `m =&gt; m with { ... }`. `localeCode` is a code of `All` ("fr"), or the code of a locale you added ("en-AU", "tlh"): a locale without a table of its own starts from the table `ResolveCode` picks for it, then its changes apply. Like the themes, the messages become read-only the first time a component resolves a text. A component has already resolved a text. |
 
 ### `class BxToolsComponentBase`
 *Package*: `Lux.Table` · *Source*: `src/Lux.Table/BxToolsComponentBase.cs`
 
-Base of the components of Blux.UI.Tools: the theme resolution of `BxComponentBase`, plus the options and the texts of this package.
+Base of the components of Lux.Table: the theme resolution of `BxComponentBase`, plus the options and the texts of this package.
 
 ### `class BxDataList<TItem>`
 *Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/BxDataList.Columns.cs`
@@ -462,7 +462,7 @@ An action of a data list: a button of the `BxDataListSelectionActions{TItem}` ba
 | :--- | :--- | :--- |
 | `Key` | `string` | Identifies the action: tests and the menu use it. |
 | `Label` | `string` | The text of the button. |
-| `Icon` | `string?` | The name of an icon shown before the label (`trash`), one of the icons of Blux.UI. |
+| `Icon` | `string?` | The name of an icon shown before the label (`trash`), one of the icons of Lux.UI. |
 | `Color` | `BxColor` | The color of the button; `Error` for a destructive action. |
 | `Variant` | `ButtonVariant` | The variant of the button in the selection bar. |
 | `Visible` | `Func<DataListActionContext<TItem>, bool>?` | Hides the action when it returns `false` (an action that does not apply to the selected rows). It runs on every render: keep it cheap. |
@@ -845,7 +845,7 @@ An action on one row of a data list (`BxDataListRowActions{TItem}`): a button of
 | :--- | :--- | :--- |
 | `Key` | `string` | Identifies the action; unique among the actions of the part, children included. |
 | `Label` | `string` | The text of the button or of the menu entry. |
-| `Icon` | `string?` | The name of an icon shown before the label (`copy`), one of the icons of Blux.UI. |
+| `Icon` | `string?` | The name of an icon shown before the label (`copy`), one of the icons of Lux.UI. |
 | `Color` | `BxColor` | The color; `Error` for a destructive action. |
 | `Group` | `string?` | The group the action belongs to. Groups are shown in the order of their first visible action, with a divider between them; actions without a group form one of their own. |
 | `Children` | `IReadOnlyList<DataListRowAction<TItem>>?` | The entries of a submenu. An action with children opens them instead of running, and only shows when one of them does. It always sits in the menu, never in a button of the row. |
@@ -981,7 +981,7 @@ Runs the queries a data list builds for a `Queryable` source (`Apply{T}`): the c
 ### `class SynchronousDataListQueryExecutor`
 *Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/IDataListQueryExecutor.cs`
 
-The default executor: `Count()` and `ToList()`, on the thread that asks. It blocks that thread while the database answers: in Blazor Server that is the thread of the circuit, in WebAssembly the only thread of the page. Use it for tests, small local databases and providers with no asynchronous API; register an asynchronous executor for a real database (`AddBluxUiToolsEntityFrameworkAdapter()` of Blux.UI.Tools.EntityFrameworkCore for EF Core). The cancellation token is checked before each query, not during it.
+The default executor: `Count()` and `ToList()`, on the thread that asks. It blocks that thread while the database answers: in Blazor Server that is the thread of the circuit, in WebAssembly the only thread of the page. Use it for tests, small local databases and providers with no asynchronous API; register an asynchronous executor for a real database (`AddLuxTableEntityFrameworkAdapter()` of Lux.Table.EntityFrameworkCore for EF Core). The cancellation token is checked before each query, not during it.
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
@@ -1010,7 +1010,7 @@ Compact summary-row presentation for `BxDataListTable{TItem}`: one scannable row
 ### `class BxToolsLocales`
 *Package*: `Lux.Table` · *Source*: `src/Lux.Table/Localization/BxToolsLocales.cs`
 
-The message tables of Blux.UI.Tools, one per locale of `All` and keyed by the same codes. A component picks the table of the current `Code` with `ResolveCode`, so "pt-PT" gets "pt" and an unknown language gets English. Change a table with `Messages`.
+The message tables of Lux.Table, one per locale of `All` and keyed by the same codes. A component picks the table of the current `Code` with `ResolveCode`, so "pt-PT" gets "pt" and an unknown language gets English. Change a table with `Messages`.
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
@@ -1133,7 +1133,7 @@ The message tables of Blux.UI.Tools, one per locale of `All` and keyed by the sa
 ### `record BxToolsMessages`
 *Package*: `Lux.Table` · *Source*: `src/Lux.Table/Localization/BxToolsMessages.cs`
 
-Every text the components of Blux.UI.Tools render: accessible names, labels, hints. One set per locale of Blux.UI (`BxToolsLocales`); build a variant with a `with` expression and register it with `Messages`. Partial: each family of components declares its messages in its own file. A message with placeholders ({0}, {1}) is formatted by the component with `Format(string, object?[])`; keep the same placeholders when you translate it.
+Every text the components of Lux.Table render: accessible names, labels, hints. One set per locale of Lux.UI (`BxToolsLocales`); build a variant with a `with` expression and register it with `Messages`. Partial: each family of components declares its messages in its own file. A message with placeholders ({0}, {1}) is formatted by the component with `Format(string, object?[])`; keep the same placeholders when you translate it.
 
 ### `class BxToolsLocales`
 *Package*: `Lux.Table` · *Source*: `src/Lux.Table/Localization/Locales/Ar.cs`
@@ -1224,15 +1224,15 @@ Every text the components of Blux.UI.Tools render: accessible names, labels, hin
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
-| `AddLuxTable(this IServiceCollection services, Action<BluxToolsOptions>? configure = null)` | `IServiceCollection` | — |
+| `AddLuxTable(this IServiceCollection services, Action<LuxTableOptions>? configure = null)` | `IServiceCollection` | — |
 
-### `class BluxToolsOptions`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Theming/BluxToolsOptions.DataList.cs`
+### `class LuxTableOptions`
+*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Theming/LuxTableOptions.DataList.cs`
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
 | `DataListEmpty` | `ComponentTheme` | The empty state of a data list. |
 | `DataList` | `ComponentTheme` | The data list and its parts: toolbar, result count, refresh button, table, pagination and error state. One theme for all of them, so a look is changed in one place. |
-| `SearchDebounce` | `int` | Milliseconds of quiet after the last keystroke before the search field of a data list searches (300 by default), unless the field sets its own `Debounce`. Enter searches at once. Set it in `AddBluxUiTools`. The value is negative. |
-| `PersistMaxBytes` | `int` | The most bytes (state, loaded state and result with its facets, as JSON) one data list hands from its prerender to the interactive render (16 KB by default). A bigger result is not persisted: the interactive render loads it again once, and a warning names the list and the size. The limit exists because the client sends everything persisted to the server when a Server circuit starts, and SignalR refuses messages past 32 KB. Set it in `AddBluxUiTools`. The value is negative. |
+| `SearchDebounce` | `int` | Milliseconds of quiet after the last keystroke before the search field of a data list searches (300 by default), unless the field sets its own `Debounce`. Enter searches at once. Set it in `AddLuxTable`. The value is negative. |
+| `PersistMaxBytes` | `int` | The most bytes (state, loaded state and result with its facets, as JSON) one data list hands from its prerender to the interactive render (16 KB by default). A bigger result is not persisted: the interactive render loads it again once, and a warning names the list and the size. The limit exists because the client sends everything persisted to the server when a Server circuit starts, and SignalR refuses messages past 32 KB. Set it in `AddLuxTable`. The value is negative. |
 | `PersistPageMaxBytes` | `int` | The most bytes all the data lists of one prerendered page hand over together (8 KB by default: what the browser sends is about 3.5 times bigger once escaped, encrypted and encoded, next to the rest of the page state, and SignalR refuses 32 KB): lists past it, in the order they persist, are not persisted. The value is negative. |
