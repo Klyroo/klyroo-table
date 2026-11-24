@@ -77,7 +77,7 @@
                                             {
                                                 @* The grip is a pointer shortcut (js/column-panel-drag.js); the two buttons next to it do the same for the keyboard and for assistive technology. *@
                                                 <span class="@_slots["columnsGrip"]" aria-hidden="true" data-col-grip="@key"
-                                                      @onbxchange="@(e => OnGripDrop(key, e))" @onbxchange:stopPropagation="true">@RenderIcon("grip-vertical", "size-4")</span>
+                                                      @onlxchange="@(e => OnGripDrop(key, e))" @onlxchange:stopPropagation="true">@RenderIcon("grip-vertical", "size-4")</span>
                                                 <button type="button" class="@_slots["columnsIconBtn"]" disabled="@(pos <= 0)"
                                                         aria-label="@string.Format(FormatCulture, ToolsMessages.ColumnMoveUp, col.Title)"
                                                         data-col-up="@key" @onclick="@(() => Run(() => Context.MoveColumn(key, -1), Sel("col-up", key), Sel("col-down", key)))">

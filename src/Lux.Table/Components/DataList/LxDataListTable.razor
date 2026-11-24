@@ -167,7 +167,7 @@
                                              aria-valuetext="@((col.Width ?? col.DeclaredWidth) is { } known ? string.Format(FormatCulture, ToolsMessages.ColumnWidthPixels, known) : null)"
                                              class="@_slots["colResize"]" data-slot="col-resize" data-col-key="@col.Key" data-min-width="@col.MinWidth" data-max-width="@col.MaxWidth"
                                              data-default-width="@col.DeclaredWidth" data-value-text="@ToolsMessages.ColumnWidthPixels"
-                                             @onbxchange="@(e => OnResizeReported(col, e))" @onbxchange:stopPropagation="true"></div>
+                                             @onlxchange="@(e => OnResizeReported(col, e))" @onlxchange:stopPropagation="true"></div>
                                     }
                                 </th>
                             }
