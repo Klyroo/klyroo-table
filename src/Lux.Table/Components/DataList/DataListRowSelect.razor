@@ -1,10 +1,10 @@
 @namespace Lux.Table
 @typeparam TItem
-@inherits BxToolsComponentBase
+@inherits LxToolsComponentBase
 @implements IDisposable
 
 @* The box of a row. It listens to the selection only, not to every change of the list: a table of hundreds of rows must not render all of them when one box is ticked. *@
-<BxCheckbox Value="_selected" ValueChanged="OnChange" Disabled="Context.SelectionDisabled" Size="BxSize.Sm"
+<LxCheckbox Value="_selected" ValueChanged="OnChange" Disabled="Context.SelectionDisabled" Size="LxSize.Sm"
             aria-label="@_label" data-select="row" data-key="@_key" @onclick="OnClick" />
 
 @code {

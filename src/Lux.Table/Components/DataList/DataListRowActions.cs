@@ -59,12 +59,12 @@ public sealed class DataListRowActionConfirm<TItem>
     /// <summary>The label of the confirm button. Without it the localized "Confirm".</summary>
     public string? ConfirmLabel { get; init; }
 
-    /// <summary>The color of the confirm button; <see cref="BxColor.Error"/> for a destructive action. Without it the color of the action.</summary>
-    public BxColor? Color { get; init; }
+    /// <summary>The color of the confirm button; <see cref="LxColor.Error"/> for a destructive action. Without it the color of the action.</summary>
+    public LxColor? Color { get; init; }
 }
 
 /// <summary>
-/// An action on one row of a data list (<see cref="BxDataListRowActions{TItem}"/>): a button of the row, an entry of its menu or of its sheet on a phone. Actions with the same
+/// An action on one row of a data list (<see cref="LxDataListRowActions{TItem}"/>): a button of the row, an entry of its menu or of its sheet on a phone. Actions with the same
 /// <see cref="Group"/> are kept together, separated from the others by a divider; an action with <see cref="Children"/> opens a submenu.
 /// </summary>
 /// <typeparam name="TItem">The row type.</typeparam>
@@ -79,8 +79,8 @@ public sealed class DataListRowAction<TItem>
     /// <summary>The name of an icon shown before the label (<c>copy</c>), one of the icons of Lux.UI.</summary>
     public string? Icon { get; init; }
 
-    /// <summary>The color; <see cref="BxColor.Error"/> for a destructive action.</summary>
-    public BxColor Color { get; init; } = BxColor.Neutral;
+    /// <summary>The color; <see cref="LxColor.Error"/> for a destructive action.</summary>
+    public LxColor Color { get; init; } = LxColor.Neutral;
 
     /// <summary>The group the action belongs to. Groups are shown in the order of their first visible action, with a divider between them; actions without a group form one of their own.</summary>
     public string? Group { get; init; }

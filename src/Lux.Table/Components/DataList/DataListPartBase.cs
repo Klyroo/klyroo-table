@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Components;
 namespace Lux.Table;
 
 /// <summary>
-/// Base of the parts of a <see cref="BxDataList{TItem}"/>: takes the cascaded <see cref="DataListContext{TItem}"/> and renders again when it changes.
+/// Base of the parts of a <see cref="LxDataList{TItem}"/>: takes the cascaded <see cref="DataListContext{TItem}"/> and renders again when it changes.
 /// Derive from it to write a part of your own.
 /// </summary>
 /// <typeparam name="TItem">The row type.</typeparam>
-public abstract class DataListPartBase<TItem> : BxToolsComponentBase, IDisposable
+public abstract class DataListPartBase<TItem> : LxToolsComponentBase, IDisposable
 {
     private DataListContext<TItem>? _subscribed;
 
@@ -21,7 +21,7 @@ public abstract class DataListPartBase<TItem> : BxToolsComponentBase, IDisposabl
     {
         if (Context is null)
         {
-            throw new InvalidOperationException($"{GetType().Name} must be placed inside a {nameof(BxDataList<TItem>)}.");
+            throw new InvalidOperationException($"{GetType().Name} must be placed inside a {nameof(LxDataList<TItem>)}.");
         }
         _subscribed = Context;
         Context.Changed += OnContextChanged;

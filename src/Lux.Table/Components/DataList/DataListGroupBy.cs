@@ -56,9 +56,9 @@ public sealed class DataListGroup<TItem>
 }
 
 /// <summary>
-/// Visual grouping configuration for <see cref="BxDataListTable{TItem}"/> and <see cref="BxDataListGrid{TItem}"/>.
+/// Visual grouping configuration for <see cref="LxDataListTable{TItem}"/> and <see cref="LxDataListGrid{TItem}"/>.
 /// Groups are visual only: filtering, sorting, pagination and actions continue to operate on the flat rows, while rows on screen
-/// are partitioned under collapsible <see cref="BxDataListGroupHeader{TItem}"/> headers with optional per-group selection checkboxes.
+/// are partitioned under collapsible <see cref="LxDataListGroupHeader{TItem}"/> headers with optional per-group selection checkboxes.
 /// </summary>
 /// <typeparam name="TItem">The row type.</typeparam>
 public sealed class DataListGroupBy<TItem>
@@ -82,12 +82,12 @@ public sealed class DataListGroupBy<TItem>
     public IReadOnlyList<object?>? Order { get; init; }
 
     /// <summary>
-    /// Formats the heading label of a group. When <see langword="null"/>, formats <see cref="DataListGroup{TItem}.Value"/> or uses the localized "Other" label (<see cref="BxToolsMessages.GroupEmpty"/>) for empty values.
+    /// Formats the heading label of a group. When <see langword="null"/>, formats <see cref="DataListGroup{TItem}.Value"/> or uses the localized "Other" label (<see cref="LxToolsMessages.GroupEmpty"/>) for empty values.
     /// </summary>
     public Func<DataListGroup<TItem>, string?>? Label { get; init; }
 
     /// <summary>
-    /// Custom template for the group heading label inside <see cref="BxDataListGroupHeader{TItem}"/>.
+    /// Custom template for the group heading label inside <see cref="LxDataListGroupHeader{TItem}"/>.
     /// </summary>
     public RenderFragment<DataListGroup<TItem>>? LabelTemplate { get; init; }
 
@@ -97,7 +97,7 @@ public sealed class DataListGroupBy<TItem>
     public Func<DataListGroup<TItem>, string?>? Summary { get; init; }
 
     /// <summary>
-    /// Custom template for the summary badge shown beside the group label inside <see cref="BxDataListGroupHeader{TItem}"/>.
+    /// Custom template for the summary badge shown beside the group label inside <see cref="LxDataListGroupHeader{TItem}"/>.
     /// </summary>
     public RenderFragment<DataListGroup<TItem>>? SummaryTemplate { get; init; }
 
@@ -114,7 +114,7 @@ public sealed class DataListGroupBy<TItem>
     internal IReadOnlyList<DataListGroup<TItem>> BuildGroups(
         IReadOnlyList<TItem> rows,
         DataListSchema<TItem>? schema,
-        BxToolsMessages messages,
+        LxToolsMessages messages,
         CultureInfo culture)
     {
         if (rows.Count == 0) return [];

@@ -113,12 +113,12 @@ public sealed class DataListActionConfirm<TItem>
     /// <summary>The label of the confirm button. Without it the localized "Confirm".</summary>
     public string? ConfirmLabel { get; init; }
 
-    /// <summary>The color of the confirm button; <see cref="BxColor.Error"/> for a destructive action. Without it the color of the action.</summary>
-    public BxColor? Color { get; init; }
+    /// <summary>The color of the confirm button; <see cref="LxColor.Error"/> for a destructive action. Without it the color of the action.</summary>
+    public LxColor? Color { get; init; }
 }
 
 /// <summary>
-/// An action of a data list: a button of the <see cref="BxDataListSelectionActions{TItem}"/> bar (it acts on the selection) or an entry of the <see cref="BxDataListActionsDropdown{TItem}"/> menu.
+/// An action of a data list: a button of the <see cref="LxDataListSelectionActions{TItem}"/> bar (it acts on the selection) or an entry of the <see cref="LxDataListActionsDropdown{TItem}"/> menu.
 /// While it runs its button shows a spinner and the action cannot start twice.
 /// </summary>
 /// <typeparam name="TItem">The row type.</typeparam>
@@ -133,8 +133,8 @@ public sealed class DataListAction<TItem>
     /// <summary>The name of an icon shown before the label (<c>trash</c>), one of the icons of Lux.UI.</summary>
     public string? Icon { get; init; }
 
-    /// <summary>The color of the button; <see cref="BxColor.Error"/> for a destructive action.</summary>
-    public BxColor Color { get; init; } = BxColor.Neutral;
+    /// <summary>The color of the button; <see cref="LxColor.Error"/> for a destructive action.</summary>
+    public LxColor Color { get; init; } = LxColor.Neutral;
 
     /// <summary>The variant of the button in the selection bar.</summary>
     public ButtonVariant Variant { get; init; } = ButtonVariant.Soft;

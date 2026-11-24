@@ -3,7 +3,7 @@ using Lux.Query;
 
 namespace Lux.Table;
 
-/// <summary>Built-in column aggregation kinds for the summary footer (<c>&lt;tfoot&gt;</c>) of <see cref="BxDataListTable{TItem}"/>.</summary>
+/// <summary>Built-in column aggregation kinds for the summary footer (<c>&lt;tfoot&gt;</c>) of <see cref="LxDataListTable{TItem}"/>.</summary>
 public enum DataListSummaryKind
 {
     /// <summary>No summary value in this column.</summary>
@@ -38,7 +38,7 @@ public enum DataListSummaryScope
     Selection,
 }
 
-/// <summary>Context passed to <see cref="BxDataListColumn{TItem}.SummaryTemplate"/> when rendering a summary footer cell.</summary>
+/// <summary>Context passed to <see cref="LxDataListColumn{TItem}.SummaryTemplate"/> when rendering a summary footer cell.</summary>
 /// <typeparam name="TItem">The row type.</typeparam>
 public sealed record DataListSummaryCellContext<TItem>(
     DataListContext<TItem> List,
@@ -59,10 +59,10 @@ public sealed record DataListSummaryResolveContext<TItem>(
     CancellationToken CancellationToken);
 
 /// <summary>
-/// Footer summary configuration (<c>&lt;tfoot&gt;</c>) for <see cref="BxDataListTable{TItem}"/>.
-/// When omitted on <see cref="BxDataListTable{TItem}"/>, a single summary row with <see cref="DataListSummaryScope.Filtered"/>
-/// is still rendered automatically whenever at least one <see cref="BxDataListColumn{TItem}"/> sets <see cref="BxDataListColumn{TItem}.Summary"/>,
-/// <see cref="BxDataListColumn{TItem}.SummaryValue"/> or <see cref="BxDataListColumn{TItem}.SummaryTemplate"/>.
+/// Footer summary configuration (<c>&lt;tfoot&gt;</c>) for <see cref="LxDataListTable{TItem}"/>.
+/// When omitted on <see cref="LxDataListTable{TItem}"/>, a single summary row with <see cref="DataListSummaryScope.Filtered"/>
+/// is still rendered automatically whenever at least one <see cref="LxDataListColumn{TItem}"/> sets <see cref="LxDataListColumn{TItem}.Summary"/>,
+/// <see cref="LxDataListColumn{TItem}.SummaryValue"/> or <see cref="LxDataListColumn{TItem}.SummaryTemplate"/>.
 /// </summary>
 /// <typeparam name="TItem">The row type.</typeparam>
 public sealed class DataListSummaries<TItem>
@@ -77,14 +77,14 @@ public sealed class DataListSummaries<TItem>
     public IReadOnlyList<DataListSummaryScope>? Scopes { get; init; }
 
     /// <summary>
-    /// Label of the summary row (defaults to the localized <see cref="BxToolsMessages.SummaryTotal"/> "Total" when a single scope is shown,
+    /// Label of the summary row (defaults to the localized <see cref="LxToolsMessages.SummaryTotal"/> "Total" when a single scope is shown,
     /// or the localized scope name when multiple <see cref="Scopes"/> are shown).
     /// </summary>
     public string? Label { get; init; }
 
     /// <summary>
     /// Optional asynchronous resolver returning a map of column key to aggregated value for a scope (for remote sources or custom async totals).
-    /// Columns not present in the returned dictionary fall back to their declared <see cref="BxDataListColumn{TItem}.Summary"/> or <see cref="BxDataListColumn{TItem}.SummaryValue"/>.
+    /// Columns not present in the returned dictionary fall back to their declared <see cref="LxDataListColumn{TItem}.Summary"/> or <see cref="LxDataListColumn{TItem}.SummaryValue"/>.
     /// </summary>
     public Func<DataListSummaryResolveContext<TItem>, ValueTask<IReadOnlyDictionary<string, object?>>>? ResolveAsync { get; init; }
 

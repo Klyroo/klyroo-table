@@ -9,7 +9,7 @@ public sealed partial class DataListContext<TItem>
         remove => _owner.SelectionChanged -= value;
     }
 
-    /// <summary>The list has a selection: <c>Selectable</c> is on, or it has a <see cref="BxDataListSelectionActions{TItem}"/> bar, or <c>SelectedKeys</c> is bound.</summary>
+    /// <summary>The list has a selection: <c>Selectable</c> is on, or it has a <see cref="LxDataListSelectionActions{TItem}"/> bar, or <c>SelectedKeys</c> is bound.</summary>
     public bool SelectionEnabled => _owner.SelectionEnabled;
 
     /// <summary>The selection is drawn: it is enabled and the renderer can run handlers (or will, once a prerendered page turns interactive). A static render has no checkboxes.</summary>

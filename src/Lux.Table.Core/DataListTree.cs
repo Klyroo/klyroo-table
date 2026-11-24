@@ -68,10 +68,10 @@ public sealed class DataListTreeNode<TItem>
 }
 
 /// <summary>
-/// Hierarchical tree configuration for <c>BxDataListTable{TItem}</c>.
+/// Hierarchical tree configuration for <c>LxDataListTable{TItem}</c>.
 /// Child rows travel with their parent item (<c>Children</c>), expand and collapse with a chevron button (mouse, Enter/Space, or ArrowRight/ArrowLeft)
 /// and visual rail connectors, and participate in row selection according to <c>Selectable</c>.
-/// When a tree is configured on <c>BxDataListTable{TItem}</c>, summary rows and visual groups are disabled on the table.
+/// When a tree is configured on <c>LxDataListTable{TItem}</c>, summary rows and visual groups are disabled on the table.
 /// </summary>
 /// <typeparam name="TItem">The row type.</typeparam>
 public sealed class DataListTree<TItem>

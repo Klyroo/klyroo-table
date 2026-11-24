@@ -5,7 +5,7 @@ namespace Lux.Table;
 /// <summary>
 /// Loads the rows of a data list: turns a <see cref="DataListState"/> into a request, runs it against the source, cancels the request a newer one
 /// replaces and keeps the rows of the previous result while the next one loads. A plain class, so it is tested without a renderer; the
-/// <see cref="BxDataList{TItem}"/> component owns one and publishes its flags to the parts through <see cref="DataListContext{TItem}"/>.
+/// <see cref="LxDataList{TItem}"/> component owns one and publishes its flags to the parts through <see cref="DataListContext{TItem}"/>.
 /// </summary>
 /// <remarks>
 /// Exactly one source feeds a list: <c>Items</c> (run in memory by <see cref="InMemoryDataList"/>), a <c>Queryable</c> (a database query, translated by

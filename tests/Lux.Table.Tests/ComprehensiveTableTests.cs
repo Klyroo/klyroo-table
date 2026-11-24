@@ -46,7 +46,7 @@ public sealed class ComprehensiveTableTests : BunitContext
     }
 
     [Fact]
-    public void BxDataList_renders_grouped_rows_and_footer_summary_in_bUnit()
+    public void LxDataList_renders_grouped_rows_and_footer_summary_in_bUnit()
     {
         Services.AddLuxTable();
         JSInterop.Mode = JSRuntimeMode.Loose;
@@ -61,26 +61,26 @@ public sealed class ComprehensiveTableTests : BunitContext
 
         var cut = Render(builder =>
         {
-            builder.OpenComponent<BxDataList<OrgMember>>(0);
-            builder.AddAttribute(1, nameof(BxDataList<OrgMember>.Schema), Schema);
-            builder.AddAttribute(2, nameof(BxDataList<OrgMember>.Items), rows);
-            builder.AddAttribute(3, nameof(BxDataList<OrgMember>.UrlSync), false);
-            builder.AddAttribute(4, nameof(BxDataList<OrgMember>.ChildContent), (RenderFragment)(b =>
+            builder.OpenComponent<LxDataList<OrgMember>>(0);
+            builder.AddAttribute(1, nameof(LxDataList<OrgMember>.Schema), Schema);
+            builder.AddAttribute(2, nameof(LxDataList<OrgMember>.Items), rows);
+            builder.AddAttribute(3, nameof(LxDataList<OrgMember>.UrlSync), false);
+            builder.AddAttribute(4, nameof(LxDataList<OrgMember>.ChildContent), (RenderFragment)(b =>
             {
-                b.OpenComponent<BxDataListTable<OrgMember>>(0);
-                b.AddAttribute(1, nameof(BxDataListTable<OrgMember>.HeaderMenu), true);
-                b.AddAttribute(2, nameof(BxDataListTable<OrgMember>.GroupBy), new DataListGroupBy<OrgMember> { Key = m => m.Dept });
-                b.AddAttribute(3, nameof(BxDataListTable<OrgMember>.Summaries), new DataListSummaries<OrgMember>());
-                b.AddAttribute(4, nameof(BxDataListTable<OrgMember>.ChildContent), (RenderFragment)(cb =>
+                b.OpenComponent<LxDataListTable<OrgMember>>(0);
+                b.AddAttribute(1, nameof(LxDataListTable<OrgMember>.HeaderMenu), true);
+                b.AddAttribute(2, nameof(LxDataListTable<OrgMember>.GroupBy), new DataListGroupBy<OrgMember> { Key = m => m.Dept });
+                b.AddAttribute(3, nameof(LxDataListTable<OrgMember>.Summaries), new DataListSummaries<OrgMember>());
+                b.AddAttribute(4, nameof(LxDataListTable<OrgMember>.ChildContent), (RenderFragment)(cb =>
                 {
-                    cb.OpenComponent<BxDataListColumn<OrgMember>>(0);
-                    cb.AddAttribute(1, nameof(BxDataListColumn<OrgMember>.Field), "name");
-                    cb.AddAttribute(2, nameof(BxDataListColumn<OrgMember>.Title), "Name");
+                    cb.OpenComponent<LxDataListColumn<OrgMember>>(0);
+                    cb.AddAttribute(1, nameof(LxDataListColumn<OrgMember>.Field), "name");
+                    cb.AddAttribute(2, nameof(LxDataListColumn<OrgMember>.Title), "Name");
                     cb.CloseComponent();
-                    cb.OpenComponent<BxDataListColumn<OrgMember>>(3);
-                    cb.AddAttribute(4, nameof(BxDataListColumn<OrgMember>.Field), "salary");
-                    cb.AddAttribute(5, nameof(BxDataListColumn<OrgMember>.Title), "Salary");
-                    cb.AddAttribute(6, nameof(BxDataListColumn<OrgMember>.Summary), DataListSummaryKind.Sum);
+                    cb.OpenComponent<LxDataListColumn<OrgMember>>(3);
+                    cb.AddAttribute(4, nameof(LxDataListColumn<OrgMember>.Field), "salary");
+                    cb.AddAttribute(5, nameof(LxDataListColumn<OrgMember>.Title), "Salary");
+                    cb.AddAttribute(6, nameof(LxDataListColumn<OrgMember>.Summary), DataListSummaryKind.Sum);
                     cb.CloseComponent();
                 }));
                 b.CloseComponent();

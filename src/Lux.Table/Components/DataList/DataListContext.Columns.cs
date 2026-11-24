@@ -14,10 +14,10 @@ public sealed partial class DataListContext<TItem>
     /// <summary>Whether this render is a prerender of an interactive page (used by interactive-only toolbar parts to render a disabled placeholder).</summary>
     internal bool WillBeInteractive => _owner.WillBeInteractive;
 
-    /// <summary>Shows or hides a column by key. Does nothing for a <see cref="BxDataListColumn{TItem}.Required"/> column.</summary>
+    /// <summary>Shows or hides a column by key. Does nothing for a <see cref="LxDataListColumn{TItem}.Required"/> column.</summary>
     public void SetColumnVisible(string key, bool visible) => _owner.SetColumnVisible(key, visible);
 
-    /// <summary>Shows every column (<paramref name="visible"/> true) or hides every column that is not <see cref="BxDataListColumn{TItem}.Required"/>; when none is, the first one stays so the table is never empty.</summary>
+    /// <summary>Shows every column (<paramref name="visible"/> true) or hides every column that is not <see cref="LxDataListColumn{TItem}.Required"/>; when none is, the first one stays so the table is never empty.</summary>
     public void SetAllColumnsVisible(bool visible) => _owner.SetAllColumnsVisible(visible);
 
     /// <summary>Pins a column to the start or end edge, or unpins it.</summary>
@@ -36,7 +36,7 @@ public sealed partial class DataListContext<TItem>
     public void ResetColumns() => _owner.ResetColumns();
 
     /// <summary>Whether the column may be hidden now: it is not Required and another column stays visible.</summary>
-    internal bool CanHideColumn(BxDataListColumn<TItem> column) => _owner.CanHideColumn(column);
+    internal bool CanHideColumn(LxDataListColumn<TItem> column) => _owner.CanHideColumn(column);
 
     /// <summary>The last change made in the column panel, worded for a live region.</summary>
     internal string ColumnAnnouncement => _owner.ColumnAnnouncement;
@@ -44,9 +44,9 @@ public sealed partial class DataListContext<TItem>
     /// <summary>The last resize, worded for a live region.</summary>
     internal string WidthAnnouncement => _owner.WidthAnnouncement;
 
-    internal List<BxDataListColumn<TItem>> TableColumns() => _owner.TableColumns();
+    internal List<LxDataListColumn<TItem>> TableColumns() => _owner.TableColumns();
 
-    internal DataListPin EffectiveColumnPin(BxDataListColumn<TItem> column) => _owner.EffectiveColumnPin(column);
+    internal DataListPin EffectiveColumnPin(LxDataListColumn<TItem> column) => _owner.EffectiveColumnPin(column);
 
-    internal int? EffectiveColumnWidth(BxDataListColumn<TItem> column) => _owner.EffectiveColumnWidth(column);
+    internal int? EffectiveColumnWidth(LxDataListColumn<TItem> column) => _owner.EffectiveColumnWidth(column);
 }

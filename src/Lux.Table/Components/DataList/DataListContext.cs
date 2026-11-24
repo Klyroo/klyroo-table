@@ -6,13 +6,13 @@ namespace Lux.Table;
 /// <summary>How a data list pages its rows.</summary>
 public enum DataListPagingMode
 {
-    /// <summary>Numbered pages (<c>p</c>, <c>ps</c>) with <see cref="BxDataListPagination{TItem}"/>.</summary>
+    /// <summary>Numbered pages (<c>p</c>, <c>ps</c>) with <see cref="LxDataListPagination{TItem}"/>.</summary>
     Offset,
 
-    /// <summary>Keyset cursor paging (<c>c</c>): pages append in place with <see cref="BxDataListInfiniteLoader{TItem}"/>, and degrade to a link in static rendering.</summary>
+    /// <summary>Keyset cursor paging (<c>c</c>): pages append in place with <see cref="LxDataListInfiniteLoader{TItem}"/>, and degrade to a link in static rendering.</summary>
     Cursor,
 
-    /// <summary>No paging: the source returns every matching row at once. Pairs with <see cref="BxDataListTable{TItem}.Virtualize"/>.</summary>
+    /// <summary>No paging: the source returns every matching row at once. Pairs with <see cref="LxDataListTable{TItem}.Virtualize"/>.</summary>
     None,
 }
 
@@ -42,22 +42,22 @@ public enum DataListAlign
     End,
 }
 
-/// <summary>An option offered by <see cref="BxDataListSortMenu{TItem}"/>.</summary>
+/// <summary>An option offered by <see cref="LxDataListSortMenu{TItem}"/>.</summary>
 /// <param name="Key">The key of the sortable field in the schema.</param>
 /// <param name="Label">The display label; when <see langword="null"/>, uses the title of the matching column or the humanized key.</param>
 public sealed record DataListSortOption(string Key, string? Label = null);
 
 /// <summary>
-/// What the parts of a <see cref="BxDataList{TItem}"/> (the table, the pagination, the result count...) read and change: the state of the list, its
+/// What the parts of a <see cref="LxDataList{TItem}"/> (the table, the pagination, the result count...) read and change: the state of the list, its
 /// rows and its loading flags. The list cascades one for its whole life (the value is fixed), so a part subscribes to <see cref="Changed"/> once and renders
 /// again when it is raised. Write your own part by taking it as a cascading parameter.
 /// </summary>
 /// <typeparam name="TItem">The row type.</typeparam>
 public sealed partial class DataListContext<TItem>
 {
-    private readonly BxDataList<TItem> _owner;
+    private readonly LxDataList<TItem> _owner;
 
-    internal DataListContext(BxDataList<TItem> owner) => _owner = owner;
+    internal DataListContext(LxDataList<TItem> owner) => _owner = owner;
 
     /// <summary>Raised when the state, the rows or a flag change. It can run on any thread: from a component, go through <c>InvokeAsync</c> before rendering.</summary>
     public event Action? Changed;
@@ -74,10 +74,10 @@ public sealed partial class DataListContext<TItem>
     private int _tableCount;
     private int _gridCount;
 
-    /// <summary>Whether the list contains a <see cref="BxDataListTable{TItem}"/>.</summary>
+    /// <summary>Whether the list contains a <see cref="LxDataListTable{TItem}"/>.</summary>
     internal bool HasTable => _tableCount > 0;
 
-    /// <summary>Whether the list contains a <see cref="BxDataListGrid{TItem}"/>.</summary>
+    /// <summary>Whether the list contains a <see cref="LxDataListGrid{TItem}"/>.</summary>
     internal bool HasGrid => _gridCount > 0;
 
     /// <summary>The layout currently shown: <see cref="DataListState.Layout"/> when both table and grid exist, otherwise the one that is present.</summary>
@@ -99,7 +99,7 @@ public sealed partial class DataListContext<TItem>
 
     internal void SetDetectedPhoneSummary(bool isPhone) => _owner.SetDetectedPhoneSummary(isPhone);
 
-    /// <summary>The active grouping configuration for the current layout (<see cref="BxDataListTable{TItem}.GroupBy"/> or <see cref="BxDataListGrid{TItem}.GroupBy"/>), or <see langword="null"/>.</summary>
+    /// <summary>The active grouping configuration for the current layout (<see cref="LxDataListTable{TItem}.GroupBy"/> or <see cref="LxDataListGrid{TItem}.GroupBy"/>), or <see langword="null"/>.</summary>
     public DataListGroupBy<TItem>? ActiveGroupBy => _owner.ActiveGroupBy;
 
     /// <summary>Builds the visual groups of <see cref="Rows"/> for the active layout when <see cref="ActiveGroupBy"/> is configured; empty otherwise.</summary>
@@ -118,7 +118,7 @@ public sealed partial class DataListContext<TItem>
 
     internal void SetGridGroupBy(DataListGroupBy<TItem>? groupBy) => _owner.SetGridGroupBy(groupBy);
 
-    /// <summary>The active hierarchical tree configuration on <see cref="BxDataListTable{TItem}"/>, or <see langword="null"/>.</summary>
+    /// <summary>The active hierarchical tree configuration on <see cref="LxDataListTable{TItem}"/>, or <see langword="null"/>.</summary>
     public DataListTree<TItem>? Tree => _owner.TableTree;
 
     /// <summary>Whether the table has a <see cref="DataListTree{TItem}"/> configured.</summary>
@@ -222,27 +222,27 @@ public sealed partial class DataListContext<TItem>
         NotifyChanged();
     }
 
-    private readonly List<BxDataListColumn<TItem>> _columns = [];
+    private readonly List<LxDataListColumn<TItem>> _columns = [];
     private int _columnIndex;
 
     /// <summary>
-    /// Every column the list's table declares, visible or not (a columns panel lists them all), by <see cref="BxDataListColumn{TItem}.Order"/> and then in the order they first rendered:
-    /// the order of the markup, except for a column that an <c>@if</c> adds later, which comes after the others unless it has an <c>Order</c>. Prefer <see cref="BxDataListColumn{TItem}.Visible"/> to an <c>@if</c>.
+    /// Every column the list's table declares, visible or not (a columns panel lists them all), by <see cref="LxDataListColumn{TItem}.Order"/> and then in the order they first rendered:
+    /// the order of the markup, except for a column that an <c>@if</c> adds later, which comes after the others unless it has an <c>Order</c>. Prefer <see cref="LxDataListColumn{TItem}.Visible"/> to an <c>@if</c>.
     /// </summary>
-    public IReadOnlyList<BxDataListColumn<TItem>> Columns => _columns;
+    public IReadOnlyList<LxDataListColumn<TItem>> Columns => _columns;
 
     internal string? ColumnsSignature { get; set; }
 
     internal int NextColumnIndex() => _columnIndex++;
 
-    internal void AddColumn(BxDataListColumn<TItem> column)
+    internal void AddColumn(LxDataListColumn<TItem> column)
     {
         if (!_columns.Contains(column)) _columns.Add(column);
         // Stable: equal orders keep the order of first rendering.
         _columns.Sort((a, b) => a.Order != b.Order ? a.Order.CompareTo(b.Order) : a.RegistrationIndex.CompareTo(b.RegistrationIndex));
     }
 
-    internal void RemoveColumn(BxDataListColumn<TItem> column) => _columns.Remove(column);
+    internal void RemoveColumn(LxDataListColumn<TItem> column) => _columns.Remove(column);
 
     /// <summary>The name of the list, for the accessible names of its table and its pagination (<c>Label</c> of the list).</summary>
     public string? Label => _owner.Label;
@@ -433,14 +433,14 @@ public sealed partial class DataListContext<TItem>
     }
 
     /// <summary>
-    /// The sortable fields of the list for <see cref="BxDataListSortMenu{TItem}"/>: from <paramref name="explicitOptions"/> when given (filtered to the schema's sortable keys),
-    /// otherwise from the sortable <see cref="BxDataListColumn{TItem}"/>s in user order followed by any remaining sortable fields of the schema.
+    /// The sortable fields of the list for <see cref="LxDataListSortMenu{TItem}"/>: from <paramref name="explicitOptions"/> when given (filtered to the schema's sortable keys),
+    /// otherwise from the sortable <see cref="LxDataListColumn{TItem}"/>s in user order followed by any remaining sortable fields of the schema.
     /// </summary>
     public IReadOnlyList<DataListSortOption> SortOptions(IReadOnlyList<DataListSortOption>? explicitOptions = null)
     {
         var schema = Schema;
         var allowed = schema?.SortKeys;
-        var columnsByKey = new Dictionary<string, BxDataListColumn<TItem>>(StringComparer.Ordinal);
+        var columnsByKey = new Dictionary<string, LxDataListColumn<TItem>>(StringComparer.Ordinal);
         foreach (var col in _owner.OrderedColumns())
         {
             if (col.ResolvedKey is { } k) columnsByKey.TryAdd(k, col);

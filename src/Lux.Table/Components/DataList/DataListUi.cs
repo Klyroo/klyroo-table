@@ -2,7 +2,7 @@ using Lux.UI.Theming;
 
 namespace Lux.Table;
 
-/// <summary>Per-instance class overrides of the slots of the data list parts (<see cref="BxDataList{TItem}"/>, <see cref="BxDataListTable{TItem}"/>, <see cref="BxDataListPagination{TItem}"/>...).</summary>
+/// <summary>Per-instance class overrides of the slots of the data list parts (<see cref="LxDataList{TItem}"/>, <see cref="LxDataListTable{TItem}"/>, <see cref="LxDataListPagination{TItem}"/>...).</summary>
 public sealed record DataListUi : ISlotOverrides
 {
     public string? Root { get; init; }

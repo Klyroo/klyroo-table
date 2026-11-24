@@ -54,16 +54,16 @@ var (roots, allNodes) = tree.BuildTree(employees, schema);
 ### Blazor / MAUI Hybrid (`Lux.Table`)
 
 ```razor
-<BxDataList TItem="Employee" Schema="@_schema" Items="@_employees" UrlSync="false">
-    <BxDataListTable TItem="Employee"
+<LxDataList TItem="Employee" Schema="@_schema" Items="@_employees" UrlSync="false">
+    <LxDataListTable TItem="Employee"
                      HeaderMenu="true"
                      ShowProgressLine="true"
                      Summaries="@(new DataListSummaries<Employee>())">
-        <BxDataListColumn TItem="Employee" Field="name" Title="Name" />
-        <BxDataListColumn TItem="Employee" Field="salary" Title="Salary"
+        <LxDataListColumn TItem="Employee" Field="name" Title="Name" />
+        <LxDataListColumn TItem="Employee" Field="salary" Title="Salary"
                           Summary="DataListSummaryKind.Sum" />
-    </BxDataListTable>
-</BxDataList>
+    </LxDataListTable>
+</LxDataList>
 ```
 
 ## Next Steps

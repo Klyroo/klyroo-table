@@ -59,7 +59,7 @@ internal static class DataListDates
     }
 
     /// <summary>The text of a preset.</summary>
-    public static string Label(DatePreset preset, BxToolsMessages messages) => preset switch
+    public static string Label(DatePreset preset, LxToolsMessages messages) => preset switch
     {
         DatePreset.Today => messages.DatePresetToday,
         DatePreset.Yesterday => messages.DatePresetYesterday,

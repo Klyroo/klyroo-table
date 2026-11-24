@@ -1,6 +1,6 @@
 # Lux.Table (LuxStack)
 
-> **Headless tree hierarchy engine & high-density enterprise BxDataList**
+> **Headless tree hierarchy engine & high-density enterprise LxDataList**
 
 Headless-powered data tables and card grids for .NET: NativeAOT tree hierarchy (DataListTree<TItem>), visual grouping, footer aggregations, 2px loading progress line, automatic Sort/Hide HeaderMenu, 60fps virtualization, and responsive mobile summary rows.
 
@@ -57,16 +57,16 @@ var (roots, allNodes) = tree.BuildTree(employees, schema);
 ### Blazor Web & .NET MAUI Hybrid (`Lux.Table`)
 
 ```razor
-<BxDataList TItem="Employee" Schema="@_schema" Items="@_employees" UrlSync="false">
-    <BxDataListTable TItem="Employee"
+<LxDataList TItem="Employee" Schema="@_schema" Items="@_employees" UrlSync="false">
+    <LxDataListTable TItem="Employee"
                      HeaderMenu="true"
                      ShowProgressLine="true"
                      Summaries="@(new DataListSummaries<Employee>())">
-        <BxDataListColumn TItem="Employee" Field="name" Title="Name" />
-        <BxDataListColumn TItem="Employee" Field="salary" Title="Salary"
+        <LxDataListColumn TItem="Employee" Field="name" Title="Name" />
+        <LxDataListColumn TItem="Employee" Field="salary" Title="Salary"
                           Summary="DataListSummaryKind.Sum" />
-    </BxDataListTable>
-</BxDataList>
+    </LxDataListTable>
+</LxDataList>
 ```
 
 ## Documentation
@@ -86,13 +86,13 @@ var (roots, allNodes) = tree.BuildTree(employees, schema);
 | :--- | :--- | :--- | :--- |
 | `DataListTreeSelectionMode` | `enum` | `Lux.Table.Core` | Which rows of a hierarchical tree table can be selected with checkboxes. |
 | `DataListTreeNode<TItem>` | `class` | `Lux.Table.Core` | One node in the flattened hierarchy produced by `DataListTree{TItem}` over the loaded top-level rows of a data list. The row type. |
-| `DataListTree<TItem>` | `class` | `Lux.Table.Core` | Hierarchical tree configuration for `BxDataListTable{TItem}`. Child rows travel with their parent item (`Children`), expand and collapse with a chevron button (mouse, Enter/Space, or ArrowRight/ArrowLeft) and visual rail connectors, and participate in row selection according to `Selectable`. When a tree is configured on `BxDataListTable{TItem}`, summary rows and visual groups are disabled on the table. The row type. |
+| `DataListTree<TItem>` | `class` | `Lux.Table.Core` | Hierarchical tree configuration for `LxDataListTable{TItem}`. Child rows travel with their parent item (`Children`), expand and collapse with a chevron button (mouse, Enter/Space, or ArrowRight/ArrowLeft) and visual rail connectors, and participate in row selection according to `Selectable`. When a tree is configured on `LxDataListTable{TItem}`, summary rows and visual groups are disabled on the table. The row type. |
 | `LuxTableOptions` | `class` | `Lux.Table` | Configuration of Lux.Table: its component themes and its message tables. It is an extension of `LuxOptions` (`Extension{T}`), so its themes freeze with the ones of Lux.UI and the Tailwind class extractor and the docs bundle find them. Configure it with `services.AddLuxTable(t =&gt; ...)`, in code shared by the server and the WebAssembly client. Partial: each family of components declares its themes in its own file. |
-| `BxToolsComponentBase` | `class` | `Lux.Table` | Base of the components of Lux.Table: the theme resolution of `BxComponentBase`, plus the options and the texts of this package. |
-| `BxDataList<TItem>` | `class` | `Lux.Table` | Public API type |
-| `BxDataList<TItem>` | `class` | `Lux.Table` | Public API type |
-| `BxDataListColumn<TItem>` | `class` | `Lux.Table` | A column of `BxDataListTable{TItem}`. Renders nothing itself: it registers with its list (`Columns`). What a cell shows comes from one of three places: `Template`, `Property` or `Field`. The row type. |
-| `BxDataListFilterEditor<TItem>` | `class` | `Lux.Table` | Public API type |
+| `LxToolsComponentBase` | `class` | `Lux.Table` | Base of the components of Lux.Table: the theme resolution of `LxComponentBase`, plus the options and the texts of this package. |
+| `LxDataList<TItem>` | `class` | `Lux.Table` | Public API type |
+| `LxDataList<TItem>` | `class` | `Lux.Table` | Public API type |
+| `LxDataListColumn<TItem>` | `class` | `Lux.Table` | A column of `LxDataListTable{TItem}`. Renders nothing itself: it registers with its list (`Columns`). What a cell shows comes from one of three places: `Template`, `Property` or `Field`. The row type. |
+| `LxDataListFilterEditor<TItem>` | `class` | `Lux.Table` | Public API type |
 | `DataListActionPartBase<TItem>` | `class` | `Lux.Table` | Public API type |
 | `DataListActionScope` | `enum` | `Lux.Table` | Which rows a bulk or toolbar action targets. |
 | `DataListSelectionScope` | `enum` | `Lux.Table` | Where the rows of a selection survive: across pages, or only on the page they were ticked on. |
@@ -100,36 +100,36 @@ var (roots, allNodes) = tree.BuildTree(employees, schema);
 | `DataListSelectionBarPosition` | `enum` | `Lux.Table` | Where the selection bar sits. |
 | `DataListActionContext<TItem>` | `class` | `Lux.Table` | What an action receives when it runs: the rows it targets, the scope and the request that stands for "every result". The row type. |
 | `DataListActionConfirm<TItem>` | `class` | `Lux.Table` | The question an action asks before it runs, in a dialog. The text can say how many rows are affected. The row type. |
-| `DataListAction<TItem>` | `class` | `Lux.Table` | An action of a data list: a button of the `BxDataListSelectionActions{TItem}` bar (it acts on the selection) or an entry of the `BxDataListActionsDropdown{TItem}` menu. While it runs its button shows a spinner and the action cannot start twice. The row type. |
+| `DataListAction<TItem>` | `class` | `Lux.Table` | An action of a data list: a button of the `LxDataListSelectionActions{TItem}` bar (it acts on the selection) or an entry of the `LxDataListActionsDropdown{TItem}` menu. While it runs its button shows a spinner and the action cannot start twice. The row type. |
 | `DataListActionFailure<TItem>` | `record` | `Lux.Table` | An action that threw. The action. What it threw. The row type. |
 
 ## Razor Components
 
 | Component | Package | Parameters | Source |
 | :--- | :--- | :--- | :--- |
-| `<BxDataList>` | `Lux.Table` | 15 parameters | `src/Lux.Table/Components/DataList/BxDataList.razor` |
-| `<BxDataListActionsDropdown>` | `Lux.Table` | 2 parameters | `src/Lux.Table/Components/DataList/BxDataListActionsDropdown.razor` |
-| `<BxDataListAddFilter>` | `Lux.Table` | 3 parameters | `src/Lux.Table/Components/DataList/BxDataListAddFilter.razor` |
-| `<BxDataListClearFilters>` | `Lux.Table` | 2 parameters | `src/Lux.Table/Components/DataList/BxDataListClearFilters.razor` |
-| `<BxDataListColumnPanel>` | `Lux.Table` | 5 parameters | `src/Lux.Table/Components/DataList/BxDataListColumnPanel.razor` |
-| `<BxDataListEmpty>` | `Lux.Table` | 6 parameters | `src/Lux.Table/Components/DataList/BxDataListEmpty.razor` |
-| `<BxDataListErrorState>` | `Lux.Table` | 2 parameters | `src/Lux.Table/Components/DataList/BxDataListErrorState.razor` |
-| `<BxDataListFilterEditor>` | `Lux.Table` | 5 parameters | `src/Lux.Table/Components/DataList/BxDataListFilterEditor.razor` |
-| `<BxDataListFilterPanel>` | `Lux.Table` | 3 parameters | `src/Lux.Table/Components/DataList/BxDataListFilterPanel.razor` |
-| `<BxDataListFilterTags>` | `Lux.Table` | 3 parameters | `src/Lux.Table/Components/DataList/BxDataListFilterTags.razor` |
-| `<BxDataListGrid>` | `Lux.Table` | 12 parameters | `src/Lux.Table/Components/DataList/BxDataListGrid.razor` |
-| `<BxDataListGroupHeader>` | `Lux.Table` | 6 parameters | `src/Lux.Table/Components/DataList/BxDataListGroupHeader.razor` |
-| `<BxDataListInfiniteLoader>` | `Lux.Table` | 6 parameters | `src/Lux.Table/Components/DataList/BxDataListInfiniteLoader.razor` |
-| `<BxDataListLayoutSwitch>` | `Lux.Table` | 5 parameters | `src/Lux.Table/Components/DataList/BxDataListLayoutSwitch.razor` |
-| `<BxDataListPagination>` | `Lux.Table` | 5 parameters | `src/Lux.Table/Components/DataList/BxDataListPagination.razor` |
-| `<BxDataListRefresh>` | `Lux.Table` | 0 parameters | `src/Lux.Table/Components/DataList/BxDataListRefresh.razor` |
-| `<BxDataListResultCount>` | `Lux.Table` | 0 parameters | `src/Lux.Table/Components/DataList/BxDataListResultCount.razor` |
-| `<BxDataListRowActions>` | `Lux.Table` | 7 parameters | `src/Lux.Table/Components/DataList/BxDataListRowActions.razor` |
-| `<BxDataListSearch>` | `Lux.Table` | 5 parameters | `src/Lux.Table/Components/DataList/BxDataListSearch.razor` |
-| `<BxDataListSelectionActions>` | `Lux.Table` | 3 parameters | `src/Lux.Table/Components/DataList/BxDataListSelectionActions.razor` |
-| `<BxDataListSortMenu>` | `Lux.Table` | 4 parameters | `src/Lux.Table/Components/DataList/BxDataListSortMenu.razor` |
-| `<BxDataListTable>` | `Lux.Table` | 18 parameters | `src/Lux.Table/Components/DataList/BxDataListTable.razor` |
-| `<BxDataListViewToggle>` | `Lux.Table` | 3 parameters | `src/Lux.Table/Components/DataList/BxDataListViewToggle.razor` |
+| `<LxDataList>` | `Lux.Table` | 15 parameters | `src/Lux.Table/Components/DataList/LxDataList.razor` |
+| `<LxDataListActionsDropdown>` | `Lux.Table` | 2 parameters | `src/Lux.Table/Components/DataList/LxDataListActionsDropdown.razor` |
+| `<LxDataListAddFilter>` | `Lux.Table` | 3 parameters | `src/Lux.Table/Components/DataList/LxDataListAddFilter.razor` |
+| `<LxDataListClearFilters>` | `Lux.Table` | 2 parameters | `src/Lux.Table/Components/DataList/LxDataListClearFilters.razor` |
+| `<LxDataListColumnPanel>` | `Lux.Table` | 5 parameters | `src/Lux.Table/Components/DataList/LxDataListColumnPanel.razor` |
+| `<LxDataListEmpty>` | `Lux.Table` | 6 parameters | `src/Lux.Table/Components/DataList/LxDataListEmpty.razor` |
+| `<LxDataListErrorState>` | `Lux.Table` | 2 parameters | `src/Lux.Table/Components/DataList/LxDataListErrorState.razor` |
+| `<LxDataListFilterEditor>` | `Lux.Table` | 5 parameters | `src/Lux.Table/Components/DataList/LxDataListFilterEditor.razor` |
+| `<LxDataListFilterPanel>` | `Lux.Table` | 3 parameters | `src/Lux.Table/Components/DataList/LxDataListFilterPanel.razor` |
+| `<LxDataListFilterTags>` | `Lux.Table` | 3 parameters | `src/Lux.Table/Components/DataList/LxDataListFilterTags.razor` |
+| `<LxDataListGrid>` | `Lux.Table` | 12 parameters | `src/Lux.Table/Components/DataList/LxDataListGrid.razor` |
+| `<LxDataListGroupHeader>` | `Lux.Table` | 6 parameters | `src/Lux.Table/Components/DataList/LxDataListGroupHeader.razor` |
+| `<LxDataListInfiniteLoader>` | `Lux.Table` | 6 parameters | `src/Lux.Table/Components/DataList/LxDataListInfiniteLoader.razor` |
+| `<LxDataListLayoutSwitch>` | `Lux.Table` | 5 parameters | `src/Lux.Table/Components/DataList/LxDataListLayoutSwitch.razor` |
+| `<LxDataListPagination>` | `Lux.Table` | 5 parameters | `src/Lux.Table/Components/DataList/LxDataListPagination.razor` |
+| `<LxDataListRefresh>` | `Lux.Table` | 0 parameters | `src/Lux.Table/Components/DataList/LxDataListRefresh.razor` |
+| `<LxDataListResultCount>` | `Lux.Table` | 0 parameters | `src/Lux.Table/Components/DataList/LxDataListResultCount.razor` |
+| `<LxDataListRowActions>` | `Lux.Table` | 7 parameters | `src/Lux.Table/Components/DataList/LxDataListRowActions.razor` |
+| `<LxDataListSearch>` | `Lux.Table` | 5 parameters | `src/Lux.Table/Components/DataList/LxDataListSearch.razor` |
+| `<LxDataListSelectionActions>` | `Lux.Table` | 3 parameters | `src/Lux.Table/Components/DataList/LxDataListSelectionActions.razor` |
+| `<LxDataListSortMenu>` | `Lux.Table` | 4 parameters | `src/Lux.Table/Components/DataList/LxDataListSortMenu.razor` |
+| `<LxDataListTable>` | `Lux.Table` | 18 parameters | `src/Lux.Table/Components/DataList/LxDataListTable.razor` |
+| `<LxDataListViewToggle>` | `Lux.Table` | 3 parameters | `src/Lux.Table/Components/DataList/LxDataListViewToggle.razor` |
 | `<DataListActionDialog>` | `Lux.Table` | 7 parameters | `src/Lux.Table/Components/DataList/DataListActionDialog.razor` |
 | `<DataListRowSelect>` | `Lux.Table` | 2 parameters | `src/Lux.Table/Components/DataList/DataListRowSelect.razor` |
 | `<DataListSelectAll>` | `Lux.Table` | 0 parameters | `src/Lux.Table/Components/DataList/DataListSelectAll.razor` |

@@ -29,14 +29,14 @@ public sealed class TableRepoTests : BunitContext
         Assert.Equal(1, allNodes[1].Depth);
 
         var groupBy = new DataListGroupBy<Employee> { Key = e => e.Department };
-        var groups = groupBy.BuildGroups(allNodes.Select(n => n.Item).ToList(), null, new BxToolsMessages(), System.Globalization.CultureInfo.InvariantCulture);
+        var groups = groupBy.BuildGroups(allNodes.Select(n => n.Item).ToList(), null, new LxToolsMessages(), System.Globalization.CultureInfo.InvariantCulture);
         Assert.Single(groups);
         Assert.Equal("Engineering", groups[0].Key);
         Assert.Equal(2, groups[0].Items.Count);
     }
 
     [Fact]
-    public void BxDataList_renders_columns_header_menu_and_footer_summaries()
+    public void LxDataList_renders_columns_header_menu_and_footer_summaries()
     {
         Services.AddLuxTable();
         JSInterop.Mode = JSRuntimeMode.Loose;
@@ -53,24 +53,24 @@ public sealed class TableRepoTests : BunitContext
             new Employee(2, "Bob", "Sales", 200m),
         };
 
-        var cut = Render<BxDataList<Employee>>(p => p
+        var cut = Render<LxDataList<Employee>>(p => p
             .Add(x => x.Schema, schema)
             .Add(x => x.Items, items)
             .Add(x => x.UrlSync, false)
-            .AddChildContent<BxDataListTable<Employee>>(t => t
+            .AddChildContent<LxDataListTable<Employee>>(t => t
                 .Add(x => x.HeaderMenu, true)
                 .Add(x => x.Summaries, new DataListSummaries<Employee>())
                 .AddChildContent(b =>
                 {
-                    b.OpenComponent<BxDataListColumn<Employee>>(0);
-                    b.AddComponentParameter(1, nameof(BxDataListColumn<Employee>.Field), "name");
-                    b.AddComponentParameter(2, nameof(BxDataListColumn<Employee>.Title), "Name");
+                    b.OpenComponent<LxDataListColumn<Employee>>(0);
+                    b.AddComponentParameter(1, nameof(LxDataListColumn<Employee>.Field), "name");
+                    b.AddComponentParameter(2, nameof(LxDataListColumn<Employee>.Title), "Name");
                     b.CloseComponent();
 
-                    b.OpenComponent<BxDataListColumn<Employee>>(3);
-                    b.AddComponentParameter(4, nameof(BxDataListColumn<Employee>.Field), "salary");
-                    b.AddComponentParameter(5, nameof(BxDataListColumn<Employee>.Title), "Salary");
-                    b.AddComponentParameter(6, nameof(BxDataListColumn<Employee>.Summary), DataListSummaryKind.Sum);
+                    b.OpenComponent<LxDataListColumn<Employee>>(3);
+                    b.AddComponentParameter(4, nameof(LxDataListColumn<Employee>.Field), "salary");
+                    b.AddComponentParameter(5, nameof(LxDataListColumn<Employee>.Title), "Salary");
+                    b.AddComponentParameter(6, nameof(LxDataListColumn<Employee>.Summary), DataListSummaryKind.Sum);
                     b.CloseComponent();
                 })));
 

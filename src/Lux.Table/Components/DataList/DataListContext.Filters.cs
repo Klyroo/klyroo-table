@@ -319,7 +319,7 @@ public sealed partial class DataListContext<TItem>
     }
 
     /// <summary>The "operator value" parts of a filter tag for a rule: <c>is not</c> and <c>Active, Paused +2</c>.</summary>
-    internal (string Operator, string Value) Summarize(FilterRule rule, BxToolsMessages messages, CultureInfo culture)
+    internal (string Operator, string Value) Summarize(FilterRule rule, LxToolsMessages messages, CultureInfo culture)
     {
         var filter = FilterOf(rule.Key);
         var op = messages.OperatorLabel(rule.Operator, forTag: true);
@@ -350,7 +350,7 @@ public sealed partial class DataListContext<TItem>
         return (op, text);
     }
 
-    private static string ListText(IReadOnlyList<string> labels, BxToolsMessages messages, CultureInfo culture)
+    private static string ListText(IReadOnlyList<string> labels, LxToolsMessages messages, CultureInfo culture)
     {
         const int shown = 2;
         var text = string.Join(", ", labels.Take(shown));

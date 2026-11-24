@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace Lux.Table;
 
 /// <summary>
-/// What the parts that show actions share (<see cref="BxDataListSelectionActions{TItem}"/>, <see cref="BxDataListActionsDropdown{TItem}"/>): which actions are visible, disabled or running,
+/// What the parts that show actions share (<see cref="LxDataListSelectionActions{TItem}"/>, <see cref="LxDataListActionsDropdown{TItem}"/>): which actions are visible, disabled or running,
 /// the confirmation dialog and the run itself. An action never starts twice at once, and a failure keeps the selection.
 /// </summary>
 /// <typeparam name="TItem">The row type.</typeparam>
@@ -40,7 +40,7 @@ public abstract class DataListActionPartBase<TItem> : DataListPartBase<TItem>
     protected bool IsRunning(DataListAction<TItem> action) => _running.Contains(action.Key);
 
     /// <summary>The confirmation of the pending action as text: its title and its description for the current rows.</summary>
-    protected (string Title, string? Description, string Label, BxColor Color) ConfirmText()
+    protected (string Title, string? Description, string Label, LxColor Color) ConfirmText()
     {
         var action = Pending!;
         var confirm = action.Confirm!;
@@ -74,7 +74,7 @@ public abstract class DataListActionPartBase<TItem> : DataListPartBase<TItem>
         }
     }
 
-    // The modal closes by itself (data-bx-close): its own notice only has to keep the state of the part in step. The pending action stays until the confirm click read it.
+    // The modal closes by itself (data-lx-close): its own notice only has to keep the state of the part in step. The pending action stays until the confirm click read it.
     /// <summary>The dialog opened or closed without the confirm button (Escape, Cancel).</summary>
     protected void OnConfirmOpenChanged(bool open) => ConfirmOpen = open;
 

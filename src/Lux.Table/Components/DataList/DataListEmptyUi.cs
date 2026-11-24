@@ -2,7 +2,7 @@ using Lux.UI.Theming;
 
 namespace Lux.Table;
 
-/// <summary>Per-instance class overrides of <see cref="BxDataListEmpty"/> slots.</summary>
+/// <summary>Per-instance class overrides of <see cref="LxDataListEmpty"/> slots.</summary>
 public sealed record DataListEmptyUi : ISlotOverrides
 {
     public string? Root { get; init; }

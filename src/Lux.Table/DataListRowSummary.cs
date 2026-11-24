@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Components;
 namespace Lux.Table;
 
 /// <summary>
-/// Compact summary-row presentation for <c>BxDataListTable{TItem}</c>: one scannable row per record with an optional leading visual,
+/// Compact summary-row presentation for <c>LxDataListTable{TItem}</c>: one scannable row per record with an optional leading visual,
 /// a primary title (optionally a link or button), a status badge/pill, secondary details joined with <c> · </c>, selection checkbox and row actions.
 /// Shown automatically below the <c>md</c> breakpoint when <c>AutoPhone</c> is <see langword="true"/>, when <c>DefaultActive</c> is <see langword="true"/>,
-/// or when toggled with <c>BxDataListViewToggle{TItem}</c>.
+/// or when toggled with <c>LxDataListViewToggle{TItem}</c>.
 /// </summary>
 /// <typeparam name="TItem">The row type.</typeparam>
 public sealed record DataListRowSummary<TItem>
@@ -32,7 +32,7 @@ public sealed record DataListRowSummary<TItem>
     /// <summary>Optional custom template for the body of the summary row, replacing <c>Title</c>, <c>Leading</c>, <c>Status</c> and <c>Details</c>.</summary>
     public RenderFragment<TItem>? Template { get; init; }
 
-    /// <summary>Starts in summary-row view on every screen size until the user toggles <c>BxDataListViewToggle{TItem}</c> (<see langword="false"/> by default).</summary>
+    /// <summary>Starts in summary-row view on every screen size until the user toggles <c>LxDataListViewToggle{TItem}</c> (<see langword="false"/> by default).</summary>
     public bool DefaultActive { get; init; }
 
     /// <summary>Automatically switches to summary-row view below the <c>md</c> breakpoint (768 px) when the user has not explicitly chosen a view (<see langword="true"/> by default).</summary>

@@ -85,29 +85,29 @@ public sealed class TableInteractionsAndEdgeCaseTests : BunitContext
     }
 
     [Fact]
-    public void BxDataList_renders_empty_state_when_items_are_empty()
+    public void LxDataList_renders_empty_state_when_items_are_empty()
     {
         SetupTableServices();
 
         var cut = Render(builder =>
         {
-            builder.OpenComponent<BxDataList<TaskRow>>(0);
-            builder.AddAttribute(1, nameof(BxDataList<TaskRow>.Schema), Schema);
-            builder.AddAttribute(2, nameof(BxDataList<TaskRow>.Items), Array.Empty<TaskRow>());
-            builder.AddAttribute(3, nameof(BxDataList<TaskRow>.UrlSync), false);
-            builder.AddAttribute(4, nameof(BxDataList<TaskRow>.ChildContent), (RenderFragment)(b =>
+            builder.OpenComponent<LxDataList<TaskRow>>(0);
+            builder.AddAttribute(1, nameof(LxDataList<TaskRow>.Schema), Schema);
+            builder.AddAttribute(2, nameof(LxDataList<TaskRow>.Items), Array.Empty<TaskRow>());
+            builder.AddAttribute(3, nameof(LxDataList<TaskRow>.UrlSync), false);
+            builder.AddAttribute(4, nameof(LxDataList<TaskRow>.ChildContent), (RenderFragment)(b =>
             {
-                b.OpenComponent<BxDataListTable<TaskRow>>(0);
-                b.AddAttribute(1, nameof(BxDataListTable<TaskRow>.ChildContent), (RenderFragment)(cb =>
+                b.OpenComponent<LxDataListTable<TaskRow>>(0);
+                b.AddAttribute(1, nameof(LxDataListTable<TaskRow>.ChildContent), (RenderFragment)(cb =>
                 {
-                    cb.OpenComponent<BxDataListColumn<TaskRow>>(0);
-                    cb.AddAttribute(1, nameof(BxDataListColumn<TaskRow>.Field), "title");
-                    cb.AddAttribute(2, nameof(BxDataListColumn<TaskRow>.Title), "Title");
+                    cb.OpenComponent<LxDataListColumn<TaskRow>>(0);
+                    cb.AddAttribute(1, nameof(LxDataListColumn<TaskRow>.Field), "title");
+                    cb.AddAttribute(2, nameof(LxDataListColumn<TaskRow>.Title), "Title");
                     cb.CloseComponent();
                 }));
                 b.CloseComponent();
-                b.OpenComponent<BxDataListEmpty>(2);
-                b.AddAttribute(3, nameof(BxDataListEmpty.Title), "No tasks yet");
+                b.OpenComponent<LxDataListEmpty>(2);
+                b.AddAttribute(3, nameof(LxDataListEmpty.Title), "No tasks yet");
                 b.CloseComponent();
             }));
             builder.CloseComponent();
@@ -117,28 +117,28 @@ public sealed class TableInteractionsAndEdgeCaseTests : BunitContext
     }
 
     [Fact]
-    public void BxDataList_paginates_items_using_schema_DefaultPageSize()
+    public void LxDataList_paginates_items_using_schema_DefaultPageSize()
     {
         SetupTableServices();
 
         var cut = Render(builder =>
         {
-            builder.OpenComponent<BxDataList<TaskRow>>(0);
-            builder.AddAttribute(1, nameof(BxDataList<TaskRow>.Schema), Schema);
-            builder.AddAttribute(2, nameof(BxDataList<TaskRow>.Items), SampleTasks());
-            builder.AddAttribute(3, nameof(BxDataList<TaskRow>.UrlSync), false);
-            builder.AddAttribute(4, nameof(BxDataList<TaskRow>.ChildContent), (RenderFragment)(b =>
+            builder.OpenComponent<LxDataList<TaskRow>>(0);
+            builder.AddAttribute(1, nameof(LxDataList<TaskRow>.Schema), Schema);
+            builder.AddAttribute(2, nameof(LxDataList<TaskRow>.Items), SampleTasks());
+            builder.AddAttribute(3, nameof(LxDataList<TaskRow>.UrlSync), false);
+            builder.AddAttribute(4, nameof(LxDataList<TaskRow>.ChildContent), (RenderFragment)(b =>
             {
-                b.OpenComponent<BxDataListTable<TaskRow>>(0);
-                b.AddAttribute(1, nameof(BxDataListTable<TaskRow>.ChildContent), (RenderFragment)(cb =>
+                b.OpenComponent<LxDataListTable<TaskRow>>(0);
+                b.AddAttribute(1, nameof(LxDataListTable<TaskRow>.ChildContent), (RenderFragment)(cb =>
                 {
-                    cb.OpenComponent<BxDataListColumn<TaskRow>>(0);
-                    cb.AddAttribute(1, nameof(BxDataListColumn<TaskRow>.Field), "title");
-                    cb.AddAttribute(2, nameof(BxDataListColumn<TaskRow>.Title), "Title");
+                    cb.OpenComponent<LxDataListColumn<TaskRow>>(0);
+                    cb.AddAttribute(1, nameof(LxDataListColumn<TaskRow>.Field), "title");
+                    cb.AddAttribute(2, nameof(LxDataListColumn<TaskRow>.Title), "Title");
                     cb.CloseComponent();
                 }));
                 b.CloseComponent();
-                b.OpenComponent<BxDataListPagination<TaskRow>>(2);
+                b.OpenComponent<LxDataListPagination<TaskRow>>(2);
                 b.CloseComponent();
             }));
             builder.CloseComponent();
@@ -150,31 +150,31 @@ public sealed class TableInteractionsAndEdgeCaseTests : BunitContext
     }
 
     [Fact]
-    public void BxDataList_renders_multiple_footer_summary_aggregations()
+    public void LxDataList_renders_multiple_footer_summary_aggregations()
     {
         SetupTableServices();
 
         var cut = Render(builder =>
         {
-            builder.OpenComponent<BxDataList<TaskRow>>(0);
-            builder.AddAttribute(1, nameof(BxDataList<TaskRow>.Schema), Schema);
-            builder.AddAttribute(2, nameof(BxDataList<TaskRow>.Items), SampleTasks());
-            builder.AddAttribute(3, nameof(BxDataList<TaskRow>.UrlSync), false);
-            builder.AddAttribute(4, nameof(BxDataList<TaskRow>.ChildContent), (RenderFragment)(b =>
+            builder.OpenComponent<LxDataList<TaskRow>>(0);
+            builder.AddAttribute(1, nameof(LxDataList<TaskRow>.Schema), Schema);
+            builder.AddAttribute(2, nameof(LxDataList<TaskRow>.Items), SampleTasks());
+            builder.AddAttribute(3, nameof(LxDataList<TaskRow>.UrlSync), false);
+            builder.AddAttribute(4, nameof(LxDataList<TaskRow>.ChildContent), (RenderFragment)(b =>
             {
-                b.OpenComponent<BxDataListTable<TaskRow>>(0);
-                b.AddAttribute(1, nameof(BxDataListTable<TaskRow>.Summaries), new DataListSummaries<TaskRow>());
-                b.AddAttribute(2, nameof(BxDataListTable<TaskRow>.ChildContent), (RenderFragment)(cb =>
+                b.OpenComponent<LxDataListTable<TaskRow>>(0);
+                b.AddAttribute(1, nameof(LxDataListTable<TaskRow>.Summaries), new DataListSummaries<TaskRow>());
+                b.AddAttribute(2, nameof(LxDataListTable<TaskRow>.ChildContent), (RenderFragment)(cb =>
                 {
-                    cb.OpenComponent<BxDataListColumn<TaskRow>>(0);
-                    cb.AddAttribute(1, nameof(BxDataListColumn<TaskRow>.Field), "title");
-                    cb.AddAttribute(2, nameof(BxDataListColumn<TaskRow>.Title), "Title");
-                    cb.AddAttribute(3, nameof(BxDataListColumn<TaskRow>.Summary), DataListSummaryKind.Count);
+                    cb.OpenComponent<LxDataListColumn<TaskRow>>(0);
+                    cb.AddAttribute(1, nameof(LxDataListColumn<TaskRow>.Field), "title");
+                    cb.AddAttribute(2, nameof(LxDataListColumn<TaskRow>.Title), "Title");
+                    cb.AddAttribute(3, nameof(LxDataListColumn<TaskRow>.Summary), DataListSummaryKind.Count);
                     cb.CloseComponent();
-                    cb.OpenComponent<BxDataListColumn<TaskRow>>(4);
-                    cb.AddAttribute(5, nameof(BxDataListColumn<TaskRow>.Field), "hours");
-                    cb.AddAttribute(6, nameof(BxDataListColumn<TaskRow>.Title), "Hours");
-                    cb.AddAttribute(7, nameof(BxDataListColumn<TaskRow>.Summary), DataListSummaryKind.Sum);
+                    cb.OpenComponent<LxDataListColumn<TaskRow>>(4);
+                    cb.AddAttribute(5, nameof(LxDataListColumn<TaskRow>.Field), "hours");
+                    cb.AddAttribute(6, nameof(LxDataListColumn<TaskRow>.Title), "Hours");
+                    cb.AddAttribute(7, nameof(LxDataListColumn<TaskRow>.Summary), DataListSummaryKind.Sum);
                     cb.CloseComponent();
                 }));
                 b.CloseComponent();
@@ -188,24 +188,24 @@ public sealed class TableInteractionsAndEdgeCaseTests : BunitContext
     }
 
     [Fact]
-    public void BxDataList_renders_search_and_grid_layout()
+    public void LxDataList_renders_search_and_grid_layout()
     {
         SetupTableServices();
         var gridState = new DataListState("", [], [], 1, 2, DataListLayout.Grid);
 
         var cut = Render(builder =>
         {
-            builder.OpenComponent<BxDataList<TaskRow>>(0);
-            builder.AddAttribute(1, nameof(BxDataList<TaskRow>.Schema), Schema);
-            builder.AddAttribute(2, nameof(BxDataList<TaskRow>.Items), SampleTasks());
-            builder.AddAttribute(3, nameof(BxDataList<TaskRow>.UrlSync), false);
-            builder.AddAttribute(4, nameof(BxDataList<TaskRow>.State), gridState);
-            builder.AddAttribute(5, nameof(BxDataList<TaskRow>.ChildContent), (RenderFragment)(b =>
+            builder.OpenComponent<LxDataList<TaskRow>>(0);
+            builder.AddAttribute(1, nameof(LxDataList<TaskRow>.Schema), Schema);
+            builder.AddAttribute(2, nameof(LxDataList<TaskRow>.Items), SampleTasks());
+            builder.AddAttribute(3, nameof(LxDataList<TaskRow>.UrlSync), false);
+            builder.AddAttribute(4, nameof(LxDataList<TaskRow>.State), gridState);
+            builder.AddAttribute(5, nameof(LxDataList<TaskRow>.ChildContent), (RenderFragment)(b =>
             {
-                b.OpenComponent<BxDataListSearch<TaskRow>>(0);
+                b.OpenComponent<LxDataListSearch<TaskRow>>(0);
                 b.CloseComponent();
-                b.OpenComponent<BxDataListGrid<TaskRow>>(2);
-                b.AddAttribute(3, nameof(BxDataListGrid<TaskRow>.ItemTemplate), (RenderFragment<TaskRow>)(item => ib =>
+                b.OpenComponent<LxDataListGrid<TaskRow>>(2);
+                b.AddAttribute(3, nameof(LxDataListGrid<TaskRow>.ItemTemplate), (RenderFragment<TaskRow>)(item => ib =>
                 {
                     ib.OpenElement(0, "div");
                     ib.AddAttribute(1, "data-test-card", item.Id);
@@ -222,12 +222,12 @@ public sealed class TableInteractionsAndEdgeCaseTests : BunitContext
     }
 
     [Fact]
-    public void BxToolsLocales_provides_English_and_French_messages()
+    public void LxToolsLocales_provides_English_and_French_messages()
     {
-        Assert.NotNull(BxToolsLocales.En);
-        Assert.NotNull(BxToolsLocales.Fr);
-        Assert.NotEmpty(BxToolsLocales.En.NoResults);
-        Assert.NotEmpty(BxToolsLocales.Fr.NoResults);
-        Assert.NotEqual(BxToolsLocales.En.NoResults, BxToolsLocales.Fr.NoResults);
+        Assert.NotNull(LxToolsLocales.En);
+        Assert.NotNull(LxToolsLocales.Fr);
+        Assert.NotEmpty(LxToolsLocales.En.NoResults);
+        Assert.NotEmpty(LxToolsLocales.Fr.NoResults);
+        Assert.NotEqual(LxToolsLocales.En.NoResults, LxToolsLocales.Fr.NoResults);
     }
 }

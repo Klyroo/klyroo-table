@@ -1,7 +1,7 @@
 namespace Lux.Table;
 
-public static partial class BxToolsLocales
+public static partial class LxToolsLocales
 {
     /// <summary>English. Reviewed.</summary>
-    public static BxToolsMessages En { get; } = new BxToolsMessages();
+    public static LxToolsMessages En { get; } = new LxToolsMessages();
 }

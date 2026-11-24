@@ -1,10 +1,10 @@
 namespace Lux.Table;
 
-public static partial class BxToolsLocales
+public static partial class LxToolsLocales
 {
     // Draft translation, marked for review by a native speaker before a stable release.
     /// <summary>Português (Brasil) (pt-BR). Needs review.</summary>
-    public static BxToolsMessages PtBr { get; } = new BxToolsMessages
+    public static LxToolsMessages PtBr { get; } = new LxToolsMessages
         {
             NoResults = "Nenhum resultado",
             NoResultsDescription = "Tente alterar a busca ou os filtros.",

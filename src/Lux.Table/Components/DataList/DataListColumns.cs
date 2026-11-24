@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Lux.Table;
 
-/// <summary>Which horizontal edge a column of <see cref="BxDataListTable{TItem}"/> is pinned to.</summary>
+/// <summary>Which horizontal edge a column of <see cref="LxDataListTable{TItem}"/> is pinned to.</summary>
 public enum DataListPin
 {
     /// <summary>Scrolls horizontally with the table.</summary>
@@ -18,7 +18,7 @@ public enum DataListPin
 }
 
 /// <summary>The effective state of one column of a data list: visibility, pinning, width and limits.</summary>
-/// <param name="Key">The column key (<see cref="BxDataListColumn{TItem}.EffectiveKey"/>).</param>
+/// <param name="Key">The column key (<see cref="LxDataListColumn{TItem}.EffectiveKey"/>).</param>
 /// <param name="Title">The display title of the column.</param>
 /// <param name="Visible">Whether the column is currently shown.</param>
 /// <param name="Required">Whether the column cannot be hidden.</param>
@@ -64,7 +64,7 @@ internal sealed class DataListColumnPreferences
 
     public const int MaxKeyLength = 64;
     public const int MaxKeysPerSection = 100;
-    public const string CookieName = "blux-dl-cols";
+    public const string CookieName = "lux-dl-cols";
 
     public List<string> Order { get; } = [];
     public HashSet<string> Hidden { get; } = new(StringComparer.Ordinal);
@@ -317,7 +317,7 @@ internal sealed class DataListColumnPreferences
     }
 }
 
-/// <summary>Reads column preferences from <see cref="IBxRequestCookies"/> during SSR or prerender so the first paint has the user's columns.</summary>
+/// <summary>Reads column preferences from <see cref="ILxRequestCookies"/> during SSR or prerender so the first paint has the user's columns.</summary>
 internal static class ServerColumnPreferences
 {
     private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<IServiceProvider, HashSet<string>> ClaimedKeys = new();
@@ -343,17 +343,17 @@ internal static class ServerColumnPreferences
 
     /// <summary>
     /// The preferences the grouped cookie of the current request holds for <paramref name="normalizedKey"/>. <c>ReadFromServer</c> is true when there was a request to ask (even if it carried no cookie):
-    /// the browser has nothing to add for this render. An interactive render has no request (a circuit is not an HTTP request) and the browser has no <see cref="IBxRequestCookies"/>: both read the cookie in the browser instead.
+    /// the browser has nothing to add for this render. An interactive render has no request (a circuit is not an HTTP request) and the browser has no <see cref="ILxRequestCookies"/>: both read the cookie in the browser instead.
     /// </summary>
     public static (DataListColumnPreferences Preferences, bool ReadFromServer) Read(IServiceProvider services, string? normalizedKey, bool interactive)
     {
         if (normalizedKey is null || interactive || OperatingSystem.IsBrowser()) return (new DataListColumnPreferences(), false);
-        if (services.GetService<IBxRequestCookies>() is not { } request)
+        if (services.GetService<ILxRequestCookies>() is not { } request)
         {
             services.GetService<MissingServerWarning>()?.WarnColumns(services);
             return (new DataListColumnPreferences(), false);
         }
-        var cookieName = BxPathScope.CookieName(DataListColumnPreferences.CookieName, request.PathBase);
+        var cookieName = LxPathScope.CookieName(DataListColumnPreferences.CookieName, request.PathBase);
         return (DataListColumnPreferences.DecodeFromCookie(request.Get(cookieName), normalizedKey), true);
     }
 }
