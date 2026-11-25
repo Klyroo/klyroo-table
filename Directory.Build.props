@@ -12,7 +12,7 @@
     <Authors>Klyroo Contributors</Authors>
     <Copyright>Copyright (c) 2026 Klyroo Contributors</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://docs.klyroo.dev/table</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/klyroo/klyroo-table</PackageProjectUrl>
     <PackageTags>klyroo;blazor;maui;dotnet;headless;nativeaot</PackageTags>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/klyroo/klyroo-table</RepositoryUrl>
