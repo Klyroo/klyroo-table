@@ -5,7 +5,7 @@
     <PackageId>Klyroo.Table</PackageId>
     <Description>Klyroo Table for Blazor Web and .NET MAUI Hybrid: data lists with table and card-grid layouts, filters, selection, actions, grouping, trees and summary rows.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);CS1591;BL0007</NoWarn>
+    <NoWarn>$(NoWarn);BL0007</NoWarn>
     <IsTrimmable>true</IsTrimmable>
   </PropertyGroup>
   <ItemGroup>
