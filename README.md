@@ -1,167 +1,154 @@
 # Klyroo.Table
 
-*Part of [Klyroo](https://klyroo.dev): Build better. Compose freely.*
+Data lists for Blazor and .NET MAUI Blazor Hybrid: a table and a card grid with search, filters, sorting, paging, selection and bulk actions, for .NET developers who build list pages.
 
-[![CI](https://github.com/klyroo/klyroo-table/actions/workflows/ci.yml/badge.svg)](https://github.com/klyroo/klyroo-table/actions/workflows/ci.yml) [![NuGet](https://img.shields.io/badge/NuGet-0.1.0--preview.1-004880.svg)](https://www.nuget.org/packages/Klyroo.Table) [![.NET 10](https://img.shields.io/badge/.NET-10.0-512BD4.svg)](https://dotnet.microsoft.com/) [![NativeAOT](https://img.shields.io/badge/NativeAOT-Compatible-10b981.svg)](https://klyroo.dev/why) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+[![CI](https://github.com/klyroo/klyroo-table/actions/workflows/ci.yml/badge.svg)](https://github.com/klyroo/klyroo-table/actions/workflows/ci.yml)
+[![NuGet](https://img.shields.io/nuget/vpre/Klyroo.Table.svg)](https://www.nuget.org/packages/Klyroo.Table)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-> **Headless tree hierarchy engine & high-density enterprise KlyDataList**
+A list page needs search, filters, sort, paging and URL state wired to a data source, and it needs them again on the next page. `KlyDataList` holds that state, loads rows from memory, an `IQueryable` or any asynchronous provider, and shares it with parts you compose: table, grid, search field, filter tags, pagination. The state lives in the query string, so the same markup works in static server rendering (links and forms) and in the interactive render modes. The request and filter model comes from [Klyroo.Query](https://github.com/klyroo/klyroo-query) and the controls are [Klyroo.UI](https://github.com/klyroo/klyroo-ui) components.
 
-Headless-powered data tables and card grids for .NET: NativeAOT tree hierarchy (DataListTree<TItem>), visual grouping, footer aggregations, 2px loading progress line, automatic Sort/Hide HeaderMenu, 60fps virtualization, and responsive mobile summary rows.
+## Features
 
-[![MAUI Hybrid](https://img.shields.io/badge/.NET%20MAUI-Blazor%20Hybrid-8b5cf6.svg)](./docs/maui-and-aot.md)
+- **Three row sources**: pass in-memory `Items`, a database `Queryable` run by a replaceable `IDataListQueryExecutor`, or a `Provider` delegate that loads a page from an API.
+- **One schema for search, filters and sort**: a `DataListSchema<T>` declares which fields sort, filter and search, and requests are sanitized against it before they reach the data.
+- **State in the URL**: search, filters, sort, page, page size and layout are written to the query string by default, so Back, shared links and static server rendering work; `@bind-State` reads and sets it from your code.
+- **Table, card grid and phone summary rows**: the same list renders as a table, as cards, or as compact rows below the `md` breakpoint.
+- **Three paging modes**: numbered pages, keyset cursor paging with an infinite loader, or no paging; the table can virtualize rows in the last two.
+- **Selection and actions**: checkbox column, a bulk action bar that can target every result of a query, per-row actions with confirmation dialogs, and a toolbar actions menu.
+- **Grouping, totals and trees**: collapsible row groups, footer aggregates (sum, average, count, min, max) and a headless `DataListTree<T>` for hierarchical rows.
+- **Column control**: show, hide, reorder, pin and resize columns, with preferences kept in a cookie (or `localStorage` in a MAUI web view).
 
----
+## Packages
 
-## Architecture (Two-Layer Headless Split)
-
-- **`Klyroo.Table.Core`** — 100% headless C#, zero UI dependencies, `<IsAotCompatible>true</IsAotCompatible>`, `<IsTrimmable>true</IsTrimmable>`. Runs in Minimal APIs, background workers, CLI apps, and native C# .NET MAUI ViewModels.
-- **`Klyroo.Table`** — Multiplatform Blazor Web (Static SSR, Interactive Server, WebAssembly, Auto) & `.NET MAUI Blazor Hybrid` (`browser`, `ios`, `android`, `maccatalyst`, `windows`).
-
-## Highlights
-
-- **NativeAOT Tree Hierarchy** (`Headless Tree`) — Klyroo.Table.Core builds and flattens hierarchical trees (DataListTree<TItem>) with depth tracking and continuation rails without any UI dependency.
-- **Built-In UX Polish** (`UX Polish`) — 2px indeterminate progress line during reloads, automatic Sort Asc/Desc/Hide HeaderMenu, adaptive skeletons, and first-use EmptyState CTAs.
-- **Grouping, Summaries & Pinning** (`Enterprise Grid`) — Visual row grouping (DataListGroupBy), footer Sum/Avg/Min/Max aggregations, column resizing, and left/right sticky column pinning.
-- **Responsive Summary Rows on Phone** (`Mobile Ready`) — Automatically switches to scannable summary rows (DataListRowSummary) below 768px on iOS and Android phones.
-
-## Prerequisites
-
-- .NET 10 SDK or later.
-- A Blazor Web App (Static SSR, Interactive Server, WebAssembly or Auto) or a .NET MAUI Blazor Hybrid app for the UI
-  package; the `.Core` package runs anywhere .NET 10 runs, NativeAOT included.
-- For .NET MAUI: the `maui` workload (`dotnet workload install maui`).
+| Package | Description |
+| :--- | :--- |
+| [`Klyroo.Table.Core`](https://www.nuget.org/packages/Klyroo.Table.Core) | UI-free tree model (`DataListTree<T>`) built on Klyroo.Query.Core. NativeAOT compatible and trimmable. |
+| [`Klyroo.Table`](https://www.nuget.org/packages/Klyroo.Table) | The Blazor components, `AddKlyrooTable()`, themes and 12 message tables. Depends on Klyroo.Table.Core, Klyroo.Query and Klyroo.UI. |
 
 ## Installation
 
 ```bash
-dotnet add package Klyroo.Table.Core   # Headless C# / NativeAOT / MAUI C#
-dotnet add package Klyroo.Table        # Blazor Web & .NET MAUI Blazor Hybrid
+dotnet add package Klyroo.Table --prerelease
 ```
 
-Register services in `Program.cs` (Blazor Web App) or `MauiProgram.cs` (.NET MAUI Blazor Hybrid):
-
-```csharp
-builder.Services.AddKlyrooTable();
-```
-
-## Quick Start
-
-### Headless Core (`Klyroo.Table.Core`)
+Register the services in `Program.cs`, in the server project and in the WebAssembly client project if you have one, or in `MauiProgram.cs`:
 
 ```csharp
 using Klyroo.Table;
-using Klyroo.Query;
 
-var tree = new DataListTree<Employee>
-{
-    Children = e => e.Reports,
-    DefaultExpandedDepth = 1
-};
-
-var (roots, allNodes) = tree.BuildTree(employees, schema);
-// Every node carries Depth, Parent, IsLast & AncestorContinuations
+builder.Services.AddKlyrooTable();
 ```
 
-### Blazor Web & .NET MAUI Hybrid (`Klyroo.Table`)
+Add the imports to `_Imports.razor`:
 
 ```razor
-<KlyDataList TItem="Employee" Schema="@_schema" Items="@_employees" UrlSync="false">
-    <KlyDataListTable TItem="Employee"
-                     HeaderMenu="true"
-                     ShowProgressLine="true"
-                     Summaries="@(new DataListSummaries<Employee>())">
-        <KlyDataListColumn TItem="Employee" Field="name" Title="Name" />
-        <KlyDataListColumn TItem="Employee" Field="salary" Title="Salary"
-                          Summary="DataListSummaryKind.Sum" />
-    </KlyDataListTable>
-</KlyDataList>
+@using Klyroo.UI
+@using Klyroo.Table
+@using Klyroo.Query
 ```
+
+Klyroo.Table ships no stylesheet that is safe to load next to the Klyroo.UI one, so the app compiles Tailwind CSS itself. See [Getting started](docs/getting-started.md#4-style-the-list) for the stylesheet setup.
+
+For code that needs no UI, install only the core package:
+
+```bash
+dotnet add package Klyroo.Table.Core --prerelease
+```
+
+## Quick start
+
+Headless, with `Klyroo.Table.Core`: build the nodes of a tree of rows.
+
+```csharp
+using Klyroo.Query;
+using Klyroo.Table;
+
+Employee[] staff =
+[
+    new(1, "Ada", [new(2, "Grace", [new(3, "Alan")]), new(4, "Linus")]),
+];
+
+var schema = DataListSchema.For<Employee>(s => s.RowKey(e => e.Id));
+var tree = new DataListTree<Employee> { Children = e => e.Reports, DefaultExpandedDepth = 2 };
+
+var (roots, nodes) = tree.BuildTree(staff, schema);
+foreach (var node in nodes)
+{
+    Console.WriteLine($"{new string(' ', node.Depth * 2)}{node.Item.Name}");
+}
+
+public sealed record Employee(int Id, string Name, IReadOnlyList<Employee>? Reports = null);
+```
+
+In a Blazor page, a searchable, sortable, paged table of in-memory rows:
+
+```razor
+@page "/customers"
+
+<KlyDataList TItem="Customer" Schema="Schema" Items="Customers" Label="Customers" />
+
+@code {
+    private sealed record Customer(int Id, string Name, string Country, decimal Mrr);
+
+    private static readonly DataListSchema<Customer> Schema = DataListSchema.For<Customer>(s => s
+        .RowKey(c => c.Id)
+        .Search(c => c.Name, c => c.Country)
+        .Field(c => c.Name, f => f.Sortable())
+        .Field(c => c.Country, f => f.Sortable())
+        .Field(c => c.Mrr, f => f.Sortable()));
+
+    private static readonly Customer[] Customers =
+    [
+        new(1, "Acme", "France", 1200m),
+        new(2, "Globex", "Germany", 800m),
+        new(3, "Initech", "France", 450m),
+    ];
+}
+```
+
+Without child content the list renders a default layout: a search field (when the schema has search fields), the result count, a refresh button, filter tags (when the schema has filters), a table with one column per schema field, and numbered pagination. Child content replaces that layout with the parts you place.
 
 ## Documentation
 
-| Guide | Description |
+| | |
 | :--- | :--- |
-| [Online documentation](https://docs.klyroo.dev/table) | Guides, live examples and API reference |
-| [Getting Started](./docs/getting-started.md) | Installation, DI registration, stylesheets, and first working example |
-| [Architecture](./docs/architecture.md) | Headless `.Core` vs UI split, NativeAOT guarantees, and platform matrix |
-| [API Reference](./docs/api-reference.md) | Exhaustive reference of every public class, enum, property, method, and Razor parameter |
-| [MAUI & NativeAOT](./docs/maui-and-aot.md) | `.NET MAUI Blazor Hybrid` (`iOS`, `Android`, `macOS`, `Windows`) and NativeAOT deployment |
-| [Recipes & Testing](./docs/recipes.md) | End-to-end production patterns and `xUnit` / `bUnit` testing recipes |
-| [AI Agent Skill](./skills/klyroo-table/SKILL.md) | Machine-readable guidance for coding agents |
+| [Getting started](docs/getting-started.md) | Step-by-step first integration |
+| [Guides](docs/guides.md) | Task-oriented recipes |
+| [Concepts](docs/concepts.md) | How the library works |
+| [Platforms](docs/platforms.md) | Render modes, .NET MAUI, NativeAOT |
+| [API reference](docs/api-reference.md) | Every public type and member |
+| [FAQ](docs/faq.md) | Troubleshooting and limitations |
 
-## Key Public Types
+## Requirements
 
-| Type | Kind | Package | Summary |
-| :--- | :--- | :--- | :--- |
-| `DataListTreeSelectionMode` | `enum` | `Klyroo.Table.Core` | Which rows of a hierarchical tree table can be selected with checkboxes. |
-| `DataListTreeNode<TItem>` | `class` | `Klyroo.Table.Core` | One node in the flattened hierarchy produced by `DataListTree{TItem}` over the loaded top-level rows of a data list. The row type. |
-| `DataListTree<TItem>` | `class` | `Klyroo.Table.Core` | Hierarchical tree configuration for `KlyDataListTable{TItem}`. Child rows travel with their parent item (`Children`), expand and collapse with a chevron button (mouse, Enter/Space, or ArrowRight/ArrowLeft) and visual rail connectors, and participate in row selection according to `Selectable`. When a tree is configured on `KlyDataListTable{TItem}`, summary rows and visual groups are disabled on the table. The row type. |
-| `KlyrooTableOptions` | `class` | `Klyroo.Table` | Configuration of Klyroo.Table: its component themes and its message tables. It is an extension of `KlyrooOptions` (`Extension{T}`), so its themes freeze with the ones of Klyroo.UI and the Tailwind class extractor and the docs bundle find them. Configure it with `services.AddKlyrooTable(t =&gt; ...)`, in code shared by the server and the WebAssembly client. Partial: each family of components declares its themes in its own file. |
-| `KlyToolsComponentBase` | `class` | `Klyroo.Table` | Base of the components of Klyroo.Table: the theme resolution of `KlyComponentBase`, plus the options and the texts of this package. |
-| `KlyDataList<TItem>` | `class` | `Klyroo.Table` | Public API type |
-| `KlyDataList<TItem>` | `class` | `Klyroo.Table` | Public API type |
-| `KlyDataListColumn<TItem>` | `class` | `Klyroo.Table` | A column of `KlyDataListTable{TItem}`. Renders nothing itself: it registers with its list (`Columns`). What a cell shows comes from one of three places: `Template`, `Property` or `Field`. The row type. |
-| `KlyDataListFilterEditor<TItem>` | `class` | `Klyroo.Table` | Public API type |
-| `DataListActionPartBase<TItem>` | `class` | `Klyroo.Table` | Public API type |
-| `DataListActionScope` | `enum` | `Klyroo.Table` | Which rows a bulk or toolbar action targets. |
-| `DataListSelectionScope` | `enum` | `Klyroo.Table` | Where the rows of a selection survive: across pages, or only on the page they were ticked on. |
-| `DataListSelectionClear` | `enum` | `Klyroo.Table` | When running an action unticks the rows. |
-| `DataListSelectionBarPosition` | `enum` | `Klyroo.Table` | Where the selection bar sits. |
-| `DataListActionContext<TItem>` | `class` | `Klyroo.Table` | What an action receives when it runs: the rows it targets, the scope and the request that stands for "every result". The row type. |
-| `DataListActionConfirm<TItem>` | `class` | `Klyroo.Table` | The question an action asks before it runs, in a dialog. The text can say how many rows are affected. The row type. |
-| `DataListAction<TItem>` | `class` | `Klyroo.Table` | An action of a data list: a button of the `KlyDataListSelectionActions{TItem}` bar (it acts on the selection) or an entry of the `KlyDataListActionsDropdown{TItem}` menu. While it runs its button shows a spinner and the action cannot start twice. The row type. |
-| `DataListActionFailure<TItem>` | `record` | `Klyroo.Table` | An action that threw. The action. What it threw. The row type. |
+- .NET 10 SDK.
+- Blazor Web App in static server rendering, Interactive Server, WebAssembly or Auto. In static rendering the controls are links and GET forms; selection and actions need an interactive render.
+- .NET MAUI Blazor Hybrid: the package declares `browser`, `ios`, `android`, `maccatalyst` and `windows` as supported platforms. This repository has no MAUI app or test that runs it.
+- NativeAOT and trimming: `Klyroo.Table.Core` sets `IsAotCompatible` and `IsTrimmable`, and CI builds it with the AOT and trimming analyzers. `Klyroo.Table` sets `IsTrimmable` only.
+- Tailwind CSS v4 compiled by your app, as described in [Getting started](docs/getting-started.md#4-style-the-list).
 
-## Razor Components
+## Klyroo ecosystem
 
-| Component | Package | Parameters | Source |
-| :--- | :--- | :--- | :--- |
-| `<KlyDataList>` | `Klyroo.Table` | 15 parameters | `src/Klyroo.Table/Components/DataList/KlyDataList.razor` |
-| `<KlyDataListActionsDropdown>` | `Klyroo.Table` | 2 parameters | `src/Klyroo.Table/Components/DataList/KlyDataListActionsDropdown.razor` |
-| `<KlyDataListAddFilter>` | `Klyroo.Table` | 3 parameters | `src/Klyroo.Table/Components/DataList/KlyDataListAddFilter.razor` |
-| `<KlyDataListClearFilters>` | `Klyroo.Table` | 2 parameters | `src/Klyroo.Table/Components/DataList/KlyDataListClearFilters.razor` |
-| `<KlyDataListColumnPanel>` | `Klyroo.Table` | 5 parameters | `src/Klyroo.Table/Components/DataList/KlyDataListColumnPanel.razor` |
-| `<KlyDataListEmpty>` | `Klyroo.Table` | 6 parameters | `src/Klyroo.Table/Components/DataList/KlyDataListEmpty.razor` |
-| `<KlyDataListErrorState>` | `Klyroo.Table` | 2 parameters | `src/Klyroo.Table/Components/DataList/KlyDataListErrorState.razor` |
-| `<KlyDataListFilterEditor>` | `Klyroo.Table` | 5 parameters | `src/Klyroo.Table/Components/DataList/KlyDataListFilterEditor.razor` |
-| `<KlyDataListFilterPanel>` | `Klyroo.Table` | 3 parameters | `src/Klyroo.Table/Components/DataList/KlyDataListFilterPanel.razor` |
-| `<KlyDataListFilterTags>` | `Klyroo.Table` | 3 parameters | `src/Klyroo.Table/Components/DataList/KlyDataListFilterTags.razor` |
-| `<KlyDataListGrid>` | `Klyroo.Table` | 12 parameters | `src/Klyroo.Table/Components/DataList/KlyDataListGrid.razor` |
-| `<KlyDataListGroupHeader>` | `Klyroo.Table` | 6 parameters | `src/Klyroo.Table/Components/DataList/KlyDataListGroupHeader.razor` |
-| `<KlyDataListInfiniteLoader>` | `Klyroo.Table` | 6 parameters | `src/Klyroo.Table/Components/DataList/KlyDataListInfiniteLoader.razor` |
-| `<KlyDataListLayoutSwitch>` | `Klyroo.Table` | 5 parameters | `src/Klyroo.Table/Components/DataList/KlyDataListLayoutSwitch.razor` |
-| `<KlyDataListPagination>` | `Klyroo.Table` | 5 parameters | `src/Klyroo.Table/Components/DataList/KlyDataListPagination.razor` |
-| `<KlyDataListRefresh>` | `Klyroo.Table` | 0 parameters | `src/Klyroo.Table/Components/DataList/KlyDataListRefresh.razor` |
-| `<KlyDataListResultCount>` | `Klyroo.Table` | 0 parameters | `src/Klyroo.Table/Components/DataList/KlyDataListResultCount.razor` |
-| `<KlyDataListRowActions>` | `Klyroo.Table` | 7 parameters | `src/Klyroo.Table/Components/DataList/KlyDataListRowActions.razor` |
-| `<KlyDataListSearch>` | `Klyroo.Table` | 5 parameters | `src/Klyroo.Table/Components/DataList/KlyDataListSearch.razor` |
-| `<KlyDataListSelectionActions>` | `Klyroo.Table` | 3 parameters | `src/Klyroo.Table/Components/DataList/KlyDataListSelectionActions.razor` |
-| `<KlyDataListSortMenu>` | `Klyroo.Table` | 4 parameters | `src/Klyroo.Table/Components/DataList/KlyDataListSortMenu.razor` |
-| `<KlyDataListTable>` | `Klyroo.Table` | 18 parameters | `src/Klyroo.Table/Components/DataList/KlyDataListTable.razor` |
-| `<KlyDataListViewToggle>` | `Klyroo.Table` | 3 parameters | `src/Klyroo.Table/Components/DataList/KlyDataListViewToggle.razor` |
-| `<DataListActionDialog>` | `Klyroo.Table` | 7 parameters | `src/Klyroo.Table/Components/DataList/DataListActionDialog.razor` |
-| `<DataListRowSelect>` | `Klyroo.Table` | 2 parameters | `src/Klyroo.Table/Components/DataList/DataListRowSelect.razor` |
-| `<DataListSelectAll>` | `Klyroo.Table` | 0 parameters | `src/Klyroo.Table/Components/DataList/DataListSelectAll.razor` |
+Klyroo is a family of independent .NET libraries that compose. Each one has its own repository, versions and releases.
 
-## Building & Testing
-
-```bash
-dotnet build
-dotnet test
-dotnet pack -c Release
-```
+| Library | Description |
+| :--- | :--- |
+| [Klyroo.UI](https://github.com/klyroo/klyroo-ui) | Accessible Blazor and .NET MAUI Hybrid components styled with Tailwind CSS v4 |
+| [Klyroo.Query](https://github.com/klyroo/klyroo-query) | Typed query model, URL codecs and IQueryable / EF Core execution |
+| [**Klyroo.Table**](https://github.com/klyroo/klyroo-table) | Data lists and trees built on Klyroo.Query |
+| [Klyroo.Form](https://github.com/klyroo/klyroo-form) | Schema-driven forms, validation and wizards |
+| [Klyroo.Dashboard](https://github.com/klyroo/klyroo-dashboard) | Analytical dashboards with filters, comparisons and KPI blocks |
+| [Klyroo.Display](https://github.com/klyroo/klyroo-display) | Read-only display blocks, media players and file preview |
+| [Klyroo.Spreadsheet](https://github.com/klyroo/klyroo-spreadsheet) | CSV and TSV import with column mapping and validation |
+| [Klyroo.Agent](https://github.com/klyroo/klyroo-agent) | Bridge that lets AI agents read and act on a Blazor UI |
+| [Klyroo.Stack](https://github.com/klyroo/klyroo-stack) | Meta-package, MCP server and `dotnet new` templates |
 
 ## Contributing
 
-Issues and pull requests are welcome. Read [CONTRIBUTING.md](./CONTRIBUTING.md) for the workflow (Conventional
-Commits, tests, documentation), follow the [Code of Conduct](./CODE_OF_CONDUCT.md), and report vulnerabilities
-privately as described in [SECURITY.md](./SECURITY.md).
-
-## Migrating from Lux
-
-This library was previously named `lux-table`. [MIGRATION.md](./MIGRATION.md) lists every renamed package, namespace,
-component, CSS token and build setting.
+Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request, and follow the
+[code of conduct](CODE_OF_CONDUCT.md). Report security issues privately as described in [SECURITY.md](SECURITY.md).
 
 ## License
 
-MIT — see [LICENSE](./LICENSE). Part of the **[Klyroo](../klyroo-stack/README.md)** ecosystem.
+[MIT](LICENSE)
