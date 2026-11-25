@@ -11,7 +11,9 @@ public sealed class DataListLoadTrigger<TItem> : ComponentBase
 {
     [CascadingParameter] private DataListContext<TItem>? Context { get; set; } = default!;
 
+    /// <inheritdoc />
     protected override Task OnInitializedAsync() => Context?.EnsureLoadedAsync() ?? Task.CompletedTask;
 
+    /// <inheritdoc />
     protected override bool ShouldRender() => false;
 }

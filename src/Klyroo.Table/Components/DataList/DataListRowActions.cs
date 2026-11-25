@@ -50,6 +50,9 @@ public sealed class DataListRowActionContext<TItem>
 /// <typeparam name="TItem">The row type.</typeparam>
 public sealed class DataListRowActionConfirm<TItem>
 {
+    /// <summary>Creates a confirmation. Set <see cref="Title"/>.</summary>
+    public DataListRowActionConfirm() { }
+
     /// <summary>The title of the dialog.</summary>
     public required string Title { get; init; }
 
@@ -70,6 +73,9 @@ public sealed class DataListRowActionConfirm<TItem>
 /// <typeparam name="TItem">The row type.</typeparam>
 public sealed class DataListRowAction<TItem>
 {
+    /// <summary>Creates a row action. Set <see cref="Key"/> and <see cref="Label"/>, then <see cref="OnExecute"/> or <see cref="Href"/>.</summary>
+    public DataListRowAction() { }
+
     /// <summary>Identifies the action; unique among the actions of the part, children included.</summary>
     public required string Key { get; init; }
 

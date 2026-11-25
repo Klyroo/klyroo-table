@@ -79,7 +79,7 @@
 
     /// <summary>
     /// What a request may ask for: which fields sort, which filter, the default sort and page size. The schema is fixed for the life of the list: a new instance given after the first render is ignored
-    /// (build it once, in a static field or a cached service; an inline <c>DataListSchema.For&lt;T&gt;(...)</c> in markup would create a new one on every render), and giving another schema means re-keying the list with <c>@@key</c>. Optional for a list of rows in memory whose
+    /// (build it once, in a static field or a cached service; an inline <c>DataListSchema.For&lt;T&gt;(...)</c> in markup would create a new one on every render), and giving another schema means re-keying the list with <c>@key</c>. Optional for a list of rows in memory whose
     /// <see cref="KlyDataListColumn{TItem}"/>s name a <c>Property</c>: those columns then describe the schema (every one sortable unless it says otherwise).
     /// A provider or a queryable needs a schema, because it is the schema that drops what a request must not ask for.
     /// </summary>
@@ -94,7 +94,7 @@
     /// <summary>
     /// A query of a database provider (an EF Core <c>DbSet</c>, with the filters that are not the user's already applied): the list turns each request into queries with
     /// <see cref="QueryableDataList"/> and runs them through the <see cref="IDataListQueryExecutor"/> of the container. Needs a <see cref="Schema"/>. The default executor
-    /// <b>blocks the thread</b> while the database answers: register an asynchronous one (<c>AddKlyrooTableEntityFrameworkAdapter()</c> for EF Core). An <c>AsQueryable()</c> over a list is rejected: use <see cref="Items"/>.
+    /// <b>blocks the thread</b> while the database answers: register an asynchronous <see cref="IDataListQueryExecutor"/> (for EF Core, one that calls <c>CountAsync</c> and <c>ToListAsync</c> with the token). An <c>AsQueryable()</c> over a list is rejected: use <see cref="Items"/>.
     /// A DbContext allows one query at a time: give the list a context of its own (a factory) when the page has several.
     /// </summary>
     [Parameter] public IQueryable<TItem>? Queryable { get; set; }

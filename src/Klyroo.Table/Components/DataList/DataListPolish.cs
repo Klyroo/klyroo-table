@@ -41,6 +41,9 @@ public enum DataListSkeletonKind
 /// </summary>
 public sealed class DataListEmptyAction
 {
+    /// <summary>Creates an empty-state action. Set <see cref="Label"/>, then <see cref="Href"/> or <see cref="OnClick"/>.</summary>
+    public DataListEmptyAction() { }
+
     /// <summary>Label of the action button or link.</summary>
     public required string Label { get; init; }
 
@@ -67,6 +70,9 @@ public sealed class DataListEmptyAction
 /// </summary>
 public sealed class DataListEmptyState
 {
+    /// <summary>Creates an empty-state configuration that changes nothing: the default icon, title and description.</summary>
+    public DataListEmptyState() { }
+
     /// <summary>Optional icon name overriding the default empty-state icon (or empty string to hide the icon).</summary>
     public string? Icon { get; init; }
 

@@ -35,8 +35,10 @@ public sealed class DataListRowView<TItem> : ComponentBase
     internal int BuildCount { get; private set; }
 
     // The first render does not ask: what was built is recorded when it is built.
+    /// <inheritdoc />
     protected override bool ShouldRender() => !(_rendered && ReferenceEquals(_item, Item) && _revision == Revision && _rowIndex == RowIndex);
 
+    /// <inheritdoc />
     protected override void BuildRenderTree(RenderTreeBuilder builder)
     {
         BuildCount++;

@@ -40,6 +40,13 @@ public enum DataListSummaryScope
 
 /// <summary>Context passed to <see cref="KlyDataListColumn{TItem}.SummaryTemplate"/> when rendering a summary footer cell.</summary>
 /// <typeparam name="TItem">The row type.</typeparam>
+/// <param name="List">The list the cell belongs to.</param>
+/// <param name="ColumnKey">The key of the column of the cell.</param>
+/// <param name="Scope">The set of rows the value aggregates.</param>
+/// <param name="Rows">The rows of that scope.</param>
+/// <param name="Value">The aggregated value, before formatting.</param>
+/// <param name="FormattedValue">The value as text, with the format of the column and the culture of the page.</param>
+/// <param name="IsLoading">Whether an asynchronous <see cref="DataListSummaries{TItem}.ResolveAsync"/> is still running for this scope.</param>
 public sealed record DataListSummaryCellContext<TItem>(
     DataListContext<TItem> List,
     string? ColumnKey,
@@ -51,6 +58,11 @@ public sealed record DataListSummaryCellContext<TItem>(
 
 /// <summary>Context passed to <see cref="DataListSummaries{TItem}.ResolveAsync"/> when resolving summary values asynchronously.</summary>
 /// <typeparam name="TItem">The row type.</typeparam>
+/// <param name="List">The list the summary belongs to.</param>
+/// <param name="Scope">The set of rows to aggregate.</param>
+/// <param name="Rows">The rows of that scope that the list holds.</param>
+/// <param name="Request">The request for every row the list matches, to send to a server that aggregates; <see langword="null"/> before the first load.</param>
+/// <param name="CancellationToken">Cancelled when the list goes away or a newer resolution replaces this one.</param>
 public sealed record DataListSummaryResolveContext<TItem>(
     DataListContext<TItem> List,
     DataListSummaryScope Scope,
@@ -67,6 +79,9 @@ public sealed record DataListSummaryResolveContext<TItem>(
 /// <typeparam name="TItem">The row type.</typeparam>
 public sealed class DataListSummaries<TItem>
 {
+    /// <summary>Creates a summary configuration with one row for the <see cref="DataListSummaryScope.Filtered"/> scope.</summary>
+    public DataListSummaries() { }
+
     /// <summary>The default scope aggregated when <see cref="Scopes"/> is not set (<see cref="DataListSummaryScope.Filtered"/> by default).</summary>
     public DataListSummaryScope Scope { get; init; } = DataListSummaryScope.Filtered;
 

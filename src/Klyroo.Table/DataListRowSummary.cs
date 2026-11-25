@@ -11,6 +11,9 @@ namespace Klyroo.Table;
 /// <typeparam name="TItem">The row type.</typeparam>
 public sealed record DataListRowSummary<TItem>
 {
+    /// <summary>Creates a row summary with every option at its default: the title and details come from the schema and the columns, and the summary rows show below the <c>md</c> breakpoint.</summary>
+    public DataListRowSummary() { }
+
     /// <summary>Primary one-line title of the row. When <see langword="null"/>, uses <c>Schema.GetRowLabel(item)</c> or the first visible column's formatted value.</summary>
     public Func<TItem, string?>? Title { get; init; }
 

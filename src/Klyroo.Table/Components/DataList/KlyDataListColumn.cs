@@ -22,7 +22,7 @@ public sealed class KlyDataListColumn<TItem> : ComponentBase, IDisposable
     [Parameter] public string? Field { get; set; }
 
     /// <summary>
-    /// The value of a cell as an expression, <c>@(e =&gt; e.Name)</c>:the cell shows it and, without a schema on the list, the column describes the schema: its key is the member path in camel case (<c>name</c>, <c>department.name</c>)
+    /// The value of a cell as an expression, <c>@(e =&gt; e.Name)</c>: the cell shows it and, without a schema on the list, the column describes the schema: its key is the member path in camel case (<c>name</c>, <c>department.name</c>)
     /// unless <see cref="Key"/> says otherwise, and it sorts (give <c>Sortable="false"</c> to turn that off). With a schema the key must be one of its fields to sort.
     /// </summary>
     [Parameter] public Expression<Func<TItem, object?>>? Property { get; set; }
@@ -133,6 +133,7 @@ public sealed class KlyDataListColumn<TItem> : ComponentBase, IDisposable
 
     internal bool HasValue => Template is not null || Property is not null || Field is not null;
 
+    /// <inheritdoc />
     protected override void OnParametersSet()
     {
         if (Context is null)
@@ -158,6 +159,7 @@ public sealed class KlyDataListColumn<TItem> : ComponentBase, IDisposable
     internal int RegistrationIndex => _index ?? int.MaxValue;
 
     // The table reads the values of its columns when it renders, after them: a column never renders by itself.
+    /// <inheritdoc />
     protected override bool ShouldRender() => false;
 
     /// <summary>The text of a cell for a value: the format of the column, with the culture of the page.</summary>

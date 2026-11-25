@@ -2,6 +2,9 @@ namespace Klyroo.Table;
 
 public sealed partial record KlyToolsMessages
 {
+    /// <summary>Creates the table with the English texts.</summary>
+    public KlyToolsMessages() { }
+
     /// <summary>Accessible name of the checkbox in the header of a data list that selects the rows of the page.</summary>
     public string SelectAllRows { get; init; } = "Select all rows on this page";
 

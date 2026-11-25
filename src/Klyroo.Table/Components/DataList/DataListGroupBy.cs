@@ -63,6 +63,9 @@ public sealed class DataListGroup<TItem>
 /// <typeparam name="TItem">The row type.</typeparam>
 public sealed class DataListGroupBy<TItem>
 {
+    /// <summary>Creates a grouping. Set <see cref="Key"/> or <see cref="Field"/>.</summary>
+    public DataListGroupBy() { }
+
     /// <summary>The stable key used for the group of rows whose value is <see langword="null"/> or empty.</summary>
     public const string EmptyGroupKey = "~empty";
 

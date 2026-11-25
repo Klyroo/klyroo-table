@@ -5,6 +5,11 @@ namespace Klyroo.Table;
 
 // The options of a filter that come from a remote source (DataListFilter.WithRemoteOptions), and the "show more" of a long list of options. The paging, the search, the cancellation of stale requests and the
 // error state are RemoteOptions of Klyroo.UI, the logic behind KlySelectMenu with an OptionsProvider; this part only adapts the filter's delegates to it and keeps its own state across renders.
+/// <summary>
+/// The editor of one filter of the schema, chosen by its kind: a text field, a list of options (with search, counts and remote loading), yes / no / any, a number or a range of numbers, a day or a range of days.
+/// The filter tags, the add filter menu and the filter panel use it; place it yourself to put a filter anywhere inside a <see cref="KlyDataList{TItem}"/>.
+/// </summary>
+/// <typeparam name="TItem">The row type.</typeparam>
 public partial class KlyDataListFilterEditor<TItem>
 {
     // The pause of the typing before a search is sent to the remote source.

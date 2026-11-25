@@ -7,6 +7,12 @@ namespace Klyroo.Table;
 
 // Column preferences: visibility, order, pinning and pixel widths. With a PreferencesKey they live in a cookie (a localStorage entry in a Blazor Hybrid web view), so a static render or a
 // prerender reads them from the request and paints the user's columns at once; an interactive render takes them from the prerender (persistent state) or from the browser.
+/// <summary>
+/// A data list: it loads rows from one source (<see cref="Items"/>, <see cref="Queryable"/> or <see cref="Provider"/>) for a <c>DataListState</c> (search, filters, sort, page), keeps that state
+/// in the URL, and shares it with its parts (<see cref="KlyDataListTable{TItem}"/>, <see cref="KlyDataListPagination{TItem}"/>, <see cref="KlyDataListSearch{TItem}"/>...) through a
+/// <see cref="DataListContext{TItem}"/>. Without child content it renders a default layout: search, result count, refresh, filter tags, error state, table and pagination.
+/// </summary>
+/// <typeparam name="TItem">The row type.</typeparam>
 public partial class KlyDataList<TItem>
 {
     /// <summary>The width a pinned column gets when nobody gave it one: the offsets of the pinned columns need every width.</summary>

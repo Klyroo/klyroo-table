@@ -10,17 +10,24 @@
 </KlyModal>
 
 @code {
+    /// <summary>Whether the dialog is open. Bind it with <c>@bind-Open</c>.</summary>
     [Parameter] public bool Open { get; set; }
 
+    /// <summary>Raised when the dialog opens or closes.</summary>
     [Parameter] public EventCallback<bool> OpenChanged { get; set; }
 
+    /// <summary>The title of the dialog.</summary>
     [Parameter, EditorRequired] public string Title { get; set; } = "";
 
+    /// <summary>The text under the title. Nothing is shown without it.</summary>
     [Parameter] public string? Description { get; set; }
 
+    /// <summary>The label of the confirm button.</summary>
     [Parameter, EditorRequired] public string ConfirmLabel { get; set; } = "";
 
+    /// <summary>The color of the confirm button; <see cref="KlyColor.Error"/> for a destructive action.</summary>
     [Parameter] public KlyColor Color { get; set; }
 
+    /// <summary>Raised when the confirm button is clicked, after which the dialog closes.</summary>
     [Parameter] public EventCallback OnConfirm { get; set; }
 }

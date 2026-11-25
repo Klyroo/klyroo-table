@@ -26,15 +26,18 @@ public interface IDataListQueryExecutor
 /// <summary>
 /// The default executor: <c>Count()</c> and <c>ToList()</c>, on the thread that asks. <b>It blocks that thread while the database answers</b>: in Blazor Server
 /// that is the thread of the circuit, in WebAssembly the only thread of the page. Use it for tests, small local databases and providers with no asynchronous API;
-/// register an asynchronous executor for a real database (<c>AddKlyrooTableEntityFrameworkAdapter()</c> of Klyroo.Table.EntityFrameworkCore for EF Core).
+/// register your own asynchronous <see cref="IDataListQueryExecutor"/> for a real database (for EF Core, one that calls <c>CountAsync</c> and <c>ToListAsync</c> with the token).
 /// The cancellation token is checked before each query, not during it.
 /// </summary>
 public sealed class SynchronousDataListQueryExecutor : IDataListQueryExecutor
 {
+    /// <summary>Creates an executor. Use <see cref="Instance"/> rather than your own.</summary>
+    public SynchronousDataListQueryExecutor() { }
+
     /// <summary>The shared instance.</summary>
     public static SynchronousDataListQueryExecutor Instance { get; } = new();
 
-    /// <inheritdoc />
+    /// <summary>Counts the rows of a query with <c>Count()</c>, on the calling thread. The token is checked once, before the query runs.</summary>
     public ValueTask<int> CountAsync<T>(IQueryable<T> query, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(query);
@@ -42,7 +45,7 @@ public sealed class SynchronousDataListQueryExecutor : IDataListQueryExecutor
         return ValueTask.FromResult(query.Count());
     }
 
-    /// <inheritdoc />
+    /// <summary>Loads the rows of a query with <c>ToList()</c>, on the calling thread. The token is checked once, before the query runs.</summary>
     public ValueTask<List<T>> ToListAsync<T>(IQueryable<T> query, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(query);

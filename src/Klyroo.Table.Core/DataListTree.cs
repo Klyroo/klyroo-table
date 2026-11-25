@@ -76,6 +76,9 @@ public sealed class DataListTreeNode<TItem>
 /// <typeparam name="TItem">The row type.</typeparam>
 public sealed class DataListTree<TItem>
 {
+    /// <summary>Creates a tree configuration. <see cref="Children"/> is required.</summary>
+    public DataListTree() { }
+
     /// <summary>
     /// Extracts the child items of a row. Null items and nodes whose key duplicates an earlier node in the tree are skipped.
     /// </summary>
@@ -102,6 +105,13 @@ public sealed class DataListTree<TItem>
     public bool IsDefaultExpanded(int depth) =>
         DefaultExpandedDepth is { } maxDepth ? depth < maxDepth : DefaultExpanded;
 
+    /// <summary>
+    /// Builds the tree of nodes for the given top-level rows, reading each row's children with <see cref="Children"/>. Each node is keyed by the row key of
+    /// <paramref name="schema"/> when it has one (and the key is not empty), else by its position in the walk; a row whose key was already seen is skipped, with its children.
+    /// </summary>
+    /// <param name="rootItems">The top-level rows.</param>
+    /// <param name="schema">The schema that gives each row its key. Optional; without a row key every row gets a key from its position.</param>
+    /// <returns>The top-level nodes, and every node in depth-first order.</returns>
     public (IReadOnlyList<DataListTreeNode<TItem>> Roots, IReadOnlyList<DataListTreeNode<TItem>> AllNodes) BuildTree(
         IReadOnlyList<TItem> rootItems,
         DataListSchema<TItem>? schema = null)

@@ -104,6 +104,9 @@ public sealed class DataListActionContext<TItem>
 /// <typeparam name="TItem">The row type.</typeparam>
 public sealed class DataListActionConfirm<TItem>
 {
+    /// <summary>Creates a confirmation. Set <see cref="Title"/>.</summary>
+    public DataListActionConfirm() { }
+
     /// <summary>The title of the dialog.</summary>
     public required string Title { get; init; }
 
@@ -124,6 +127,9 @@ public sealed class DataListActionConfirm<TItem>
 /// <typeparam name="TItem">The row type.</typeparam>
 public sealed class DataListAction<TItem>
 {
+    /// <summary>Creates an action. Set <see cref="Key"/>, <see cref="Label"/> and <see cref="OnExecute"/>.</summary>
+    public DataListAction() { }
+
     /// <summary>Identifies the action: tests and the menu use it.</summary>
     public required string Key { get; init; }
 

@@ -11,6 +11,9 @@ namespace Klyroo.Table;
 /// <remarks>Partial: each family of components declares its themes in its own file.</remarks>
 public sealed partial class KlyrooTableOptions
 {
+    /// <summary>Creates the options with the default themes and message tables, a search delay of 300 ms and the default prerender persistence limits.</summary>
+    public KlyrooTableOptions() { }
+
     private readonly object _gate = new();
     private readonly Dictionary<string, List<Func<KlyToolsMessages, KlyToolsMessages>>> _messageChanges = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentDictionary<string, KlyToolsMessages> _resolved = new(StringComparer.OrdinalIgnoreCase);

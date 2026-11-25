@@ -17,6 +17,7 @@ public abstract class DataListPartBase<TItem> : KlyToolsComponentBase, IDisposab
     /// <summary>Per-instance classes for each slot.</summary>
     [Parameter] public DataListUi? Ui { get; set; }
 
+    /// <inheritdoc />
     protected override void OnInitialized()
     {
         if (Context is null)
