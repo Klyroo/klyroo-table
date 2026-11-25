@@ -77,7 +77,7 @@ internal static partial class ToolsThemes
             .Slot("error", "")
             .Slot("filters", "flex w-full min-w-0 flex-wrap items-center gap-2")
             .Slot("filterTags", "m-0 flex min-w-0 list-none flex-wrap items-center gap-2 p-0")
-            .Slot("filterTag", "inline-flex max-w-full min-w-0 items-stretch rounded-(--klyroo-radius) border border-(--klyroo-border-accented) bg-(--klyroo-bg) text-xs text-(--klyroo-text) [&_lx-popover]:flex [&_lx-popover]:min-w-0 [&_lx-popover>[data-slot=trigger]]:flex [&_lx-popover>[data-slot=trigger]]:min-w-0")
+            .Slot("filterTag", "inline-flex max-w-full min-w-0 items-stretch rounded-(--klyroo-radius) border border-(--klyroo-border-accented) bg-(--klyroo-bg) text-xs text-(--klyroo-text) [&_kly-popover]:flex [&_kly-popover]:min-w-0 [&_kly-popover>[data-slot=trigger]]:flex [&_kly-popover>[data-slot=trigger]]:min-w-0")
             .Slot("filterTagButton", "inline-flex min-h-8 min-w-0 items-center gap-1 rounded-s-(--klyroo-radius) px-2 py-1 text-start hover:bg-(--klyroo-bg-muted) focus-visible:outline-2 focus-visible:outline-(--klyroo-primary-text)")
             .Slot("filterTagLabel", "shrink-0 font-semibold")
             .Slot("filterTagOperator", "shrink-0 text-(--klyroo-text-muted)")
