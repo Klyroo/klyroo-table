@@ -98,7 +98,7 @@ The stylesheet setup of [Getting started](getting-started.md#4-style-the-list) a
 
 What this repository does not contain: a MAUI app that uses the list, or a test that runs it in a web view. If you hit a platform-specific problem, please report it with the platform and the version.
 
-For a MAUI app that does not use a `BlazorWebView`, install `Klyroo.Table.Core` alone: it has no ASP.NET Core or Razor dependency, and `DataListTree<T>` works in a view model.
+For a MAUI app that does not use a `BlazorWebView`, install `Klyroo.Table.Core` alone: it has no ASP.NET Core or Razor dependency, so a view model can use `DataListTree<T>`.
 
 ## NativeAOT and trimming
 
