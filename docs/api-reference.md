@@ -1,17 +1,17 @@
-# API Reference — Lux.Table
+# API Reference — Klyroo.Table
 
-Complete public API reference extracted directly from the source code of `Lux.Table.Core` and `Lux.Table`.
+Complete public API reference extracted directly from the source code of `Klyroo.Table.Core` and `Klyroo.Table`.
 
 ## Razor Components
 
-### `<LxDataList>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/LxDataList.razor`
+### `<KlyDataList>`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/KlyDataList.razor`
 
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
-| `Schema` | `DataListSchema<TItem>?` | What a request may ask for: which fields sort, which filter, the default sort and page size. The schema is fixed for the life of the list: a new instance given after the first render is ignored (build it once, in a static field or a cached service; an inline `DataListSchema.For&lt;T&gt;(...)` in markup would create a new one on every render), and giving another schema means re-keying the list with `@@key`. Optional for a list of rows in memory whose `LxDataListColumn{TItem}`s name a `Property`: those columns then describe the schema (every one sortable unless it says otherwise). A provider or a queryable needs a schema, because it is the schema that drops what a request must not ask for. |
+| `Schema` | `DataListSchema<TItem>?` | What a request may ask for: which fields sort, which filter, the default sort and page size. The schema is fixed for the life of the list: a new instance given after the first render is ignored (build it once, in a static field or a cached service; an inline `DataListSchema.For&lt;T&gt;(...)` in markup would create a new one on every render), and giving another schema means re-keying the list with `@@key`. Optional for a list of rows in memory whose `KlyDataListColumn{TItem}`s name a `Property`: those columns then describe the schema (every one sortable unless it says otherwise). A provider or a queryable needs a schema, because it is the schema that drops what a request must not ask for. |
 | `Items` | `IEnumerable<TItem>?` | The rows, kept in memory: the list sorts and pages them itself, with the semantics of `InMemoryDataList`. Give a stable collection (a field, not a new list on every render): a new reference loads the list again. A list takes one source: `Items`, `Queryable` or `Provider`. |
-| `Queryable` | `IQueryable<TItem>?` | A query of a database provider (an EF Core `DbSet`, with the filters that are not the user's already applied): the list turns each request into queries with `QueryableDataList` and runs them through the `IDataListQueryExecutor` of the container. Needs a `Schema`. The default executor blocks the thread while the database answers: register an asynchronous one (`AddLuxTableEntityFrameworkAdapter()` for EF Core). An `AsQueryable()` over a list is rejected: use `Items`. A DbContext allows one query at a time: give the list a context of its own (a factory) when the page has several. |
+| `Queryable` | `IQueryable<TItem>?` | A query of a database provider (an EF Core `DbSet`, with the filters that are not the user's already applied): the list turns each request into queries with `QueryableDataList` and runs them through the `IDataListQueryExecutor` of the container. Needs a `Schema`. The default executor blocks the thread while the database answers: register an asynchronous one (`AddKlyrooTableEntityFrameworkAdapter()` for EF Core). An `AsQueryable()` over a list is rejected: use `Items`. A DbContext allows one query at a time: give the list a context of its own (a factory) when the page has several. |
 | `Provider` | `DataListProvider<TItem>?` | Loads a page of rows for a request, from a database, an HTTP API or anything else. It receives a token that is cancelled when a newer request replaces it. |
 | `State` | `DataListState?` | The search, filters, sort, page and page size. Bind it with `@bind-State` to read or set it from outside: a value you set (a reset button) is written to the URL (a history entry) with `UrlSync`, or loaded directly without it. With `UrlSync` the URL wins at the start: this value only starts the list when the URL holds none of its keys. |
 | `StateChanged` | `EventCallback<DataListState>` | Raised when the state changes, from the list or, with URL sync, from the URL (a link, Back and Forward, a typed address). |
@@ -20,69 +20,69 @@ Complete public API reference extracted directly from the source code of `Lux.Ta
 | `ResultJson` | `JsonTypeInfo<DataListResult<TItem>>?` | Metadata to serialize the result of the prerender (`MyJson.Default.DataListResultMyRow`, from a `JsonSerializerContext` of the app with `[JsonSerializable(typeof(DataListResult&lt;MyRow&gt;))]`). The result of a prerendered list is then handed to the interactive render (WebAssembly, Server or Auto), which shows it at once and does not load it again. Without it nothing is persisted and the interactive render loads the list a second time. Lists that persist need distinct `UrlKey` or `PersistKey` values (two of the same row type under the same key throw). |
 | `PersistKey` | `string?` | The key the prerendered result is persisted under, when the list has no `UrlKey` or two lists share it. The row type is part of the key. |
 | `Density` | `DataListDensity` | How tight the rows are. |
-| `PagingMode` | `DataListPagingMode` | How the list pages its rows: numbered pages (`Offset`, the default), keyset cursor paging (`Cursor`, with `LxDataListInfiniteLoader{TItem}`) or no paging (`None`, every matching row at once, for virtualized tables). Changing it after the first render starts the list again from its first rows (page 1, no cursor) and loads it in the new mode; a cursor in the address of a list that does not page by cursor is dropped. |
+| `PagingMode` | `DataListPagingMode` | How the list pages its rows: numbered pages (`Offset`, the default), keyset cursor paging (`Cursor`, with `KlyDataListInfiniteLoader{TItem}`) or no paging (`None`, every matching row at once, for virtualized tables). Changing it after the first render starts the list again from its first rows (page 1, no cursor) and loads it in the new mode; a cursor in the address of a list that does not page by cursor is dropped. |
 | `Label` | `string?` | The name of the list. Its table is named by it (`Results` when it has none), and its pagination landmark is "Pagination, &lt;label&gt;": give the lists of a page distinct labels, because two landmarks with the same name cannot be told apart. |
 | `ChildContent` | `RenderFragment?` | The parts of the list: toolbar items, the table with its columns, the pagination. Without it the list renders a default layout: result count, refresh, error state, table and pagination. |
 | `Ui` | `DataListUi?` | Per-instance classes for each slot. |
 
-### `<LxDataListActionsDropdown>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/LxDataListActionsDropdown.razor`
+### `<KlyDataListActionsDropdown>`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/KlyDataListActionsDropdown.razor`
 
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
 | `Label` | `string?` | The label of the button that opens the menu. Without it the localized "Actions". |
 | `Icon` | `string` | The name of the icon of the button (`ellipsis` by default). |
 
-### `<LxDataListAddFilter>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/LxDataListAddFilter.razor`
+### `<KlyDataListAddFilter>`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/KlyDataListAddFilter.razor`
 
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
 | `ApplyMode` | `DataListApplyMode` | Whether the editors apply each change at once (`Live`) or wait for an Apply button (`Submit`). |
-| `Size` | `LxSize?` | The size of the button. Defaults to small. |
+| `Size` | `KlySize?` | The size of the button. Defaults to small. |
 | `SearchFrom` | `int` | The number of filters from which the menu has a search field. Defaults to 8. |
 
-### `<LxDataListClearFilters>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/LxDataListClearFilters.razor`
+### `<KlyDataListClearFilters>`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/KlyDataListClearFilters.razor`
 
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
 | `Label` | `string?` | The text of the button. Without it, the localized "Clear filters". |
-| `Size` | `LxSize?` | The size of the button. Defaults to small. |
+| `Size` | `KlySize?` | The size of the button. Defaults to small. |
 
-### `<LxDataListColumnPanel>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/LxDataListColumnPanel.razor`
+### `<KlyDataListColumnPanel>`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/KlyDataListColumnPanel.razor`
 
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
 | `Label` | `string?` | Label of the trigger button and heading of the popover. Defaults to the localized "Columns". |
-| `Size` | `LxSize` | Size of the trigger button (small by default). |
+| `Size` | `KlySize` | Size of the trigger button (small by default). |
 | `AllowReorder` | `bool` | Shows the drag grip and the Move up / Move down buttons to reorder columns (true by default). |
 | `AllowPinning` | `bool` | Shows Pin to start / Pin to end controls (true by default). |
 | `SearchThreshold` | `int` | Shows a search box inside the panel when at least this many configurable columns exist (30 by default; 0 always shows it; a negative number never). |
 
-### `<LxDataListEmpty>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/LxDataListEmpty.razor`
+### `<KlyDataListEmpty>`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/KlyDataListEmpty.razor`
 
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
 | `Title` | `string?` | The title. Without it, the localized "No results". |
 | `Description` | `string?` | The text under the title. Without it, the localized hint to change the search or the filters; an empty string shows none. |
-| `Icon` | `string?` | The icon above the title, by name (any icon name Lux.UI accepts). Defaults to `search-x`; an empty string shows none. |
+| `Icon` | `string?` | The icon above the title, by name (any icon name Klyroo.UI accepts). Defaults to `search-x`; an empty string shows none. |
 | `ChildContent` | `RenderFragment?` | Extra content between the description and the actions. |
 | `Actions` | `RenderFragment?` | Buttons or links shown under the text, for example one that clears the filters. |
 | `Ui` | `DataListEmptyUi?` | Per-instance classes for each slot. |
 
-### `<LxDataListErrorState>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/LxDataListErrorState.razor`
+### `<KlyDataListErrorState>`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/KlyDataListErrorState.razor`
 
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
 | `Title` | `string?` | The title. Without it, the localized "Could not load the data". |
 | `Description` | `string?` | The text under the title. Without it, the localized hint to try again. |
 
-### `<LxDataListFilterEditor>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/LxDataListFilterEditor.razor`
+### `<KlyDataListFilterEditor>`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/KlyDataListFilterEditor.razor`
 
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
@@ -92,44 +92,44 @@ Complete public API reference extracted directly from the source code of `Lux.Ta
 | `OnDone` | `EventCallback` | Raised after Apply or Cancel (the Submit apply mode), so that the popover around the editor closes. |
 | `ResetToken` | `int` | Change it to drop what was typed and show the filter as the list has it: the popover around the editor does it each time it closes. |
 
-### `<LxDataListFilterPanel>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/LxDataListFilterPanel.razor`
+### `<KlyDataListFilterPanel>`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/KlyDataListFilterPanel.razor`
 
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
 | `ApplyMode` | `DataListApplyMode` | Whether a change applies at once (`Live`, the default) or waits for Apply, with Reset to drop it (`Submit`). Statically rendered, the form always waits for its Apply button. |
 | `Description` | `string?` | A line under the title of the panel. Without it nothing is shown. |
-| `CloseOnApply` | `bool` | Adds `data-lx-close` to the Apply button, so that a `LxSlideover` (or a modal) around the panel closes when the filters apply, with no round trip. It has no effect on the Live apply mode, which has no Apply button when interactive. |
+| `CloseOnApply` | `bool` | Adds `data-kly-close` to the Apply button, so that a `KlySlideover` (or a modal) around the panel closes when the filters apply, with no round trip. It has no effect on the Live apply mode, which has no Apply button when interactive. |
 
-### `<LxDataListFilterTags>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/LxDataListFilterTags.razor`
+### `<KlyDataListFilterTags>`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/KlyDataListFilterTags.razor`
 
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
-| `ShowAdd` | `bool` | Shows the add filter button (`LxDataListAddFilter{TItem}`) after the tags. False by default; the default layout of the list shows it. |
-| `ShowClear` | `bool` | Shows the clear filters button (`LxDataListClearFilters{TItem}`) after the tags. False by default; the default layout of the list shows it. |
+| `ShowAdd` | `bool` | Shows the add filter button (`KlyDataListAddFilter{TItem}`) after the tags. False by default; the default layout of the list shows it. |
+| `ShowClear` | `bool` | Shows the clear filters button (`KlyDataListClearFilters{TItem}`) after the tags. False by default; the default layout of the list shows it. |
 | `ApplyMode` | `DataListApplyMode` | Whether the editors apply each change at once (`Live`) or wait for an Apply button (`Submit`). |
 
-### `<LxDataListGrid>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/LxDataListGrid.razor`
+### `<KlyDataListGrid>`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/KlyDataListGrid.razor`
 
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
 | `ItemTemplate` | `RenderFragment<TItem>?` | Template for rendering the body of each card in the grid. When `null`, renders the visible columns or schema fields as label/value pairs. |
 | `SkeletonTemplate` | `RenderFragment?` | Custom content shown for each placeholder card while the initial result loads. |
-| `Empty` | `RenderFragment<DataListContext<TItem>>?` | Shown when the list has no rows. Without it, `EmptyState` or `LxDataListEmpty` (with the filtered-empty variant when search or filters are active). |
+| `Empty` | `RenderFragment<DataListContext<TItem>>?` | Shown when the list has no rows. Without it, `EmptyState` or `KlyDataListEmpty` (with the filtered-empty variant when search or filters are active). |
 | `EmptyState` | `DataListEmptyState?` | Declarative configuration for the unfiltered empty state (icon, title, description, and an optional first-use `Action`). When search or filters are active, the filtered empty state is still displayed instead and the first-use action is omitted. |
 | `ShowProgressLine` | `bool` | Draws a subtle top progress indicator while the cards on screen are being refreshed or replaced (`true` by default). |
 | `Columns` | `int` | Maximum number of card columns on wide screens (1 to 4, 3 by default). |
 | `ShowSelectionControl` | `bool` | Draws a selection checkbox on each card and a select-all header when selection is enabled (`true` by default). |
-| `RowActions` | `IReadOnlyList<DataListRowAction<TItem>>?` | Per-card actions (`LxDataListRowActions{TItem}`). |
+| `RowActions` | `IReadOnlyList<DataListRowAction<TItem>>?` | Per-card actions (`KlyDataListRowActions{TItem}`). |
 | `RowActionsMaxVisible` | `int` | How many row actions show as inline buttons on each card (0 by default, keeping one menu trigger button per card). |
 | `OnRowActionError` | `EventCallback<DataListRowActionFailure<TItem>>` | Raised when a row action threw or reported a failure. |
 | `AriaLabel` | `string?` | Accessible name of the grid region. Defaults to the label of the list, then the localized "Results". |
-| `GroupBy` | `DataListGroupBy<TItem>?` | Optional visual grouping of the loaded cards under collapsible `LxDataListGroupHeader{TItem}` headers with per-group selection checkboxes. |
+| `GroupBy` | `DataListGroupBy<TItem>?` | Optional visual grouping of the loaded cards under collapsible `KlyDataListGroupHeader{TItem}` headers with per-group selection checkboxes. |
 
-### `<LxDataListGroupHeader>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/LxDataListGroupHeader.razor`
+### `<KlyDataListGroupHeader>`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/KlyDataListGroupHeader.razor`
 
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
@@ -140,8 +140,8 @@ Complete public API reference extracted directly from the source code of `Lux.Ta
 | `Selectable` | `bool?` | Overrides whether the group header displays a select-all-in-group checkbox. Defaults to `SelectionVisible`. |
 | `ToggleLabel` | `string?` | Accessible name of the fold/unfold button. Defaults to the localized `GroupToggle` formatted with `Label`. |
 
-### `<LxDataListInfiniteLoader>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/LxDataListInfiniteLoader.razor`
+### `<KlyDataListInfiniteLoader>`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/KlyDataListInfiniteLoader.razor`
 
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
@@ -152,8 +152,8 @@ Complete public API reference extracted directly from the source code of `Lux.Ta
 | `ShowEnd` | `bool` | Shows the localized "No more items" text once the last page has been loaded. It is announced to assistive technologies either way. |
 | `ErrorTemplate` | `RenderFragment<DataListContext<TItem>>?` | Custom content shown when loading the next page fails (replaces the default message and Retry button). |
 
-### `<LxDataListLayoutSwitch>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/LxDataListLayoutSwitch.razor`
+### `<KlyDataListLayoutSwitch>`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/KlyDataListLayoutSwitch.razor`
 
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
@@ -163,8 +163,8 @@ Complete public API reference extracted directly from the source code of `Lux.Ta
 | `GridIcon` | `string` | Icon name for the Grid layout (`"layout-grid"` by default). |
 | `AriaLabel` | `string?` | Accessible name of the layout switch group. Defaults to the localized "View layout". |
 
-### `<LxDataListPagination>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/LxDataListPagination.razor`
+### `<KlyDataListPagination>`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/KlyDataListPagination.razor`
 
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
@@ -174,18 +174,18 @@ Complete public API reference extracted directly from the source code of `Lux.Ta
 | `ShowFirstLast` | `bool` | Buttons that jump to the first and the last page. |
 | `AriaLabel` | `string?` | The accessible name of the pagination landmark. Give each list of a page its own: two landmarks with the same name cannot be told apart. Without it the landmark is "Pagination, &lt;label&gt;" for a list with a label, else the localized "Pagination". |
 
-### `<LxDataListRefresh>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/LxDataListRefresh.razor`
+### `<KlyDataListRefresh>`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/KlyDataListRefresh.razor`
 
 _No public `[Parameter]` properties._
 
-### `<LxDataListResultCount>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/LxDataListResultCount.razor`
+### `<KlyDataListResultCount>`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/KlyDataListResultCount.razor`
 
 _No public `[Parameter]` properties._
 
-### `<LxDataListRowActions>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/LxDataListRowActions.razor`
+### `<KlyDataListRowActions>`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/KlyDataListRowActions.razor`
 
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
@@ -193,23 +193,23 @@ _No public `[Parameter]` properties._
 | `Position` | `int` | The place of the row on the page, from 1: it names the actions of a row that has no `RowLabel` in the schema. |
 | `Actions` | `IReadOnlyList<DataListRowAction<TItem>>` | The actions, in the order they are shown. Their keys are unique, children included. |
 | `MaxVisible` | `int` | How many actions show as buttons on a wide screen; the others go into a menu (3 by default). 0 puts them all behind one button. Below the `md` breakpoint every action is in a sheet. |
-| `Size` | `LxSize` | The size of the buttons. |
+| `Size` | `KlySize` | The size of the buttons. |
 | `OnError` | `EventCallback<DataListRowActionFailure<TItem>>` | Raised when an action threw or reported a failure; the list is not refreshed and nothing is rethrown. Without a handler an exception is logged. |
 | `Ui` | `DataListUi?` | Per-instance classes for each slot. |
 
-### `<LxDataListSearch>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/LxDataListSearch.razor`
+### `<KlyDataListSearch>`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/KlyDataListSearch.razor`
 
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
 | `Placeholder` | `string?` | The placeholder of the field. Without it, the localized "Search…". |
 | `AriaLabel` | `string?` | The accessible name of the field and of its search landmark. Without it, "Search &lt;label of the list&gt;" for a list with a label, else the localized "Search". |
-| `Debounce` | `int?` | Milliseconds of quiet after the last keystroke before the list searches. Without it, `SearchDebounce` of `LuxTableOptions` (300). Enter searches at once. Statically rendered, nothing is searched before Enter or the search button. |
+| `Debounce` | `int?` | Milliseconds of quiet after the last keystroke before the list searches. Without it, `SearchDebounce` of `KlyrooTableOptions` (300). Enter searches at once. Statically rendered, nothing is searched before Enter or the search button. |
 | `MinLength` | `int` | The fewest characters (once the spaces around the text are trimmed) a search must have: a shorter text searches nothing, so the rows come back as if the field were empty. Zero by default. Statically rendered, the browser refuses to submit a shorter text. |
-| `Size` | `LxSize?` | The size of the field. Defaults to medium. |
+| `Size` | `KlySize?` | The size of the field. Defaults to medium. |
 
-### `<LxDataListSelectionActions>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/LxDataListSelectionActions.razor`
+### `<KlyDataListSelectionActions>`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/KlyDataListSelectionActions.razor`
 
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
@@ -217,28 +217,28 @@ _No public `[Parameter]` properties._
 | `Scope` | `bool` | Shows the switch between the ticked rows and every result when the source knows how many results there are (true by default). |
 | `Position` | `DataListSelectionBarPosition` | Whether the bar sticks to the bottom of its list while the list is on screen (the default) or is fixed to the bottom of the window. |
 
-### `<LxDataListSortMenu>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/LxDataListSortMenu.razor`
+### `<KlyDataListSortMenu>`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/KlyDataListSortMenu.razor`
 
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
 | `Label` | `string?` | Label of the trigger button and heading of the popover. Defaults to the localized "Sort". |
-| `Size` | `LxSize` | Size of the trigger button (small by default). |
-| `Items` | `IReadOnlyList<DataListSortOption>?` | Explicit sortable field options. When `null`, the menu lists the sortable `LxDataListColumn{TItem}`s in user order followed by any other sortable fields of the schema. |
+| `Size` | `KlySize` | Size of the trigger button (small by default). |
+| `Items` | `IReadOnlyList<DataListSortOption>?` | Explicit sortable field options. When `null`, the menu lists the sortable `KlyDataListColumn{TItem}`s in user order followed by any other sortable fields of the schema. |
 | `Layouts` | `IReadOnlyList<DataListLayout>?` | Layouts in which the sort menu is shown (for example `[DataListLayout.Grid]` when the table headers already sort). When `null`, shown in every layout. |
 
-### `<LxDataListTable>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/LxDataListTable.razor`
+### `<KlyDataListTable>`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/KlyDataListTable.razor`
 
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
-| `ChildContent` | `RenderFragment?` | The columns: `LxDataListColumn{TItem}` components. Without any, the table shows one column per field of the schema. |
+| `ChildContent` | `RenderFragment?` | The columns: `KlyDataListColumn{TItem}` components. Without any, the table shows one column per field of the schema. |
 | `Caption` | `string?` | Names the table for assistive technologies (visually hidden), and the scrolling region around it. Without it, the `AriaLabel` of the table, then the label of the list, then the localized "Results". |
-| `RowActions` | `IReadOnlyList<DataListRowAction<TItem>>?` | The actions of each row: a last column with buttons up to `RowActionsMaxVisible`, then a menu, and below the `md` breakpoint one button that opens a sheet (`LxDataListRowActions{TItem}`). Interactive only, except the actions that are links. |
+| `RowActions` | `IReadOnlyList<DataListRowAction<TItem>>?` | The actions of each row: a last column with buttons up to `RowActionsMaxVisible`, then a menu, and below the `md` breakpoint one button that opens a sheet (`KlyDataListRowActions{TItem}`). Interactive only, except the actions that are links. |
 | `RowActionsMaxVisible` | `int` | How many row actions show as buttons on a wide screen (3 by default); 0 keeps a single "Actions for ..." button per row. |
 | `OnRowActionError` | `EventCallback<DataListRowActionFailure<TItem>>` | Raised when a row action threw or reported a failure. |
 | `AriaLabel` | `string?` | The accessible name of the table when there is no `Caption`. |
-| `Empty` | `RenderFragment<DataListContext<TItem>>?` | Shown when the list has no rows. It receives the list, whose `IsFiltered` tells "nothing matches" from "nothing exists". Without it, `EmptyState` or `LxDataListEmpty`. |
+| `Empty` | `RenderFragment<DataListContext<TItem>>?` | Shown when the list has no rows. It receives the list, whose `IsFiltered` tells "nothing matches" from "nothing exists". Without it, `EmptyState` or `KlyDataListEmpty`. |
 | `EmptyState` | `DataListEmptyState?` | Declarative configuration for the unfiltered empty state (icon, title, description, and an optional first-use `Action`). When search or filters are active, the filtered empty state is still displayed instead and the first-use action is omitted. |
 | `HeaderMenu` | `bool` | Adds a dropdown menu button to each column header in interactive mode with quick actions to sort ascending/descending, stop sorting, pin/unpin, or hide the column. Individual columns can override this via `HeaderMenu`. |
 | `ShowProgressLine` | `bool` | Draws a subtle top progress indicator while the rows on screen are being refreshed or replaced (`true` by default). |
@@ -246,13 +246,13 @@ _No public `[Parameter]` properties._
 | `ItemSize` | `float?` | Height in pixels of one row when `Virtualize` is on. Without it, follows `DataListDensity` (36, 44 or 60 px). |
 | `OverscanCount` | `int` | Extra rows rendered above and below the viewport when `Virtualize` is on (3 by default). |
 | `Resizable` | `bool` | Puts a resize handle (a vertical separator) on the end edge of the header of each `Resizable` column (false by default): drag it, or focus it and press ArrowLeft and ArrowRight (16 px, 64 with Shift; in right-to-left text the arrow that points away from the start edge grows the column), Home and End for the limits, Delete or a double click for the declared width. The browser changes the width while the gesture runs and reports it once; the list keeps it in its column preferences (`PreferencesKey`). Interactive only: a static render has no handle but still applies a saved width. |
-| `RowSummary` | `DataListRowSummary<TItem>?` | Optional compact summary-row presentation (leading tile, title, status, details joined with ` · `, selection checkbox and row actions), active automatically below the `md` breakpoint when `AutoPhone` is `true`, when `DefaultActive` is `true`, or when toggled with `LxDataListViewToggle{TItem}`. |
-| `GroupBy` | `DataListGroupBy<TItem>?` | Optional visual grouping of the loaded rows under collapsible `LxDataListGroupHeader{TItem}` headers with per-group selection checkboxes. Ignored when `Tree` is set. |
+| `RowSummary` | `DataListRowSummary<TItem>?` | Optional compact summary-row presentation (leading tile, title, status, details joined with ` · `, selection checkbox and row actions), active automatically below the `md` breakpoint when `AutoPhone` is `true`, when `DefaultActive` is `true`, or when toggled with `KlyDataListViewToggle{TItem}`. |
+| `GroupBy` | `DataListGroupBy<TItem>?` | Optional visual grouping of the loaded rows under collapsible `KlyDataListGroupHeader{TItem}` headers with per-group selection checkboxes. Ignored when `Tree` is set. |
 | `Tree` | `DataListTree<TItem>?` | Optional hierarchical tree configuration: expands and collapses nested child rows with a chevron button (click, Enter/Space, or ArrowRight/ArrowLeft) and visual tree rail connectors. Disables `RowSummary` and `GroupBy` when set. |
 | `Summaries` | `DataListSummaries<TItem>?` | Optional footer summary (`&lt;tfoot&gt;`) configuration: target `DataListSummaryScope`(s) (`Filtered`, `Page`, `Selection`), custom row label, and optional `ResolveAsync` delegate for remote or asynchronous totals. When `null`, a single `Filtered` summary row is still rendered automatically whenever any column declares a summary. |
 
-### `<LxDataListViewToggle>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/LxDataListViewToggle.razor`
+### `<KlyDataListViewToggle>`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/KlyDataListViewToggle.razor`
 
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
@@ -261,7 +261,7 @@ _No public `[Parameter]` properties._
 | `Icon` | `string` | Icon name shown on the toggle button (`"list"` by default). |
 
 ### `<DataListActionDialog>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListActionDialog.razor`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListActionDialog.razor`
 
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
@@ -270,11 +270,11 @@ _No public `[Parameter]` properties._
 | `Title` | `string` | — |
 | `Description` | `string?` | — |
 | `ConfirmLabel` | `string` | — |
-| `Color` | `LxColor` | — |
+| `Color` | `KlyColor` | — |
 | `OnConfirm` | `EventCallback` | — |
 
 ### `<DataListRowSelect>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListRowSelect.razor`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListRowSelect.razor`
 
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
@@ -282,14 +282,14 @@ _No public `[Parameter]` properties._
 | `Position` | `int` | The place of the row on the page, from 1: the name of its box when the schema gives no `RowLabel`. |
 
 ### `<DataListSelectAll>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListSelectAll.razor`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListSelectAll.razor`
 
 _No public `[Parameter]` properties._
 
 ## C# Types, Controllers, Models & Enums
 
 ### `enum DataListTreeSelectionMode`
-*Package*: `Lux.Table.Core` · *Source*: `src/Lux.Table.Core/DataListTree.cs`
+*Package*: `Klyroo.Table.Core` · *Source*: `src/Klyroo.Table.Core/DataListTree.cs`
 
 Which rows of a hierarchical tree table can be selected with checkboxes.
 
@@ -299,7 +299,7 @@ Which rows of a hierarchical tree table can be selected with checkboxes.
 | `Roots` | `enum member` | — |
 
 ### `class DataListTreeNode<TItem>`
-*Package*: `Lux.Table.Core` · *Source*: `src/Lux.Table.Core/DataListTree.cs`
+*Package*: `Klyroo.Table.Core` · *Source*: `src/Klyroo.Table.Core/DataListTree.cs`
 
 One node in the flattened hierarchy produced by `DataListTree{TItem}` over the loaded top-level rows of a data list. The row type.
 
@@ -316,9 +316,9 @@ One node in the flattened hierarchy produced by `DataListTree{TItem}` over the l
 | `AncestorContinuations` | `IReadOnlyList<bool>` | For each ancestor depth from `1` to `Depth - 1`, whether that ancestor has further siblings below it (used to draw vertical continuation rails). |
 
 ### `class DataListTree<TItem>`
-*Package*: `Lux.Table.Core` · *Source*: `src/Lux.Table.Core/DataListTree.cs`
+*Package*: `Klyroo.Table.Core` · *Source*: `src/Klyroo.Table.Core/DataListTree.cs`
 
-Hierarchical tree configuration for `LxDataListTable{TItem}`. Child rows travel with their parent item (`Children`), expand and collapse with a chevron button (mouse, Enter/Space, or ArrowRight/ArrowLeft) and visual rail connectors, and participate in row selection according to `Selectable`. When a tree is configured on `LxDataListTable{TItem}`, summary rows and visual groups are disabled on the table. The row type.
+Hierarchical tree configuration for `KlyDataListTable{TItem}`. Child rows travel with their parent item (`Children`), expand and collapse with a chevron button (mouse, Enter/Space, or ArrowRight/ArrowLeft) and visual rail connectors, and participate in row selection according to `Selectable`. When a tree is configured on `KlyDataListTable{TItem}`, summary rows and visual groups are disabled on the table. The row type.
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
@@ -331,22 +331,22 @@ Hierarchical tree configuration for `LxDataListTable{TItem}`. Child rows travel 
         IReadOnlyList<TItem> rootItems,
         DataListSchema<TItem>? schema = null)` | `(IReadOnlyList<DataListTreeNode<TItem>> Roots, IReadOnlyList<DataListTreeNode<TItem>> AllNodes)` | — |
 
-### `class LuxTableOptions`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/LuxTableOptions.cs`
+### `class KlyrooTableOptions`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/KlyrooTableOptions.cs`
 
-Configuration of Lux.Table: its component themes and its message tables. It is an extension of `LuxOptions` (`Extension{T}`), so its themes freeze with the ones of Lux.UI and the Tailwind class extractor and the docs bundle find them. Configure it with `services.AddLuxTable(t =&gt; ...)`, in code shared by the server and the WebAssembly client. Partial: each family of components declares its themes in its own file.
+Configuration of Klyroo.Table: its component themes and its message tables. It is an extension of `KlyrooOptions` (`Extension{T}`), so its themes freeze with the ones of Klyroo.UI and the Tailwind class extractor and the docs bundle find them. Configure it with `services.AddKlyrooTable(t =&gt; ...)`, in code shared by the server and the WebAssembly client. Partial: each family of components declares its themes in its own file.
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
-| `Messages(string localeCode, Func<LxToolsMessages, LxToolsMessages> change)` | `LuxTableOptions` | Changes the texts of a locale, like `Extend` does for Lux.UI: `change` receives the table the locale resolves to and returns the one to use, usually `m =&gt; m with { ... }`. `localeCode` is a code of `All` ("fr"), or the code of a locale you added ("en-AU", "tlh"): a locale without a table of its own starts from the table `ResolveCode` picks for it, then its changes apply. Like the themes, the messages become read-only the first time a component resolves a text. A component has already resolved a text. |
+| `Messages(string localeCode, Func<KlyToolsMessages, KlyToolsMessages> change)` | `KlyrooTableOptions` | Changes the texts of a locale, like `Extend` does for Klyroo.UI: `change` receives the table the locale resolves to and returns the one to use, usually `m =&gt; m with { ... }`. `localeCode` is a code of `All` ("fr"), or the code of a locale you added ("en-AU", "tlh"): a locale without a table of its own starts from the table `ResolveCode` picks for it, then its changes apply. Like the themes, the messages become read-only the first time a component resolves a text. A component has already resolved a text. |
 
-### `class LxToolsComponentBase`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/LxToolsComponentBase.cs`
+### `class KlyToolsComponentBase`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/KlyToolsComponentBase.cs`
 
-Base of the components of Lux.Table: the theme resolution of `LxComponentBase`, plus the options and the texts of this package.
+Base of the components of Klyroo.Table: the theme resolution of `KlyComponentBase`, plus the options and the texts of this package.
 
-### `class LxDataList<TItem>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/LxDataList.Columns.cs`
+### `class KlyDataList<TItem>`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/KlyDataList.Columns.cs`
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
@@ -354,13 +354,13 @@ Base of the components of Lux.Table: the theme resolution of `LxComponentBase`, 
 | `CollapseAll()` | `void` | Collapses every branch node in the table's hierarchical tree (`Tree`). |
 | `ResetExpansion()` | `void` | Resets tree expansion back to the defaults declared on `Tree`. |
 
-### `class LxDataList<TItem>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/LxDataList.Selection.cs`
+### `class KlyDataList<TItem>`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/KlyDataList.Selection.cs`
 
-### `class LxDataListColumn<TItem>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/LxDataListColumn.cs`
+### `class KlyDataListColumn<TItem>`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/KlyDataListColumn.cs`
 
-A column of `LxDataListTable{TItem}`. Renders nothing itself: it registers with its list (`Columns`). What a cell shows comes from one of three places: `Template`, `Property` or `Field`. The row type.
+A column of `KlyDataListTable{TItem}`. Renders nothing itself: it registers with its list (`Columns`). What a cell shows comes from one of three places: `Template`, `Property` or `Field`. The row type.
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
@@ -370,22 +370,22 @@ A column of `LxDataListTable{TItem}`. Renders nothing itself: it registers with 
 | `Humanize(string key)` | `string` | A key written as words: `firstName` becomes "First name", `department.name` becomes "Name" (the last segment). |
 | `ReadField<T>(this DataListSchema<T> schema, T item, string key)` | `object?` | The value of a field of the schema for a row, null-safe along its path; the elements of a collection field joined by commas; `null` for an unknown key. |
 
-### `class LxDataListFilterEditor<TItem>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/LxDataListFilterEditor.Remote.cs`
+### `class KlyDataListFilterEditor<TItem>`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/KlyDataListFilterEditor.Remote.cs`
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
 | `Dispose()` | `void` | Stops a search or a page that is on its way. |
 
 ### `class DataListActionPartBase<TItem>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListActionPartBase.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListActionPartBase.cs`
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
 | `Dispose()` | `void` | — |
 
 ### `enum DataListActionScope`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListActions.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListActions.cs`
 
 Which rows a bulk or toolbar action targets.
 
@@ -394,7 +394,7 @@ Which rows a bulk or toolbar action targets.
 | `Selection` | `enum member` | — |
 
 ### `enum DataListSelectionScope`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListActions.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListActions.cs`
 
 Where the rows of a selection survive: across pages, or only on the page they were ticked on.
 
@@ -405,7 +405,7 @@ Where the rows of a selection survive: across pages, or only on the page they we
 | `All` | `enum member` | — |
 
 ### `enum DataListSelectionClear`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListActions.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListActions.cs`
 
 When running an action unticks the rows.
 
@@ -416,7 +416,7 @@ When running an action unticks the rows.
 | `Success` | `enum member` | — |
 
 ### `enum DataListSelectionBarPosition`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListActions.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListActions.cs`
 
 Where the selection bar sits.
 
@@ -426,7 +426,7 @@ Where the selection bar sits.
 | `Fixed` | `enum member` | — |
 
 ### `class DataListActionContext<TItem>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListActions.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListActions.cs`
 
 What an action receives when it runs: the rows it targets, the scope and the request that stands for "every result". The row type.
 
@@ -442,7 +442,7 @@ What an action receives when it runs: the rows it targets, the scope and the req
 | `CancellationToken` | `CancellationToken` | Cancelled when the list goes away. |
 
 ### `class DataListActionConfirm<TItem>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListActions.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListActions.cs`
 
 The question an action asks before it runs, in a dialog. The text can say how many rows are affected. The row type.
 
@@ -451,19 +451,19 @@ The question an action asks before it runs, in a dialog. The text can say how ma
 | `Title` | `string` | The title of the dialog. |
 | `Description` | `Func<DataListActionContext<TItem>, string?>?` | The text under the title, built from the context so that it can count the rows (`c =&gt; $"{c.TargetCount} customers will be removed."`, which is right for the ticked rows and for every result). |
 | `ConfirmLabel` | `string?` | The label of the confirm button. Without it the localized "Confirm". |
-| `Color` | `LxColor?` | The color of the confirm button; `Error` for a destructive action. Without it the color of the action. |
+| `Color` | `KlyColor?` | The color of the confirm button; `Error` for a destructive action. Without it the color of the action. |
 
 ### `class DataListAction<TItem>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListActions.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListActions.cs`
 
-An action of a data list: a button of the `LxDataListSelectionActions{TItem}` bar (it acts on the selection) or an entry of the `LxDataListActionsDropdown{TItem}` menu. While it runs its button shows a spinner and the action cannot start twice. The row type.
+An action of a data list: a button of the `KlyDataListSelectionActions{TItem}` bar (it acts on the selection) or an entry of the `KlyDataListActionsDropdown{TItem}` menu. While it runs its button shows a spinner and the action cannot start twice. The row type.
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
 | `Key` | `string` | Identifies the action: tests and the menu use it. |
 | `Label` | `string` | The text of the button. |
-| `Icon` | `string?` | The name of an icon shown before the label (`trash`), one of the icons of Lux.UI. |
-| `Color` | `LxColor` | The color of the button; `Error` for a destructive action. |
+| `Icon` | `string?` | The name of an icon shown before the label (`trash`), one of the icons of Klyroo.UI. |
+| `Color` | `KlyColor` | The color of the button; `Error` for a destructive action. |
 | `Variant` | `ButtonVariant` | The variant of the button in the selection bar. |
 | `Visible` | `Func<DataListActionContext<TItem>, bool>?` | Hides the action when it returns `false` (an action that does not apply to the selected rows). It runs on every render: keep it cheap. |
 | `Disabled` | `Func<DataListActionContext<TItem>, bool>?` | Disables the action when it returns `true`. It runs on every render: keep it cheap. |
@@ -473,14 +473,14 @@ An action of a data list: a button of the `LxDataListSelectionActions{TItem}` ba
 | `OnExecute` | `Func<DataListActionContext<TItem>, Task>?` | What the action does. An exception marks the run as failed: the selection stays, the list is not refreshed, `OnError` of the part is raised and nothing is thrown to the page. |
 
 ### `record DataListActionFailure<TItem>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListActions.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListActions.cs`
 
 An action that threw. The action. What it threw. The row type.
 
 ### `enum DataListPin`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListColumns.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListColumns.cs`
 
-Which horizontal edge a column of `LxDataListTable{TItem}` is pinned to.
+Which horizontal edge a column of `KlyDataListTable{TItem}` is pinned to.
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
@@ -489,7 +489,7 @@ Which horizontal edge a column of `LxDataListTable{TItem}` is pinned to.
 | `End` | `enum member` | — |
 
 ### `record DataListColumnState`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListColumns.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListColumns.cs`
 
 The effective state of one column of a data list: visibility, pinning, width and limits. The column key (`EffectiveKey`). The display title of the column. Whether the column is currently shown. Whether the column cannot be hidden. The active horizontal pin edge. The active pixel width, or `null` when automatic. Minimum width in pixels when resized. Maximum width in pixels when resized. Whether the user can resize the column.
 
@@ -516,10 +516,10 @@ The effective state of one column of a data list: visibility, pinning, width and
 | `Decode(string? raw)` | `DataListColumnPreferences` | Parses an encoded cookie string. Never throws on malformed input: invalid tokens are skipped. |
 | `Claim(IServiceProvider services, string normalizedKey)` | `string` | — |
 | `Release(IServiceProvider services, string? claimedKey)` | `void` | — |
-| `Read(IServiceProvider services, string? normalizedKey, bool interactive)` | `(DataListColumnPreferences Preferences, bool ReadFromServer)` | The preferences the grouped cookie of the current request holds for `normalizedKey`. `ReadFromServer` is true when there was a request to ask (even if it carried no cookie): the browser has nothing to add for this render. An interactive render has no request (a circuit is not an HTTP request) and the browser has no `ILxRequestCookies`: both read the cookie in the browser instead. |
+| `Read(IServiceProvider services, string? normalizedKey, bool interactive)` | `(DataListColumnPreferences Preferences, bool ReadFromServer)` | The preferences the grouped cookie of the current request holds for `normalizedKey`. `ReadFromServer` is true when there was a request to ask (even if it carried no cookie): the browser has nothing to add for this render. An interactive render has no request (a circuit is not an HTTP request) and the browser has no `IKlyRequestCookies`: both read the cookie in the browser instead. |
 
 ### `class DataListContext<TItem>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListContext.Columns.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListContext.Columns.cs`
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
@@ -534,7 +534,7 @@ The effective state of one column of a data list: visibility, pinning, width and
 | `ResetColumns()` | `void` | Restores every column's visibility, order, pinning and width to its declared defaults and clears any saved cookie. |
 
 ### `enum DataListApplyMode`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListContext.Filters.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListContext.Filters.cs`
 
 How a filter editor applies what the user changes.
 
@@ -544,15 +544,15 @@ How a filter editor applies what the user changes.
 | `Submit` | `enum member` | — |
 
 ### `class DataListContext<TItem>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListContext.Filters.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListContext.Filters.cs`
 
 ### `class DataListContext<TItem>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListContext.Selection.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListContext.Selection.cs`
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
 | `SelectionChanged` | `event Action?` | Raised when the ticked rows, or what a bulk action targets, change. Cheaper than `Changed` for a part that only draws a checkbox. |
-| `SelectionEnabled` | `bool` | The list has a selection: `Selectable` is on, or it has a `LxDataListSelectionActions{TItem}` bar, or `SelectedKeys` is bound. |
+| `SelectionEnabled` | `bool` | The list has a selection: `Selectable` is on, or it has a `KlyDataListSelectionActions{TItem}` bar, or `SelectedKeys` is bound. |
 | `SelectionVisible` | `bool` | The selection is drawn: it is enabled and the renderer can run handlers (or will, once a prerendered page turns interactive). A static render has no checkboxes. |
 | `SelectionDisabled` | `bool` | The boxes cannot be used yet: the render is the prerender of a page that will be interactive. |
 | `SelectedKeys` | `IReadOnlySet<string>` | The keys of the ticked rows (`RowKey` of the schema). A set that later changes do not touch. |
@@ -573,12 +573,12 @@ How a filter editor applies what the user changes.
 | `SetBulkScope(DataListActionScope scope)` | `void` | Sets what a bulk action targets. `All` needs `CanSelectAllResults`; it is dropped when the rows or the query change. |
 
 ### `enum DataListPagingMode`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListContext.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListContext.cs`
 
 How a data list pages its rows.
 
 ### `enum DataListDensity`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListContext.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListContext.cs`
 
 How tight the rows of a data list are.
 
@@ -589,7 +589,7 @@ How tight the rows of a data list are.
 | `Comfortable` | `enum member` | — |
 
 ### `enum DataListAlign`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListContext.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListContext.cs`
 
 Horizontal alignment of a column.
 
@@ -600,14 +600,14 @@ Horizontal alignment of a column.
 | `End` | `enum member` | — |
 
 ### `record DataListSortOption`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListContext.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListContext.cs`
 
-An option offered by `LxDataListSortMenu{TItem}`. The key of the sortable field in the schema. The display label; when `null`, uses the title of the matching column or the humanized key.
+An option offered by `KlyDataListSortMenu{TItem}`. The key of the sortable field in the schema. The display label; when `null`, uses the title of the matching column or the humanized key.
 
 ### `class DataListContext<TItem>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListContext.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListContext.cs`
 
-What the parts of a `LxDataList{TItem}` (the table, the pagination, the result count...) read and change: the state of the list, its rows and its loading flags. The list cascades one for its whole life (the value is fixed), so a part subscribes to `Changed` once and renders again when it is raised. Write your own part by taking it as a cascading parameter. The row type.
+What the parts of a `KlyDataList{TItem}` (the table, the pagination, the result count...) read and change: the state of the list, its rows and its loading flags. The list cascades one for its whole life (the value is fixed), so a part subscribes to `Changed` once and renders again when it is raised. Write your own part by taking it as a cascading parameter. The row type.
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
@@ -620,7 +620,7 @@ What the parts of a `LxDataList{TItem}` (the table, the pagination, the result c
 | `IsGroupCollapsed(DataListGroup<TItem> group)` | `bool` | Whether `group` is currently collapsed (folded). |
 | `ToggleGroup(DataListGroup<TItem> group)` | `void` | Folds or unfolds `group`, persisting the toggle when `PreferencesKey` is set. |
 | `SetGroupCollapsed(DataListGroup<TItem> group, bool collapsed)` | `void` | Sets whether `group` is collapsed (folded), persisting the toggle when `PreferencesKey` is set. |
-| `Tree` | `DataListTree<TItem>?` | The active hierarchical tree configuration on `LxDataListTable{TItem}`, or `null`. |
+| `Tree` | `DataListTree<TItem>?` | The active hierarchical tree configuration on `KlyDataListTable{TItem}`, or `null`. |
 | `HasTree` | `bool` | Whether the table has a `DataListTree{TItem}` configured. |
 | `VisibleTreeNodes()` | `IReadOnlyList<DataListTreeNode<TItem>>` | The visible (unfolded) tree nodes in display order when `Tree` is configured; empty otherwise. |
 | `IsNodeExpanded(DataListTreeNode<TItem> node)` | `bool` | Whether `node` is currently expanded. |
@@ -634,7 +634,7 @@ What the parts of a `LxDataList{TItem}` (the table, the pagination, the result c
 | `ExpandedKeys` | `IReadOnlySet<string>` | Keys of all currently expanded branch nodes in the loaded tree. |
 | `TreeBranchCount` | `int` | Total number of branch nodes (nodes with children) in the loaded tree. |
 | `AllExpanded` | `bool` | Whether every branch node in the loaded tree is currently expanded. |
-| `Columns` | `IReadOnlyList<LxDataListColumn<TItem>>` | Every column the list's table declares, visible or not (a columns panel lists them all), by `Order` and then in the order they first rendered: the order of the markup, except for a column that an `@if` adds later, which comes after the others unless it has an `Order`. Prefer `Visible` to an `@if`. |
+| `Columns` | `IReadOnlyList<KlyDataListColumn<TItem>>` | Every column the list's table declares, visible or not (a columns panel lists them all), by `Order` and then in the order they first rendered: the order of the markup, except for a column that an `@if` adds later, which comes after the others unless it has an `Order`. Prefer `Visible` to an `@if`. |
 | `Label` | `string?` | The name of the list, for the accessible names of its table and its pagination (`Label` of the list). |
 | `ResultVersion` | `int` | Counts the results shown so far; it does not change when only a flag does, which lets rows skip a render. |
 | `Schema` | `DataListSchema<TItem>?` | The schema, once the list has one (an explicit one, or the one its columns describe after they registered). |
@@ -653,9 +653,9 @@ What the parts of a `LxDataList{TItem}` (the table, the pagination, the result c
 | `NextCursor` | `string?` | The opaque cursor for the next page (cursor paging only), or `null` after the last one. |
 
 ### `class DataListController<TItem>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListController.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListController.cs`
 
-Loads the rows of a data list: turns a `DataListState` into a request, runs it against the source, cancels the request a newer one replaces and keeps the rows of the previous result while the next one loads. A plain class, so it is tested without a renderer; the `LxDataList{TItem}` component owns one and publishes its flags to the parts through `DataListContext{TItem}`. Exactly one source feeds a list: `Items` (run in memory by `InMemoryDataList`), a `Queryable` (a database query, translated by `QueryableDataList` and run by an `IDataListQueryExecutor`) or a `DataListProvider{T}`. The row type.
+Loads the rows of a data list: turns a `DataListState` into a request, runs it against the source, cancels the request a newer one replaces and keeps the rows of the previous result while the next one loads. A plain class, so it is tested without a renderer; the `KlyDataList{TItem}` component owns one and publishes its flags to the parts through `DataListContext{TItem}`. Exactly one source feeds a list: `Items` (run in memory by `InMemoryDataList`), a `Queryable` (a database query, translated by `QueryableDataList` and run by an `IDataListQueryExecutor`) or a `DataListProvider{T}`. The row type.
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
@@ -701,9 +701,9 @@ Loads the rows of a data list: turns a `DataListState` into a request, runs it a
 | `Dispose()` | `void` | Cancels the running load. The controller cannot load afterwards. |
 
 ### `record DataListEmptyUi`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListEmptyUi.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListEmptyUi.cs`
 
-Per-instance class overrides of `LxDataListEmpty` slots.
+Per-instance class overrides of `KlyDataListEmpty` slots.
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
@@ -714,7 +714,7 @@ Per-instance class overrides of `LxDataListEmpty` slots.
 | `Actions` | `string?` | — |
 
 ### `class DataListGroup<TItem>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListGroupBy.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListGroupBy.cs`
 
 One visual group of rows produced by `DataListGroupBy{TItem}` over the loaded rows of a data list. The row type.
 
@@ -730,9 +730,9 @@ One visual group of rows produced by `DataListGroupBy{TItem}` over the loaded ro
 | `DefaultCollapsed` | `bool` | Whether the group starts folded before any user toggle. |
 
 ### `class DataListGroupBy<TItem>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListGroupBy.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListGroupBy.cs`
 
-Visual grouping configuration for `LxDataListTable{TItem}` and `LxDataListGrid{TItem}`. Groups are visual only: filtering, sorting, pagination and actions continue to operate on the flat rows, while rows on screen are partitioned under collapsible `LxDataListGroupHeader{TItem}` headers with optional per-group selection checkboxes. The row type.
+Visual grouping configuration for `KlyDataListTable{TItem}` and `KlyDataListGrid{TItem}`. Groups are visual only: filtering, sorting, pagination and actions continue to operate on the flat rows, while rows on screen are partitioned under collapsible `KlyDataListGroupHeader{TItem}` headers with optional per-group selection checkboxes. The row type.
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
@@ -740,9 +740,9 @@ Visual grouping configuration for `LxDataListTable{TItem}` and `LxDataListGrid{T
 | `Key` | `Func<TItem, object?>?` | Extracts the group value for a row. When `null`, reads `Field` from the schema. |
 | `Order` | `IReadOnlyList<object?>?` | Explicit group values placed first, in this order. Remaining non-empty groups follow in ascending value order, and the empty group (`null` or blank) comes last. |
 | `Label` | `Func<DataListGroup<TItem>, string?>?` | Formats the heading label of a group. When `null`, formats `Value` or uses the localized "Other" label (`GroupEmpty`) for empty values. |
-| `LabelTemplate` | `RenderFragment<DataListGroup<TItem>>?` | Custom template for the group heading label inside `LxDataListGroupHeader{TItem}`. |
+| `LabelTemplate` | `RenderFragment<DataListGroup<TItem>>?` | Custom template for the group heading label inside `KlyDataListGroupHeader{TItem}`. |
 | `Summary` | `Func<DataListGroup<TItem>, string?>?` | Formats the summary badge shown beside the group label. When `null`, shows the number of rows in the group. Return an empty string to hide the badge. |
-| `SummaryTemplate` | `RenderFragment<DataListGroup<TItem>>?` | Custom template for the summary badge shown beside the group label inside `LxDataListGroupHeader{TItem}`. |
+| `SummaryTemplate` | `RenderFragment<DataListGroup<TItem>>?` | Custom template for the summary badge shown beside the group label inside `KlyDataListGroupHeader{TItem}`. |
 | `Collapsed` | `bool` | Whether groups start collapsed (folded) by default (`false` by default). Overridden by `DefaultCollapsed` when set. |
 | `DefaultCollapsed` | `Func<DataListGroup<TItem>, bool>?` | Optional per-group predicate determining whether a group starts collapsed (folded) by default. |
 | `GroupKey` | `string` | — |
@@ -753,21 +753,21 @@ Visual grouping configuration for `LxDataListTable{TItem}` and `LxDataListGrid{T
 | `RowKeys` | `List<string>` | — |
 
 ### `class DataListLoadTrigger<TItem>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListLoadTrigger.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListLoadTrigger.cs`
 
 ### `class DataListPartBase<TItem>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListPartBase.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListPartBase.cs`
 
-Base of the parts of a `LxDataList{TItem}`: takes the cascaded `DataListContext{TItem}` and renders again when it changes. Derive from it to write a part of your own. The row type.
+Base of the parts of a `KlyDataList{TItem}`: takes the cascaded `DataListContext{TItem}` and renders again when it changes. Derive from it to write a part of your own. The row type.
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
 | `Dispose()` | `void` | Unsubscribes from the list. |
 
 ### `enum DataListSkeletonKind`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListPolish.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListPolish.cs`
 
-Placeholder shape drawn inside a column cell while the initial rows of `LxDataListTable{TItem}` load.
+Placeholder shape drawn inside a column cell while the initial rows of `KlyDataListTable{TItem}` load.
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
@@ -782,9 +782,9 @@ Placeholder shape drawn inside a column cell while the initial rows of `LxDataLi
 | `None` | `enum member` | — |
 
 ### `class DataListEmptyAction`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListPolish.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListPolish.cs`
 
-First-use action button or link displayed inside the unfiltered empty state of `LxDataListTable{TItem}` or `LxDataListGrid{TItem}` when `Action` is configured. Never shown on a filtered empty state.
+First-use action button or link displayed inside the unfiltered empty state of `KlyDataListTable{TItem}` or `KlyDataListGrid{TItem}` when `Action` is configured. Never shown on a filtered empty state.
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
@@ -792,13 +792,13 @@ First-use action button or link displayed inside the unfiltered empty state of `
 | `Icon` | `string?` | Optional leading icon name. |
 | `Href` | `string?` | Optional navigation link URL. When set, renders a link button (works in static SSR too). |
 | `OnClick` | `EventCallback` | Callback invoked when the button is clicked in an interactive render. |
-| `Color` | `LxColor` | Button color (`Primary` by default). |
+| `Color` | `KlyColor` | Button color (`Primary` by default). |
 | `Variant` | `ButtonVariant` | Button visual variant (`Solid` by default). |
 
 ### `class DataListEmptyState`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListPolish.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListPolish.cs`
 
-Declarative configuration for the unfiltered empty state of `LxDataListTable{TItem}` or `LxDataListGrid{TItem}`. When search or filters are active and match nothing, the filtered empty state (with Clear search / Reset filters) is still shown instead, and `Action` is omitted so a first-use creation action is never offered while results are merely filtered out.
+Declarative configuration for the unfiltered empty state of `KlyDataListTable{TItem}` or `KlyDataListGrid{TItem}`. When search or filters are active and match nothing, the filtered empty state (with Clear search / Reset filters) is still shown instead, and `Action` is omitted so a first-use creation action is never offered while results are merely filtered out.
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
@@ -809,7 +809,7 @@ Declarative configuration for the unfiltered empty state of `LxDataListTable{TIt
 | `Action` | `DataListEmptyAction?` | Optional first-use call-to-action shown only when the list is empty without active search or filters. |
 
 ### `class DataListRowActionContext<TItem>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListRowActions.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListRowActions.cs`
 
 What a row action receives when it runs: the row, its key and place, and a way to report a failure without throwing. The row type.
 
@@ -825,7 +825,7 @@ What a row action receives when it runs: the row, its key and place, and a way t
 | `Fail(string? message = null)` | `void` | Reports that the action did not do what it was asked (a refusal of the server, a conflict) without throwing: the list is not refreshed and `OnError` of the part is raised. Call it, then return. What went wrong, for `OnError`. |
 
 ### `class DataListRowActionConfirm<TItem>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListRowActions.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListRowActions.cs`
 
 The question a row action asks before it runs, in a dialog. The text can name the row. The row type.
 
@@ -834,19 +834,19 @@ The question a row action asks before it runs, in a dialog. The text can name th
 | `Title` | `string` | The title of the dialog. |
 | `Description` | `Func<DataListRowActionContext<TItem>, string?>?` | The text under the title, built from the context (`c =&gt; $"{c.Item.Name} will be removed."`). |
 | `ConfirmLabel` | `string?` | The label of the confirm button. Without it the localized "Confirm". |
-| `Color` | `LxColor?` | The color of the confirm button; `Error` for a destructive action. Without it the color of the action. |
+| `Color` | `KlyColor?` | The color of the confirm button; `Error` for a destructive action. Without it the color of the action. |
 
 ### `class DataListRowAction<TItem>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListRowActions.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListRowActions.cs`
 
-An action on one row of a data list (`LxDataListRowActions{TItem}`): a button of the row, an entry of its menu or of its sheet on a phone. Actions with the same `Group` are kept together, separated from the others by a divider; an action with `Children` opens a submenu. The row type.
+An action on one row of a data list (`KlyDataListRowActions{TItem}`): a button of the row, an entry of its menu or of its sheet on a phone. Actions with the same `Group` are kept together, separated from the others by a divider; an action with `Children` opens a submenu. The row type.
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
 | `Key` | `string` | Identifies the action; unique among the actions of the part, children included. |
 | `Label` | `string` | The text of the button or of the menu entry. |
-| `Icon` | `string?` | The name of an icon shown before the label (`copy`), one of the icons of Lux.UI. |
-| `Color` | `LxColor` | The color; `Error` for a destructive action. |
+| `Icon` | `string?` | The name of an icon shown before the label (`copy`), one of the icons of Klyroo.UI. |
+| `Color` | `KlyColor` | The color; `Error` for a destructive action. |
 | `Group` | `string?` | The group the action belongs to. Groups are shown in the order of their first visible action, with a divider between them; actions without a group form one of their own. |
 | `Children` | `IReadOnlyList<DataListRowAction<TItem>>?` | The entries of a submenu. An action with children opens them instead of running, and only shows when one of them does. It always sits in the menu, never in a button of the row. |
 | `Href` | `Func<DataListRowActionContext<TItem>, string?>?` | Makes the action a link to the address it returns (`null`: no link for this row). A link works in a statically rendered list too, where it is the only kind of row action that is shown. `OnExecute` is not called for it. |
@@ -859,7 +859,7 @@ An action on one row of a data list (`LxDataListRowActions{TItem}`): a button of
 | `OnExecute` | `Func<DataListRowActionContext<TItem>, Task>?` | What the action does. An exception, or a call to `Fail`, marks the run as failed: the list is not refreshed, `OnError` of the part is raised and nothing is thrown to the page. |
 
 ### `record DataListRowActionFailure<TItem>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListRowActions.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListRowActions.cs`
 
 A row action that failed: it threw, or called `Fail`. The action. The row. What it threw; `null` when it reported the failure itself. What `Fail` was given. The row type.
 
@@ -873,7 +873,7 @@ A row action that failed: it threw, or called `Fail`. The action. The row. What 
 | `Group(IEnumerable<DataListRowAction<TItem>> visible)` | `List<List<DataListRowAction<TItem>>>` | The visible actions grouped for a menu: groups in the order of their first visible action, actions without a group together. |
 
 ### `class DataListRowView<TItem>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListRowView.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListRowView.cs`
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
@@ -881,9 +881,9 @@ A row action that failed: it threw, or called `Fail`. The action. The row. What 
 | `GetHashCode()` | `int` | — |
 
 ### `enum DataListSummaryKind`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListSummaries.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListSummaries.cs`
 
-Built-in column aggregation kinds for the summary footer (`&lt;tfoot&gt;`) of `LxDataListTable{TItem}`.
+Built-in column aggregation kinds for the summary footer (`&lt;tfoot&gt;`) of `KlyDataListTable{TItem}`.
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
@@ -895,24 +895,24 @@ Built-in column aggregation kinds for the summary footer (`&lt;tfoot&gt;`) of `L
 | `Max` | `enum member` | — |
 
 ### `enum DataListSummaryScope`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListSummaries.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListSummaries.cs`
 
 Which set of rows a summary footer row aggregates.
 
 ### `record DataListSummaryCellContext<TItem>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListSummaries.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListSummaries.cs`
 
 Context passed to `SummaryTemplate` when rendering a summary footer cell. The row type.
 
 ### `record DataListSummaryResolveContext<TItem>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListSummaries.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListSummaries.cs`
 
 Context passed to `ResolveAsync` when resolving summary values asynchronously. The row type.
 
 ### `class DataListSummaries<TItem>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListSummaries.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListSummaries.cs`
 
-Footer summary configuration (`&lt;tfoot&gt;`) for `LxDataListTable{TItem}`. When omitted on `LxDataListTable{TItem}`, a single summary row with `Filtered` is still rendered automatically whenever at least one `LxDataListColumn{TItem}` sets `Summary`, `SummaryValue` or `SummaryTemplate`. The row type.
+Footer summary configuration (`&lt;tfoot&gt;`) for `KlyDataListTable{TItem}`. When omitted on `KlyDataListTable{TItem}`, a single summary row with `Filtered` is still rendered automatically whenever at least one `KlyDataListColumn{TItem}` sets `Summary`, `SummaryValue` or `SummaryTemplate`. The row type.
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
@@ -926,9 +926,9 @@ Footer summary configuration (`&lt;tfoot&gt;`) for `LxDataListTable{TItem}`. Whe
         Func<TItem, object?> selector)` | `object?` | — |
 
 ### `record DataListUi`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/DataListUi.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/DataListUi.cs`
 
-Per-instance class overrides of the slots of the data list parts (`LxDataList{TItem}`, `LxDataListTable{TItem}`, `LxDataListPagination{TItem}`...).
+Per-instance class overrides of the slots of the data list parts (`KlyDataList{TItem}`, `KlyDataListTable{TItem}`, `KlyDataListPagination{TItem}`...).
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
@@ -974,14 +974,14 @@ Per-instance class overrides of the slots of the data list parts (`LxDataList{TI
 | `ClearFilters` | `string?` | — |
 
 ### `interface IDataListQueryExecutor`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/IDataListQueryExecutor.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/IDataListQueryExecutor.cs`
 
 Runs the queries a data list builds for a `Queryable` source (`Apply{T}`): the count of the matching rows and the page. The list asks the service container for one, so an adapter package replaces how the queries run (EF Core's `CountAsync` and `ToListAsync`, with the cancellation token of the request) without the list referencing the provider. `SynchronousDataListQueryExecutor` is the default.
 
 ### `class SynchronousDataListQueryExecutor`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Components/DataList/IDataListQueryExecutor.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Components/DataList/IDataListQueryExecutor.cs`
 
-The default executor: `Count()` and `ToList()`, on the thread that asks. It blocks that thread while the database answers: in Blazor Server that is the thread of the circuit, in WebAssembly the only thread of the page. Use it for tests, small local databases and providers with no asynchronous API; register an asynchronous executor for a real database (`AddLuxTableEntityFrameworkAdapter()` of Lux.Table.EntityFrameworkCore for EF Core). The cancellation token is checked before each query, not during it.
+The default executor: `Count()` and `ToList()`, on the thread that asks. It blocks that thread while the database answers: in Blazor Server that is the thread of the circuit, in WebAssembly the only thread of the page. Use it for tests, small local databases and providers with no asynchronous API; register an asynchronous executor for a real database (`AddKlyrooTableEntityFrameworkAdapter()` of Klyroo.Table.EntityFrameworkCore for EF Core). The cancellation token is checked before each query, not during it.
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
@@ -991,9 +991,9 @@ The default executor: `Count()` and `ToList()`, on the thread that asks. It bloc
 | `Create<T>(DataListSchema<T> schema, IQueryable<T> source, IDataListQueryExecutor executor)` | `DataListProvider<T>` | — |
 
 ### `record DataListRowSummary<TItem>`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/DataListRowSummary.cs`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/DataListRowSummary.cs`
 
-Compact summary-row presentation for `LxDataListTable{TItem}`: one scannable row per record with an optional leading visual, a primary title (optionally a link or button), a status badge/pill, secondary details joined with ` · `, selection checkbox and row actions. Shown automatically below the `md` breakpoint when `AutoPhone` is `true`, when `DefaultActive` is `true`, or when toggled with `LxDataListViewToggle{TItem}`. The row type.
+Compact summary-row presentation for `KlyDataListTable{TItem}`: one scannable row per record with an optional leading visual, a primary title (optionally a link or button), a status badge/pill, secondary details joined with ` · `, selection checkbox and row actions. Shown automatically below the `md` breakpoint when `AutoPhone` is `true`, when `DefaultActive` is `true`, or when toggled with `KlyDataListViewToggle{TItem}`. The row type.
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
@@ -1004,21 +1004,21 @@ Compact summary-row presentation for `LxDataListTable{TItem}`: one scannable row
 | `Href` | `Func<TItem, string?>?` | Optional link destination (`href`) for the title of the row. |
 | `OnSelect` | `EventCallback<TItem>` | Optional click callback when the summary row's title button is activated (interactive only, when `Href` is `null`). |
 | `Template` | `RenderFragment<TItem>?` | Optional custom template for the body of the summary row, replacing `Title`, `Leading`, `Status` and `Details`. |
-| `DefaultActive` | `bool` | Starts in summary-row view on every screen size until the user toggles `LxDataListViewToggle{TItem}` (`false` by default). |
+| `DefaultActive` | `bool` | Starts in summary-row view on every screen size until the user toggles `KlyDataListViewToggle{TItem}` (`false` by default). |
 | `AutoPhone` | `bool` | Automatically switches to summary-row view below the `md` breakpoint (768 px) when the user has not explicitly chosen a view (`true` by default). |
 
-### `class LxToolsLocales`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Localization/LxToolsLocales.cs`
+### `class KlyToolsLocales`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Localization/KlyToolsLocales.cs`
 
-The message tables of Lux.Table, one per locale of `All` and keyed by the same codes. A component picks the table of the current `Code` with `ResolveCode`, so "pt-PT" gets "pt" and an unknown language gets English. Change a table with `Messages`.
+The message tables of Klyroo.Table, one per locale of `All` and keyed by the same codes. A component picks the table of the current `Code` with `ResolveCode`, so "pt-PT" gets "pt" and an unknown language gets English. Change a table with `Messages`.
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
-| `Tables` | `IReadOnlyDictionary<string, LxToolsMessages>` | Every table by locale code: the codes of `All`. |
+| `Tables` | `IReadOnlyDictionary<string, KlyToolsMessages>` | Every table by locale code: the codes of `All`. |
 | `ReviewedCodes` | `IReadOnlyList<string>` | The codes whose texts were reviewed by a native speaker. The other tables are drafts waiting for review. |
 
-### `record LxToolsMessages`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Localization/LxToolsMessages.DataList.cs`
+### `record KlyToolsMessages`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Localization/KlyToolsMessages.DataList.cs`
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
@@ -1063,8 +1063,8 @@ The message tables of Lux.Table, one per locale of `All` and keyed by the same c
 | `Columns` | `string` | Label of the column configurator button and heading. |
 | `ColumnsVisible` | `string` | Visible column count in the column panel. {0} is visible count, {1} is total count. |
 
-### `record LxToolsMessages`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Localization/LxToolsMessages.Filters.cs`
+### `record KlyToolsMessages`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Localization/KlyToolsMessages.Filters.cs`
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
@@ -1109,8 +1109,8 @@ The message tables of Lux.Table, one per locale of `All` and keyed by the same c
 | `OperatorBetween` | `string` | The `between` operator of a number or date filter. |
 | `OperatorBefore` | `string` | The `before` operator of a date filter. |
 
-### `record LxToolsMessages`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Localization/LxToolsMessages.Selection.cs`
+### `record KlyToolsMessages`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Localization/KlyToolsMessages.Selection.cs`
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
@@ -1130,109 +1130,109 @@ The message tables of Lux.Table, one per locale of `All` and keyed by the same c
 | `RowActionsLabel` | `string` | Accessible name of the button that opens the actions of one row of a data list; {0} is the label of the row. |
 | `RowActionsLabelAt` | `string` | Accessible name of the button that opens the actions of a row that has no label; {0} is its position on the page. |
 
-### `record LxToolsMessages`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Localization/LxToolsMessages.cs`
+### `record KlyToolsMessages`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Localization/KlyToolsMessages.cs`
 
-Every text the components of Lux.Table render: accessible names, labels, hints. One set per locale of Lux.UI (`LxToolsLocales`); build a variant with a `with` expression and register it with `Messages`. Partial: each family of components declares its messages in its own file. A message with placeholders ({0}, {1}) is formatted by the component with `Format(string, object?[])`; keep the same placeholders when you translate it.
+Every text the components of Klyroo.Table render: accessible names, labels, hints. One set per locale of Klyroo.UI (`KlyToolsLocales`); build a variant with a `with` expression and register it with `Messages`. Partial: each family of components declares its messages in its own file. A message with placeholders ({0}, {1}) is formatted by the component with `Format(string, object?[])`; keep the same placeholders when you translate it.
 
-### `class LxToolsLocales`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Localization/Locales/Ar.cs`
-
-| Member | Type | Description |
-| :--- | :--- | :--- |
-| `Ar` | `LxToolsMessages` | العربية (ar). Needs review. |
-
-### `class LxToolsLocales`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Localization/Locales/De.cs`
+### `class KlyToolsLocales`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Localization/Locales/Ar.cs`
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
-| `De` | `LxToolsMessages` | Deutsch (de). Needs review. |
+| `Ar` | `KlyToolsMessages` | العربية (ar). Needs review. |
 
-### `class LxToolsLocales`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Localization/Locales/En.cs`
-
-| Member | Type | Description |
-| :--- | :--- | :--- |
-| `En` | `LxToolsMessages` | English. Reviewed. |
-
-### `class LxToolsLocales`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Localization/Locales/Es.cs`
+### `class KlyToolsLocales`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Localization/Locales/De.cs`
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
-| `Es` | `LxToolsMessages` | Español (es). Needs review. |
+| `De` | `KlyToolsMessages` | Deutsch (de). Needs review. |
 
-### `class LxToolsLocales`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Localization/Locales/Fr.cs`
-
-| Member | Type | Description |
-| :--- | :--- | :--- |
-| `Fr` | `LxToolsMessages` | Français. Reviewed. |
-
-### `class LxToolsLocales`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Localization/Locales/It.cs`
+### `class KlyToolsLocales`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Localization/Locales/En.cs`
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
-| `It` | `LxToolsMessages` | Italiano (it). Needs review. |
+| `En` | `KlyToolsMessages` | English. Reviewed. |
 
-### `class LxToolsLocales`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Localization/Locales/Ja.cs`
-
-| Member | Type | Description |
-| :--- | :--- | :--- |
-| `Ja` | `LxToolsMessages` | 日本語 (ja). Needs review. |
-
-### `class LxToolsLocales`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Localization/Locales/Nl.cs`
+### `class KlyToolsLocales`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Localization/Locales/Es.cs`
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
-| `Nl` | `LxToolsMessages` | Nederlands (nl). Needs review. |
+| `Es` | `KlyToolsMessages` | Español (es). Needs review. |
 
-### `class LxToolsLocales`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Localization/Locales/Pt.cs`
-
-| Member | Type | Description |
-| :--- | :--- | :--- |
-| `Pt` | `LxToolsMessages` | Português (pt). Needs review. |
-
-### `class LxToolsLocales`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Localization/Locales/PtBr.cs`
+### `class KlyToolsLocales`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Localization/Locales/Fr.cs`
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
-| `PtBr` | `LxToolsMessages` | Português (Brasil) (pt-BR). Needs review. |
+| `Fr` | `KlyToolsMessages` | Français. Reviewed. |
 
-### `class LxToolsLocales`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Localization/Locales/Ru.cs`
-
-| Member | Type | Description |
-| :--- | :--- | :--- |
-| `Ru` | `LxToolsMessages` | Русский (ru). Needs review. |
-
-### `class LxToolsLocales`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Localization/Locales/ZhCn.cs`
+### `class KlyToolsLocales`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Localization/Locales/It.cs`
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
-| `ZhCn` | `LxToolsMessages` | 简体中文 (zh-Hans). Needs review. |
+| `It` | `KlyToolsMessages` | Italiano (it). Needs review. |
 
-### `class LuxTableServiceCollectionExtensions`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/LuxTableServiceCollectionExtensions.cs`
+### `class KlyToolsLocales`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Localization/Locales/Ja.cs`
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
-| `AddLuxTable(this IServiceCollection services, Action<LuxTableOptions>? configure = null)` | `IServiceCollection` | — |
+| `Ja` | `KlyToolsMessages` | 日本語 (ja). Needs review. |
 
-### `class LuxTableOptions`
-*Package*: `Lux.Table` · *Source*: `src/Lux.Table/Theming/LuxTableOptions.DataList.cs`
+### `class KlyToolsLocales`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Localization/Locales/Nl.cs`
+
+| Member | Type | Description |
+| :--- | :--- | :--- |
+| `Nl` | `KlyToolsMessages` | Nederlands (nl). Needs review. |
+
+### `class KlyToolsLocales`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Localization/Locales/Pt.cs`
+
+| Member | Type | Description |
+| :--- | :--- | :--- |
+| `Pt` | `KlyToolsMessages` | Português (pt). Needs review. |
+
+### `class KlyToolsLocales`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Localization/Locales/PtBr.cs`
+
+| Member | Type | Description |
+| :--- | :--- | :--- |
+| `PtBr` | `KlyToolsMessages` | Português (Brasil) (pt-BR). Needs review. |
+
+### `class KlyToolsLocales`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Localization/Locales/Ru.cs`
+
+| Member | Type | Description |
+| :--- | :--- | :--- |
+| `Ru` | `KlyToolsMessages` | Русский (ru). Needs review. |
+
+### `class KlyToolsLocales`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Localization/Locales/ZhCn.cs`
+
+| Member | Type | Description |
+| :--- | :--- | :--- |
+| `ZhCn` | `KlyToolsMessages` | 简体中文 (zh-Hans). Needs review. |
+
+### `class KlyrooTableServiceCollectionExtensions`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/KlyrooTableServiceCollectionExtensions.cs`
+
+| Member | Type | Description |
+| :--- | :--- | :--- |
+| `AddKlyrooTable(this IServiceCollection services, Action<KlyrooTableOptions>? configure = null)` | `IServiceCollection` | — |
+
+### `class KlyrooTableOptions`
+*Package*: `Klyroo.Table` · *Source*: `src/Klyroo.Table/Theming/KlyrooTableOptions.DataList.cs`
 
 | Member | Type | Description |
 | :--- | :--- | :--- |
 | `DataListEmpty` | `ComponentTheme` | The empty state of a data list. |
 | `DataList` | `ComponentTheme` | The data list and its parts: toolbar, result count, refresh button, table, pagination and error state. One theme for all of them, so a look is changed in one place. |
-| `SearchDebounce` | `int` | Milliseconds of quiet after the last keystroke before the search field of a data list searches (300 by default), unless the field sets its own `Debounce`. Enter searches at once. Set it in `AddLuxTable`. The value is negative. |
-| `PersistMaxBytes` | `int` | The most bytes (state, loaded state and result with its facets, as JSON) one data list hands from its prerender to the interactive render (16 KB by default). A bigger result is not persisted: the interactive render loads it again once, and a warning names the list and the size. The limit exists because the client sends everything persisted to the server when a Server circuit starts, and SignalR refuses messages past 32 KB. Set it in `AddLuxTable`. The value is negative. |
+| `SearchDebounce` | `int` | Milliseconds of quiet after the last keystroke before the search field of a data list searches (300 by default), unless the field sets its own `Debounce`. Enter searches at once. Set it in `AddKlyrooTable`. The value is negative. |
+| `PersistMaxBytes` | `int` | The most bytes (state, loaded state and result with its facets, as JSON) one data list hands from its prerender to the interactive render (16 KB by default). A bigger result is not persisted: the interactive render loads it again once, and a warning names the list and the size. The limit exists because the client sends everything persisted to the server when a Server circuit starts, and SignalR refuses messages past 32 KB. Set it in `AddKlyrooTable`. The value is negative. |
 | `PersistPageMaxBytes` | `int` | The most bytes all the data lists of one prerendered page hand over together (8 KB by default: what the browser sends is about 3.5 times bigger once escaped, encrypted and encoded, next to the rest of the page state, and SignalR refuses 32 KB): lists past it, in the order they persist, are not persisted. The value is negative. |

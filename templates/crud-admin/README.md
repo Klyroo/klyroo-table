@@ -1,1 +1,1 @@
-# LuxStack Table CRUD Admin Portal Template
+# Klyroo Table CRUD Admin Portal Template

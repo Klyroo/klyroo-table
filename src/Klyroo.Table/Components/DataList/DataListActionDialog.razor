@@ -1,0 +1,26 @@
+@namespace Klyroo.Table
+@inherits KlyToolsComponentBase
+
+@* The question an action asks before it runs. Cancel and the confirm button close the dialog without a round trip (data-kly-close); the confirm button also runs the action. *@
+<KlyModal Open="Open" OpenChanged="OpenChanged" Title="@Title" Description="@Description" data-slot="action-dialog">
+    <Footer>
+        <KlyButton Label="@ToolsMessages.ActionCancel" Variant="ButtonVariant.Ghost" Color="KlyColor.Neutral" data-kly-close data-slot="action-cancel" />
+        <KlyButton Label="@ConfirmLabel" Color="Color" OnClick="OnConfirm" data-kly-close data-slot="action-confirm" />
+    </Footer>
+</KlyModal>
+
+@code {
+    [Parameter] public bool Open { get; set; }
+
+    [Parameter] public EventCallback<bool> OpenChanged { get; set; }
+
+    [Parameter, EditorRequired] public string Title { get; set; } = "";
+
+    [Parameter] public string? Description { get; set; }
+
+    [Parameter, EditorRequired] public string ConfirmLabel { get; set; } = "";
+
+    [Parameter] public KlyColor Color { get; set; }
+
+    [Parameter] public EventCallback OnConfirm { get; set; }
+}

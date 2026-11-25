@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Klyroo.Table</RootNamespace>
+    <PackageId>Klyroo.Table</PackageId>
+    <Description>Klyroo Table for Blazor Web &amp; .NET MAUI Hybrid: DataList (Table, Grid, Virtualization, Grouping, Tree, Summaries, Saved Views, Export).</Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591;BL0007</NoWarn>
+    <IsTrimmable>true</IsTrimmable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Klyroo.Table.Core\Klyroo.Table.Core.csproj" />
+    <ProjectReference Include="..\..\..\klyroo-query\src\Klyroo.Query.Core\Klyroo.Query.Core.csproj" />
+    <ProjectReference Include="..\..\..\klyroo-query\src\Klyroo.Query\Klyroo.Query.csproj" />
+    <ProjectReference Include="..\..\..\klyroo-ui\src\Klyroo.UI\Klyroo.UI.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Klyroo.Table.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+    <SupportedPlatform Include="ios" />
+    <SupportedPlatform Include="android" />
+    <SupportedPlatform Include="maccatalyst" />
+    <SupportedPlatform Include="windows" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Klyroo.Query" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Klyroo.UI" />
+  </ItemGroup>
+</Project>

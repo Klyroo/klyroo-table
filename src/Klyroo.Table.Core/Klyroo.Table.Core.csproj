@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Klyroo.Table</RootNamespace>
+    <PackageId>Klyroo.Table.Core</PackageId>
+    <Description>Klyroo Table Core: Headless DataList tree hierarchy models. Zero UI dependency, NativeAOT compatible.</Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <IsTrimmable>true</IsTrimmable>
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\klyroo-query\src\Klyroo.Query.Core\Klyroo.Query.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Klyroo.Table" />
+    <InternalsVisibleTo Include="Klyroo.Table.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Klyroo.Query" />
+  </ItemGroup>
+</Project>

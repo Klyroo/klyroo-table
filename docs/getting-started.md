@@ -1,4 +1,4 @@
-# Getting Started with Lux.Table
+# Getting Started with Klyroo.Table
 
 Headless-powered data tables and card grids for .NET: NativeAOT tree hierarchy (DataListTree<TItem>), visual grouping, footer aggregations, 2px loading progress line, automatic Sort/Hide HeaderMenu, 60fps virtualization, and responsive mobile summary rows.
 
@@ -6,20 +6,20 @@ Headless-powered data tables and card grids for .NET: NativeAOT tree hierarchy (
 
 | Use Case | Package to Install |
 | :--- | :--- |
-| Headless C#, Minimal APIs, Workers, CLI, or native C# .NET MAUI ViewModels | `Lux.Table.Core` |
-| Blazor Web App (Server, WebAssembly, Auto, Static SSR) or `.NET MAUI Blazor Hybrid` | `Lux.Table` |
+| Headless C#, Minimal APIs, Workers, CLI, or native C# .NET MAUI ViewModels | `Klyroo.Table.Core` |
+| Blazor Web App (Server, WebAssembly, Auto, Static SSR) or `.NET MAUI Blazor Hybrid` | `Klyroo.Table` |
 
 ```bash
-dotnet add package Lux.Table.Core
-dotnet add package Lux.Table
+dotnet add package Klyroo.Table.Core
+dotnet add package Klyroo.Table
 ```
 
 ## 2. Register Services
 
-Call `builder.Services.AddLuxTable();` in `Program.cs` (both Server and Client projects when using Blazor Interactive Auto) or `MauiProgram.cs` (after `AddMauiBlazorWebView()`):
+Call `builder.Services.AddKlyrooTable();` in `Program.cs` (both Server and Client projects when using Blazor Interactive Auto) or `MauiProgram.cs` (after `AddMauiBlazorWebView()`):
 
 ```csharp
-builder.Services.AddLuxTable();
+builder.Services.AddKlyrooTable();
 ```
 
 ## 3. Add Namespace Imports
@@ -27,19 +27,19 @@ builder.Services.AddLuxTable();
 In `_Imports.razor`:
 
 ```razor
-@using Lux.UI
-@using Lux.Table
-@using Lux.Query
-@using Lux.Query
+@using Klyroo.UI
+@using Klyroo.Table
+@using Klyroo.Query
+@using Klyroo.Query
 ```
 
 ## 4. First Example
 
-### Headless C# (`Lux.Table.Core`)
+### Headless C# (`Klyroo.Table.Core`)
 
 ```csharp
-using Lux.Table;
-using Lux.Query;
+using Klyroo.Table;
+using Klyroo.Query;
 
 var tree = new DataListTree<Employee>
 {
@@ -51,19 +51,19 @@ var (roots, allNodes) = tree.BuildTree(employees, schema);
 // Every node carries Depth, Parent, IsLast & AncestorContinuations
 ```
 
-### Blazor / MAUI Hybrid (`Lux.Table`)
+### Blazor / MAUI Hybrid (`Klyroo.Table`)
 
 ```razor
-<LxDataList TItem="Employee" Schema="@_schema" Items="@_employees" UrlSync="false">
-    <LxDataListTable TItem="Employee"
+<KlyDataList TItem="Employee" Schema="@_schema" Items="@_employees" UrlSync="false">
+    <KlyDataListTable TItem="Employee"
                      HeaderMenu="true"
                      ShowProgressLine="true"
                      Summaries="@(new DataListSummaries<Employee>())">
-        <LxDataListColumn TItem="Employee" Field="name" Title="Name" />
-        <LxDataListColumn TItem="Employee" Field="salary" Title="Salary"
+        <KlyDataListColumn TItem="Employee" Field="name" Title="Name" />
+        <KlyDataListColumn TItem="Employee" Field="salary" Title="Salary"
                           Summary="DataListSummaryKind.Sum" />
-    </LxDataListTable>
-</LxDataList>
+    </KlyDataListTable>
+</KlyDataList>
 ```
 
 ## Next Steps

@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="bunit" />
+    <ProjectReference Include="..\..\src\Klyroo.Table.Core\Klyroo.Table.Core.csproj" />
+    <ProjectReference Include="..\..\src\Klyroo.Table\Klyroo.Table.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Klyroo.Table.Core/Klyroo.Table.Core.csproj" />
+    <Project Path="src/Klyroo.Table/Klyroo.Table.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Klyroo.Table.Tests/Klyroo.Table.Tests.csproj" />
+  </Folder>
+  <Folder Name="/examples/">
+    <Project Path="examples/HeadlessTableExample/HeadlessTableExample.csproj" />
+  </Folder>
+</Solution>

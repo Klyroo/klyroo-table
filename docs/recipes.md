@@ -1,4 +1,4 @@
-# Recipes & Testing — Lux.Table
+# Recipes & Testing — Klyroo.Table
 
 ## Recipe 1: Mobile Summary Rows + Grouping
 
@@ -18,7 +18,7 @@ private static readonly DataListGroupBy<Employee> ByDepartment = new()
 
 ## Recipe 2: Headless Unit Testing (`xUnit`)
 
-Test all business logic in `Lux.Table.Core` without spinning up a browser or Blazor renderer:
+Test all business logic in `Klyroo.Table.Core` without spinning up a browser or Blazor renderer:
 
 ```csharp
 using Xunit;
@@ -28,7 +28,7 @@ public sealed class TableUnitTests
     [Fact]
     public void Headless_core_runs_without_ui_host()
     {
-        // Arrange & Act using Lux.Table.Core directly
+        // Arrange & Act using Klyroo.Table.Core directly
         // Assert deterministic outputs with zero JSInterop setup
     }
 }
@@ -45,9 +45,9 @@ public sealed class TableComponentTests : BunitContext
 {
     public TableComponentTests()
     {
-        Services.AddLuxTable();
+        Services.AddKlyrooTable();
     }
 }
 ```
 
-> **Tip**: Always register LuxStack services on `Services` **before** calling `SetRendererInfo(...)` in bUnit tests.
+> **Tip**: Always register Klyroo services on `Services` **before** calling `SetRendererInfo(...)` in bUnit tests.

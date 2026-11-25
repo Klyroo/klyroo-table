@@ -1,5 +1,5 @@
-using Lux.Table;
-using Lux.Query;
+using Klyroo.Table;
+using Klyroo.Query;
 
 var tree = new DataListTree<Node> { Children = n => n.Children, DefaultExpanded = true };
 var (_, allNodes) = tree.BuildTree([new Node("Root", [new Node("Child")])]);
