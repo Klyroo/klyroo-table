@@ -80,8 +80,11 @@ jobs:
         run: dotnet test Klyroo.Table.slnx -c Release --no-build --nologo
       - name: NativeAOT and trimming analyzers on the .Core libraries
         run: |
+          # Only the libraries that declare NativeAOT compatibility: the global properties would otherwise also flow into
+          # projects they reference that are not meant to be trimmed (the docs site, for example).
           for core in src/*.Core/*.csproj; do
-            [ -f "$core" ] && dotnet build "$core" -c Release -p:EnableAotAnalyzer=true -p:EnableTrimAnalyzer=true --nologo
+            grep -q '<IsAotCompatible>true</IsAotCompatible>' "$core" || continue
+            dotnet build "$core" -c Release -p:EnableAotAnalyzer=true -p:EnableTrimAnalyzer=true --nologo
           done
       - name: Formatting report
         # Reported, not blocking yet: the code predates .editorconfig. Remove continue-on-error after a one-time
