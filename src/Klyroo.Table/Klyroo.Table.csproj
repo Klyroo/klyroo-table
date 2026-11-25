@@ -3,7 +3,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>Klyroo.Table</RootNamespace>
     <PackageId>Klyroo.Table</PackageId>
-    <Description>Klyroo Table for Blazor Web &amp; .NET MAUI Hybrid: DataList (Table, Grid, Virtualization, Grouping, Tree, Summaries, Saved Views, Export).</Description>
+    <Description>Klyroo Table for Blazor Web and .NET MAUI Hybrid: data lists with table and card-grid layouts, filters, selection, actions, grouping, trees and summary rows.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);CS1591;BL0007</NoWarn>
     <IsTrimmable>true</IsTrimmable>
