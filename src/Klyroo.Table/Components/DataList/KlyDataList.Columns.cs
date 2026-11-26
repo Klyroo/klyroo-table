@@ -450,7 +450,7 @@ public partial class KlyDataList<TItem>
         }
     }
 
-    internal bool EffectiveColumnVisible(KlyDataListColumn<TItem> column)
+    internal bool EffectiveColumnVisible(KlyDataListColumnBase<TItem> column)
     {
         if (column.Required) return true;
         var key = column.ResolvedKey;
@@ -460,7 +460,7 @@ public partial class KlyDataList<TItem>
         return column.Visible;
     }
 
-    internal DataListPin EffectiveColumnPin(KlyDataListColumn<TItem> column)
+    internal DataListPin EffectiveColumnPin(KlyDataListColumnBase<TItem> column)
     {
         var key = column.ResolvedKey;
         if (key is null) return column.Pinned;
@@ -470,14 +470,14 @@ public partial class KlyDataList<TItem>
         return column.Pinned;
     }
 
-    private static (int Min, int Max) WidthLimits(KlyDataListColumn<TItem> column)
+    private static (int Min, int Max) WidthLimits(KlyDataListColumnBase<TItem> column)
     {
         var min = Math.Clamp(column.MinWidth, DataListColumnPreferences.MinAllowedWidth, DataListColumnPreferences.MaxAllowedWidth);
         var max = Math.Clamp(column.MaxWidth, min, DataListColumnPreferences.MaxAllowedWidth);
         return (min, max);
     }
 
-    internal int? EffectiveColumnWidth(KlyDataListColumn<TItem> column)
+    internal int? EffectiveColumnWidth(KlyDataListColumnBase<TItem> column)
     {
         var (min, max) = WidthLimits(column);
         var key = column.ResolvedKey;
@@ -487,7 +487,7 @@ public partial class KlyDataList<TItem>
     }
 
     /// <summary>Columns in user order (before grouping pinned columns to table edges): used by the column panel.</summary>
-    internal List<KlyDataListColumn<TItem>> OrderedColumns()
+    internal List<KlyDataListColumnBase<TItem>> OrderedColumns()
     {
         var declared = _context.Columns;
         if (_columnPrefs.Order.Count == 0) return [.. declared];
@@ -501,12 +501,12 @@ public partial class KlyDataList<TItem>
     }
 
     /// <summary>Columns for the table: Start-pinned first, then unpinned in user order, then End-pinned. A list never shows no column: when the preferences hid every one, the first stays.</summary>
-    internal List<KlyDataListColumn<TItem>> TableColumns()
+    internal List<KlyDataListColumnBase<TItem>> TableColumns()
     {
         var ordered = OrderedColumns();
-        var start = new List<KlyDataListColumn<TItem>>();
-        var middle = new List<KlyDataListColumn<TItem>>();
-        var end = new List<KlyDataListColumn<TItem>>();
+        var start = new List<KlyDataListColumnBase<TItem>>();
+        var middle = new List<KlyDataListColumnBase<TItem>>();
+        var end = new List<KlyDataListColumnBase<TItem>>();
         foreach (var col in ordered)
         {
             if (!EffectiveColumnVisible(col)) continue;
@@ -546,7 +546,7 @@ public partial class KlyDataList<TItem>
         return result;
     }
 
-    private KlyDataListColumn<TItem>? FindColumn(string key) =>
+    private KlyDataListColumnBase<TItem>? FindColumn(string key) =>
         _context.Columns.FirstOrDefault(c => string.Equals(c.ResolvedKey, key, StringComparison.Ordinal));
 
     private void Announce(string message)
@@ -557,10 +557,10 @@ public partial class KlyDataList<TItem>
     private string Format(string template, params object[] args) => string.Format(CurrentLocale.Culture, template, args);
 
     // Hiding the last column of the table would leave nothing to look at: the last visible column stays.
-    internal bool CanHideColumn(KlyDataListColumn<TItem> column) =>
+    internal bool CanHideColumn(KlyDataListColumnBase<TItem> column) =>
         !column.Required && column.ResolvedKey is not null && TableColumns().Any(c => !ReferenceEquals(c, column));
 
-    private void WriteVisibility(KlyDataListColumn<TItem> col, string key, bool visible)
+    private void WriteVisibility(KlyDataListColumnBase<TItem> col, string key, bool visible)
     {
         _columnPrefs.Hidden.Remove(key);
         _columnPrefs.Shown.Remove(key);

@@ -63,10 +63,10 @@ public sealed class ExportTests : TableHarness
             Column(b, ref seq, "salary", "Salary", format: "N2");
             Column(b, ref seq, "hired", "Hired", format: "d");
             // A column that is hidden, and one that only has a template, are not exported.
-            Column(b, ref seq, "team", "Team", (cb, s) => cb.AddComponentParameter(s, nameof(KlyDataListColumn<Person>.Visible), false));
-            b.OpenComponent<KlyDataListColumn<Person>>(seq);
-            b.AddComponentParameter(seq + 1, nameof(KlyDataListColumn<Person>.Title), "Actions");
-            b.AddComponentParameter(seq + 2, nameof(KlyDataListColumn<Person>.Template), (RenderFragment<Person>)(p => x => x.AddContent(0, "x")));
+            Column(b, ref seq, "team", "Team", (cb, s) => cb.AddComponentParameter(s, nameof(KlyDataListFieldColumn<Person>.Visible), false));
+            b.OpenComponent<KlyDataListTemplateColumn<Person>>(seq);
+            b.AddComponentParameter(seq + 1, nameof(KlyDataListTemplateColumn<Person>.Title), "Actions");
+            b.AddComponentParameter(seq + 2, nameof(KlyDataListTemplateColumn<Person>.Template), (RenderFragment<Person>)(p => x => x.AddContent(0, "x")));
             b.CloseComponent();
         });
 
@@ -350,13 +350,19 @@ public sealed class ExportTests : TableHarness
     [Fact]
     public void Only_known_value_types_skip_the_formula_guard()
     {
-        // Typed as object so that the column reads a value of the type under test.
+        // One field per value type under test: the schema describes each field by its type, so the export knows which ones the type writes.
         var schema = Klyroo.Query.DataListSchema.For<Holder>(s => s
-            .Field(h => h.Value, f => f.Key("value")));
+            .Field(h => h.Number, f => f.Key("number"))
+            .Field(h => h.Level, f => f.Key("level"))
+            .Field(h => h.Odd, f => f.Key("odd"))
+            .Field(h => h.Id, f => f.Key("id"))
+            .Field(h => h.Text, f => f.Key("text"))
+            .Field(h => h.Money, f => f.Key("money"))
+            .Field(h => h.Moment, f => f.Key("moment")));
         Prepare();
         Render<KlyDataList<Holder>>(p => p
             .Add(x => x.Schema, schema)
-            .Add(x => x.Items, new[] { new Holder(-5), new Holder(Level.High), new Holder(new Odd()), new Holder(Guid.Empty), new Holder("-x"), new Holder(-1.5m), new Holder(new DateTime(2024, 1, 2)) })
+            .Add(x => x.Items, new[] { new Holder(-5, Level.High, new Odd(), Guid.Empty, "-x", -1.5m, new DateTime(2024, 1, 2)) })
             .Add(x => x.UrlSync, false)
             .AddChildContent(b =>
             {
@@ -368,13 +374,12 @@ public sealed class ExportTests : TableHarness
             }));
 
         var lines = Lines(_holder!.ExportCsv(DataListExportScope.Page, new DataListCsvOptions { Utf8Bom = false, Culture = CultureInfo.InvariantCulture }));
-        // The default sort of this schema is none, so rows keep their order.
-        Assert.Equal(["Value", "-5", "High", "'=odd", "00000000-0000-0000-0000-000000000000", "'-x", "-1.5", "01/02/2024 00:00:00"], lines);
+        Assert.Equal(["Number,Level,Odd,Id,Text,Money,Moment", "-5,High,'=odd,00000000-0000-0000-0000-000000000000,'-x,-1.5,01/02/2024 00:00:00"], lines);
     }
 
     private DataListContext<Holder>? _holder;
 
-    private sealed record Holder(object? Value);
+    private sealed record Holder(int Number, Level Level, Odd Odd, Guid Id, string Text, decimal Money, DateTime Moment);
 
     private sealed class CaptureHolder : DataListPartBase<Holder>
     {
@@ -395,21 +400,21 @@ public sealed class ExportTests : TableHarness
         {
             var seq = 100;
             RenderFragment<Person> template = p => x => x.AddContent(0, "x");
-            b.OpenComponent<KlyDataListColumn<Person>>(seq);
-            b.AddComponentParameter(seq + 1, nameof(KlyDataListColumn<Person>.Title), "Pay");
-            b.AddComponentParameter(seq + 2, nameof(KlyDataListColumn<Person>.Template), template);
-            b.AddComponentParameter(seq + 3, nameof(KlyDataListColumn<Person>.Property), (System.Linq.Expressions.Expression<Func<Person, object?>>)(p => p.Salary));
-            b.AddComponentParameter(seq + 4, nameof(KlyDataListColumn<Person>.Format), "N0");
+            b.OpenComponent<KlyDataListColumn<Person, decimal>>(seq);
+            b.AddComponentParameter(seq + 1, nameof(KlyDataListColumn<Person, decimal>.Title), "Pay");
+            b.AddComponentParameter(seq + 2, nameof(KlyDataListColumn<Person, decimal>.Template), template);
+            b.AddComponentParameter(seq + 3, nameof(KlyDataListColumn<Person, decimal>.Property), (System.Linq.Expressions.Expression<Func<Person, decimal>>)(p => p.Salary));
+            b.AddComponentParameter(seq + 4, nameof(KlyDataListColumn<Person, decimal>.Format), "N0");
             b.CloseComponent();
-            b.OpenComponent<KlyDataListColumn<Person>>(seq + 10);
-            b.AddComponentParameter(seq + 11, nameof(KlyDataListColumn<Person>.Title), "Since");
-            b.AddComponentParameter(seq + 12, nameof(KlyDataListColumn<Person>.Template), template);
-            b.AddComponentParameter(seq + 13, nameof(KlyDataListColumn<Person>.Key), "hired");
-            b.AddComponentParameter(seq + 14, nameof(KlyDataListColumn<Person>.Format), "yyyy");
+            b.OpenComponent<KlyDataListTemplateColumn<Person>>(seq + 10);
+            b.AddComponentParameter(seq + 11, nameof(KlyDataListTemplateColumn<Person>.Title), "Since");
+            b.AddComponentParameter(seq + 12, nameof(KlyDataListTemplateColumn<Person>.Template), template);
+            b.AddComponentParameter(seq + 13, nameof(KlyDataListTemplateColumn<Person>.Key), "hired");
+            b.AddComponentParameter(seq + 14, nameof(KlyDataListTemplateColumn<Person>.Format), "yyyy");
             b.CloseComponent();
-            b.OpenComponent<KlyDataListColumn<Person>>(seq + 20);
-            b.AddComponentParameter(seq + 21, nameof(KlyDataListColumn<Person>.Title), "Nothing");
-            b.AddComponentParameter(seq + 22, nameof(KlyDataListColumn<Person>.Template), template);
+            b.OpenComponent<KlyDataListTemplateColumn<Person>>(seq + 20);
+            b.AddComponentParameter(seq + 21, nameof(KlyDataListTemplateColumn<Person>.Title), "Nothing");
+            b.AddComponentParameter(seq + 22, nameof(KlyDataListTemplateColumn<Person>.Template), template);
             b.CloseComponent();
         });
 

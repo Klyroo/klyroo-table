@@ -346,13 +346,13 @@
                     <div class="@_slots["gridCardField"]">
                         <dt class="@_slots["gridCardFieldLabel"]">@col.ResolvedTitle</dt>
                         <dd class="@_slots["gridCardFieldValue"]">
-                            @if (col.Template is { } template)
+                            @if (col.CellTemplate is { } template)
                             {
                                 @template(item)
                             }
                             else
                             {
-                                @col.FormatValue(col.ReadValue(item, Context.Schema), FormatCulture)
+                                @col.ReadText(item, Context.Schema, FormatCulture)
                             }
                         </dd>
                     </div>
@@ -362,8 +362,7 @@
             {
                 @foreach (var field in schema.FieldInfos.Where(f => !f.IsCollection))
                 {
-                    var val = schema.ReadField(item, field.Key);
-                    var text = val is IFormattable formattable ? formattable.ToString(null, FormatCulture) : val?.ToString();
+                    var text = schema.FormatField(item, field.Key, null, FormatCulture);
                     <div class="@_slots["gridCardField"]">
                         <dt class="@_slots["gridCardFieldLabel"]">@DataListText.Humanize(field.Key)</dt>
                         <dd class="@_slots["gridCardFieldValue"]">@text</dd>

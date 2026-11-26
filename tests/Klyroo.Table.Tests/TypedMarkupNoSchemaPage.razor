@@ -1,0 +1,12 @@
+@* A list without a schema: the typed columns describe it. *@
+<KlyDataList Items="Rows" UrlSync="false">
+    <KlyDataListTable>
+        <KlyDataListColumn Property="@(p => p.Name)" Title="Name" />
+        <KlyDataListColumn Property="@(p => p.Salary)" Format="N0" Summary="DataListSummaryKind.Max" />
+        <KlyDataListColumn Property="@(p => p.Hired)" Format="yyyy-MM-dd" Sortable="false" />
+    </KlyDataListTable>
+</KlyDataList>
+
+@code {
+    [Parameter] public IReadOnlyList<Person> Rows { get; set; } = [];
+}

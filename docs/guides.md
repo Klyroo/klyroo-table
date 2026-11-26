@@ -170,6 +170,33 @@ In the page, create a context for the list and keep the query in a field. A `DbC
 
 Building the query in `OnInitialized` means it exists before the list first renders. The list rejects an `AsQueryable()` over an in-memory collection, because its expressions would throw on a null along a path where a database returns null: use `Items` for rows that are already in memory. Text filters follow the collation of the database column, while the in-memory executor ignores case and accents.
 
+## Pick a kind of column
+
+Goal: show typed values, schema fields and templates in one table without writing a type argument.
+
+A column comes in three kinds, and the list supplies the row type, so none of them takes a `TItem`:
+
+```razor
+<KlyDataList Items="Orders" Schema="Schema" Label="Orders">
+    <KlyDataListTable>
+        <KlyDataListColumn Property="@(o => o.Total)" Format="C0" Align="DataListAlign.End"
+                           Summary="DataListSummaryKind.Sum" />
+        <KlyDataListColumn Property="@(o => o.Placed)" Format="d"
+                           SummaryValue="@(rows => rows.Max(r => r.Placed))" SummaryFormat="d" />
+        <KlyDataListFieldColumn Field="country" Title="Country" />
+        <KlyDataListTemplateColumn Title="Status" Key="paid">
+            <Template Context="order"><KlyBadge Label="@(order.Paid ? "Paid" : "Open")" /></Template>
+        </KlyDataListTemplateColumn>
+    </KlyDataListTable>
+</KlyDataList>
+```
+
+- `KlyDataListColumn` takes a `Property` expression and infers the value type from it. The cell shows the value formatted with `Format`, `SummaryValue` returns the same type, and with no schema on the list these columns describe it (their key is the member path in camel case, and they sort unless you give `Sortable="false"`).
+- `KlyDataListFieldColumn` names a field of the schema by `Field`. It needs a schema and reads the text of the field through the schema, so the sort, the filter and the cell agree.
+- `KlyDataListTemplateColumn` renders a `Template`. Give it a `Key` that names a schema field and its header sorts by that field, and a CSV export and a summary read the field as well.
+
+All three share the parameters for the title, alignment, widths, pinning, visibility, the header menu, summaries and the CSS class. A custom `SummaryValue` that returns a number stays a number for the footer to format; any other type is shown as text with `SummaryFormat` or `Format`. A `Sum` or `Average` over text or dates is 0 or empty, because only numeric values add up.
+
 ## Filter rows and show counts
 
 Goal: filters on several kinds of fields, with the number of rows behind each option.
@@ -186,10 +213,10 @@ Filters are declared on the schema fields. Five kinds exist: `DataListFilter.Tex
             <KlyDataListSearch TItem="Order" />
             <KlyDataListFilterTags TItem="Order" ShowClear="true" />
             <KlyDataListTable TItem="Order">
-                <KlyDataListColumn TItem="Order" Field="customer" Title="Customer" />
-                <KlyDataListColumn TItem="Order" Field="country" Title="Country" />
-                <KlyDataListColumn TItem="Order" Field="total" Title="Total" Format="C0" Align="DataListAlign.End" />
-                <KlyDataListColumn TItem="Order" Field="placed" Title="Placed" Format="d" />
+                <KlyDataListFieldColumn TItem="Order" Field="customer" Title="Customer" />
+                <KlyDataListFieldColumn TItem="Order" Field="country" Title="Country" />
+                <KlyDataListFieldColumn TItem="Order" Field="total" Title="Total" Format="C0" Align="DataListAlign.End" />
+                <KlyDataListFieldColumn TItem="Order" Field="placed" Title="Placed" Format="d" />
             </KlyDataListTable>
             <KlyDataListPagination TItem="Order" />
         </div>
@@ -288,8 +315,8 @@ Selection needs a `RowKey` in the schema and an interactive render. A `KlyDataLi
 <KlyDataList TItem="Order" Schema="Schema" Provider="LoadAsync" Label="Orders">
     <KlyDataListSelectionActions TItem="Order" Actions="_bulk" OnError="OnBulkError" />
     <KlyDataListTable TItem="Order" RowActions="_rowActions" OnRowActionError="OnRowError">
-        <KlyDataListColumn TItem="Order" Field="customer" Title="Customer" />
-        <KlyDataListColumn TItem="Order" Field="total" Title="Total" Format="C0" Align="DataListAlign.End" />
+        <KlyDataListFieldColumn TItem="Order" Field="customer" Title="Customer" />
+        <KlyDataListFieldColumn TItem="Order" Field="total" Title="Total" Format="C0" Align="DataListAlign.End" />
     </KlyDataListTable>
     <KlyDataListPagination TItem="Order" />
 </KlyDataList>
@@ -387,8 +414,8 @@ The table has no editable cells, and that is on purpose: it shows rows and repor
 
 <KlyDataList TItem="Employee" Schema="Schema" Provider="LoadAsync" Label="Employees">
     <KlyDataListTable TItem="Employee" RowActions="_rowActions">
-        <KlyDataListColumn TItem="Employee" Field="name" Title="Name" />
-        <KlyDataListColumn TItem="Employee" Field="email" Title="Email" />
+        <KlyDataListFieldColumn TItem="Employee" Field="name" Title="Name" />
+        <KlyDataListFieldColumn TItem="Employee" Field="email" Title="Email" />
     </KlyDataListTable>
     <KlyDataListPagination TItem="Employee" />
 </KlyDataList>
@@ -456,7 +483,7 @@ While the drawer is open the action counts as running: its button shows a spinne
 ```razor
 <KlyDataList TItem="Employee" Schema="Schema" Provider="LoadAsync" Label="Employees">
     <KlyDataListTable TItem="Employee" RowActions="_rowActions">
-        <KlyDataListColumn TItem="Employee" Field="name" Title="Name" />
+        <KlyDataListFieldColumn TItem="Employee" Field="name" Title="Name" />
     </KlyDataListTable>
     <KlyDataListPagination TItem="Employee" />
 </KlyDataList>
@@ -516,8 +543,8 @@ Goal: make a row lead somewhere, react to a click on it, and style or tag rows a
                   RowHref="@(o => $"/orders/{o.Id}")"
                   RowClass="@(o => o.Status == "Archived" ? "opacity-60" : null)"
                   RowAttributes="@(o => new Dictionary<string, object> { ["data-order"] = o.Id })">
-    <KlyDataListColumn TItem="Order" Field="customer" Title="Customer" />
-    <KlyDataListColumn TItem="Order" Field="total" Title="Total" Format="C0" Align="DataListAlign.End"
+    <KlyDataListFieldColumn TItem="Order" Field="customer" Title="Customer" />
+    <KlyDataListFieldColumn TItem="Order" Field="total" Title="Total" Format="C0" Align="DataListAlign.End"
                        CellClass="@(o => o.Total > 1000m ? "font-semibold text-(--klyroo-error-text)" : null)" />
 </KlyDataListTable>
 ```
@@ -572,8 +599,8 @@ Goal: a master-detail table, where a button opens a full-width row of extra cont
             </dl>
         </DetailTemplate>
         <ChildContent>
-            <KlyDataListColumn TItem="Order" Field="customer" Title="Customer" />
-            <KlyDataListColumn TItem="Order" Field="total" Title="Total" Format="C0" />
+            <KlyDataListFieldColumn TItem="Order" Field="customer" Title="Customer" />
+            <KlyDataListFieldColumn TItem="Order" Field="total" Title="Total" Format="C0" />
         </ChildContent>
     </KlyDataListTable>
 </KlyDataList>
@@ -598,9 +625,9 @@ Goal: a button that downloads the list as a CSV file, exactly as the user sees i
 <KlyDataList TItem="Order" Schema="Schema" Items="_orders" Label="Orders" Selectable="true">
     <KlyDataListExport TItem="Order" FileName="orders" CsvOptions="@(new DataListCsvOptions { Delimiter = ';' })" />
     <KlyDataListTable TItem="Order">
-        <KlyDataListColumn TItem="Order" Field="customer" Title="Customer" />
-        <KlyDataListColumn TItem="Order" Field="total" Title="Total" Format="C2" />
-        <KlyDataListColumn TItem="Order" Field="placed" Title="Placed" Format="d" />
+        <KlyDataListFieldColumn TItem="Order" Field="customer" Title="Customer" />
+        <KlyDataListFieldColumn TItem="Order" Field="total" Title="Total" Format="C2" />
+        <KlyDataListFieldColumn TItem="Order" Field="placed" Title="Placed" Format="d" />
     </KlyDataListTable>
 </KlyDataList>
 ```
@@ -635,16 +662,16 @@ From code, `DataListContext<T>` has `ExportRows(scope)`, `ExportHeaders()`, `ToC
 
 Goal: collapsible groups, footer totals, and hierarchical rows.
 
-Groups are visual: filtering, sorting, paging and actions still work on the flat rows, and the rows on screen are partitioned under collapsible headers. Totals come from the `Summary` of a column, shown in a `tfoot` for the scope you choose:
+Groups are visual: filtering, sorting, paging and actions still work on the flat rows, and the rows on screen are partitioned under collapsible headers. Create a grouping with `DataListGroupBy<Order>.By(o => o.Country)` (the value keeps its type: an enum groups in enum order, a number by value, with an optional `order` list and an `IEqualityComparer`), with `DataListGroupBy<Order>.ByField("country")` (a schema field), or with `new DataListGroupBy<Order, string>(o => o.Country) { ... }` to set the label, summary and collapsing in an initializer; the label and template receive a `DataListGroup<Order, string>` whose `Value` has the type of the key. Totals come from the `Summary` of a column, shown in a `tfoot` for the scope you choose:
 
 ```razor
 @page "/orders/groups"
 
 <KlyDataList TItem="Order" Schema="Schema" Items="Orders" Label="Orders">
     <KlyDataListTable TItem="Order" GroupBy="_groupBy" Summaries="_summaries">
-        <KlyDataListColumn TItem="Order" Field="customer" Title="Customer" />
-        <KlyDataListColumn TItem="Order" Field="country" Title="Country" />
-        <KlyDataListColumn TItem="Order" Field="total" Title="Total" Format="C0" Align="DataListAlign.End"
+        <KlyDataListFieldColumn TItem="Order" Field="customer" Title="Customer" />
+        <KlyDataListFieldColumn TItem="Order" Field="country" Title="Country" />
+        <KlyDataListFieldColumn TItem="Order" Field="total" Title="Total" Format="C0" Align="DataListAlign.End"
                            Summary="DataListSummaryKind.Sum" />
     </KlyDataListTable>
     <KlyDataListPagination TItem="Order" />
@@ -659,10 +686,8 @@ Groups are visual: filtering, sorting, paging and actions still work on the flat
         .Field(o => o.Country, f => f.Sortable())
         .Field(o => o.Total, f => f.Sortable()));
 
-    private static readonly DataListGroupBy<Order> _groupBy = new()
+    private static readonly DataListGroupBy<Order, string> _groupBy = new(o => o.Country, order: ["France"])
     {
-        Key = o => o.Country,
-        Order = ["France"],
         Summary = g => $"{g.Items.Count} orders",
     };
 
@@ -680,7 +705,7 @@ Groups are visual: filtering, sorting, paging and actions still work on the flat
 }
 ```
 
-`DataListSummaryScope.Page` totals the rows on screen, `Filtered` every row the search and filters match, and `Selection` the ticked rows. For rows in memory the filtered total is computed by the list; for a provider or a queryable, give `DataListSummaries.ResolveAsync` to ask your server, otherwise the filtered scope falls back to the loaded rows. A column can also take a `SummaryValue` function or a `SummaryTemplate`. Without a `Summaries` object, a single filtered row appears as soon as any column declares a summary.
+`DataListSummaryScope.Page` totals the rows on screen, `Filtered` every row the search and filters match, and `Selection` the ticked rows. For rows in memory the filtered total is computed by the list; for a provider or a queryable, give `DataListSummaries.ResolveAsync` to ask your server, otherwise the filtered scope falls back to the loaded rows. A `KlyDataListColumn` can also take a `SummaryValue` function (it returns the type of the column), and any column a `SummaryTemplate`. `ResolveAsync` returns a `DataListSummaryValue` per column key, which converts from a number or a text: `new Dictionary<string, DataListSummaryValue> { ["total"] = 1234.5m, ["customer"] = "9 customers" }`. Without a `Summaries` object, a single filtered row appears as soon as any column declares a summary.
 
 For hierarchical rows, give the table a `DataListTree<T>` and load only the top-level rows: each row carries its children. The table draws a chevron, rail connectors and the keyboard behavior (Enter or Space to toggle, ArrowRight and ArrowLeft to expand and collapse). A tree disables `GroupBy` and `RowSummary` on the table:
 
@@ -689,8 +714,8 @@ For hierarchical rows, give the table a `DataListTree<T>` and load only the top-
 
 <KlyDataList TItem="Employee" Schema="Schema" Items="Staff" PagingMode="DataListPagingMode.None" Label="Staff">
     <KlyDataListTable TItem="Employee" Tree="_tree">
-        <KlyDataListColumn TItem="Employee" Field="name" Title="Name" />
-        <KlyDataListColumn TItem="Employee" Field="title" Title="Title" />
+        <KlyDataListFieldColumn TItem="Employee" Field="name" Title="Name" />
+        <KlyDataListFieldColumn TItem="Employee" Field="title" Title="Title" />
     </KlyDataListTable>
 </KlyDataList>
 
@@ -729,8 +754,8 @@ Cursor paging asks the source for the page after the last row seen, which stays 
 
 <KlyDataList TItem="LogEvent" Schema="Schema" Items="Events" PagingMode="DataListPagingMode.Cursor" Label="Events">
     <KlyDataListTable TItem="LogEvent" Virtualize="true">
-        <KlyDataListColumn TItem="LogEvent" Field="id" Title="#" Width="90" />
-        <KlyDataListColumn TItem="LogEvent" Field="message" Title="Message" />
+        <KlyDataListFieldColumn TItem="LogEvent" Field="id" Title="#" Width="90" />
+        <KlyDataListFieldColumn TItem="LogEvent" Field="message" Title="Message" />
     </KlyDataListTable>
     <KlyDataListInfiniteLoader TItem="LogEvent" />
 </KlyDataList>
@@ -765,10 +790,10 @@ Place a `KlyDataListColumnPanel` in the list, turn on `Resizable` on the table, 
         <KlyDataListColumnPanel TItem="Order" />
     </div>
     <KlyDataListTable TItem="Order" Resizable="true">
-        <KlyDataListColumn TItem="Order" Field="id" Title="#" Width="80" Pinned="DataListPin.Start" Required="true" />
-        <KlyDataListColumn TItem="Order" Field="customer" Title="Customer" Width="220" />
-        <KlyDataListColumn TItem="Order" Field="country" Title="Country" Visible="false" />
-        <KlyDataListColumn TItem="Order" Field="total" Title="Total" Format="C0" Align="DataListAlign.End" />
+        <KlyDataListFieldColumn TItem="Order" Field="id" Title="#" Width="80" Pinned="DataListPin.Start" Required="true" />
+        <KlyDataListFieldColumn TItem="Order" Field="customer" Title="Customer" Width="220" />
+        <KlyDataListFieldColumn TItem="Order" Field="country" Title="Country" Visible="false" />
+        <KlyDataListFieldColumn TItem="Order" Field="total" Title="Total" Format="C0" Align="DataListAlign.End" />
     </KlyDataListTable>
 </KlyDataList>
 

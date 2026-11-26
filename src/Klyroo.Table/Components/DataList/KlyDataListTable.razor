@@ -342,12 +342,12 @@
     private bool _summaryLoading;
     private string? _summaryResolveSignature;
     private CancellationTokenSource? _summaryCts;
-    private readonly Dictionary<DataListSummaryScope, IReadOnlyDictionary<string, object?>> _resolvedSummaries = [];
+    private readonly Dictionary<DataListSummaryScope, IReadOnlyDictionary<string, DataListSummaryValue>> _resolvedSummaries = [];
     private readonly string _scrollId = NewId("table-scroll");
 
     [Inject] private IJSRuntime JS { get; set; } = default!;
 
-    /// <summary>The columns: <see cref="KlyDataListColumn{TItem}"/> components. Without any, the table shows one column per field of the schema.</summary>
+    /// <summary>The columns: <see cref="KlyDataListColumnBase{TItem}"/> components. Without any, the table shows one column per field of the schema.</summary>
     [Parameter] public RenderFragment? ChildContent { get; set; }
 
     /// <summary>Names the table for assistive technologies (visually hidden), and the scrolling region around it. Without it, the <c>AriaLabel</c> of the table, then the label of the list, then the localized "Results".</summary>
@@ -381,7 +381,7 @@
     /// </summary>
     [Parameter] public EventCallback<DataListRowClickArgs<TItem>> OnRowClick { get; set; }
 
-    /// <summary>Classes added to the row for each item (a muted style for an archived row). It runs on every render of the row: keep it cheap. <see cref="KlyDataListColumn{TItem}.CellClass"/> does the same for one cell.</summary>
+    /// <summary>Classes added to the row for each item (a muted style for an archived row). It runs on every render of the row: keep it cheap. <see cref="KlyDataListColumnBase{TItem}.CellClass"/> does the same for one cell.</summary>
     [Parameter] public Func<TItem, string?>? RowClass { get; set; }
 
     /// <summary>
@@ -413,7 +413,7 @@
 
     /// <summary>
     /// Adds a dropdown menu button to each column header in interactive mode with quick actions to sort ascending/descending, stop sorting, pin/unpin, or hide the column.
-    /// Individual columns can override this via <see cref="KlyDataListColumn{TItem}.HeaderMenu"/>.
+    /// Individual columns can override this via <see cref="KlyDataListColumnBase{TItem}.HeaderMenu"/>.
     /// </summary>
     [Parameter] public bool HeaderMenu { get; set; }
 
@@ -436,7 +436,7 @@
     [Parameter] public int OverscanCount { get; set; } = 3;
 
     /// <summary>
-    /// Puts a resize handle (a vertical separator) on the end edge of the header of each <see cref="KlyDataListColumn{TItem}.Resizable"/> column (false by default): drag it, or focus it and press ArrowLeft and ArrowRight
+    /// Puts a resize handle (a vertical separator) on the end edge of the header of each <see cref="KlyDataListColumnBase{TItem}.Resizable"/> column (false by default): drag it, or focus it and press ArrowLeft and ArrowRight
     /// (16 px, 64 with Shift; in right-to-left text the arrow that points away from the start edge grows the column), Home and End for the limits, Delete or a double click for the declared width.
     /// The browser changes the width while the gesture runs and reports it once; the list keeps it in its column preferences (<see cref="KlyDataList{TItem}.PreferencesKey"/>). Interactive only: a static render has no handle
     /// but still applies a saved width.
@@ -1160,7 +1160,7 @@
     }
 
     private sealed record View(
-        KlyDataListColumn<TItem>? Source,
+        KlyDataListColumnBase<TItem>? Source,
         string? Key,
         string Title,
         DataListAlign Align,
@@ -1187,7 +1187,7 @@
             var leading = (selecting ? 1 : 0) + (DetailsOn && !Context.SummaryViewActive ? 1 : 0);
             var acting = RowActions is { Count: > 0 };
             // A pinned column needs a width of its own: the offset of the next one is the sum of the widths before it. Without one it gets KlyDataList<TItem>.DefaultPinnedWidth.
-            int? WidthOf(KlyDataListColumn<TItem> c, DataListPin pin)
+            int? WidthOf(KlyDataListColumnBase<TItem> c, DataListPin pin)
             {
                 var min = Math.Max(DataListColumnPreferences.MinAllowedWidth, c.MinWidth);
                 var max = Math.Clamp(c.MaxWidth, min, DataListColumnPreferences.MaxAllowedWidth);
@@ -1317,22 +1317,15 @@
     private RenderFragment RenderSummaryCell(View column, DataListSummaryScope scope, IReadOnlyList<TItem> scopeRows) => builder =>
     {
         var src = column.Source;
-        object? rawValue = null;
+        DataListSummaryValue rawValue = default;
         var hasAsync = column.Key is not null && _resolvedSummaries.TryGetValue(scope, out var map) && map.TryGetValue(column.Key, out rawValue);
         if (!hasAsync && src is not null)
         {
-            if (src.SummaryValue is not null)
-            {
-                rawValue = src.SummaryValue(scopeRows);
-            }
-            else if (src.Summary != DataListSummaryKind.None)
-            {
-                rawValue = DataListSummaryCalculator.Compute(src.Summary, scopeRows, item => src.ReadValue(item, Context.Schema));
-            }
+            rawValue = src.ComputeSummary(scopeRows, Context.Schema, FormatCulture);
         }
         var formatted = src is not null
             ? src.FormatSummaryValue(rawValue, FormatCulture, ToolsMessages)
-            : (rawValue is IFormattable f ? f.ToString(null, FormatCulture) : rawValue?.ToString());
+            : rawValue.Text ?? rawValue.Number?.ToString(null, FormatCulture);
 
         if (src?.SummaryTemplate is { } template)
         {
@@ -1398,14 +1391,14 @@
     }
 
     private async Task RunSummaryResolveAsync(
-        Func<DataListSummaryResolveContext<TItem>, ValueTask<IReadOnlyDictionary<string, object?>>> resolver,
+        Func<DataListSummaryResolveContext<TItem>, ValueTask<IReadOnlyDictionary<string, DataListSummaryValue>>> resolver,
         IReadOnlyList<DataListSummaryScope> scopes,
         CancellationToken ct)
     {
         _summaryLoading = true;
         try
         {
-            var next = new Dictionary<DataListSummaryScope, IReadOnlyDictionary<string, object?>>();
+            var next = new Dictionary<DataListSummaryScope, IReadOnlyDictionary<string, DataListSummaryValue>>();
             foreach (var scope in scopes)
             {
                 ct.ThrowIfCancellationRequested();
@@ -1595,7 +1588,7 @@
 
     private RenderFragment Cell(View column, TItem item) => builder =>
     {
-        if (column.Source?.Template is { } template)
+        if (column.Source?.CellTemplate is { } template)
         {
             builder.AddContent(0, template(item));
             return;
@@ -1605,10 +1598,9 @@
 
     private string? ColumnText(View column, TItem item)
     {
-        var value = column.Source is { } source ? source.ReadValue(item, Context.Schema) : column.Key is not null ? Context.Schema?.ReadField(item, column.Key) : null;
-        return column.Source is { } formatter
-            ? formatter.FormatValue(value, FormatCulture)
-            : value is IFormattable formattable ? formattable.ToString(null, FormatCulture) : value?.ToString();
+        return column.Source is { } source
+            ? source.ReadText(item, Context.Schema, FormatCulture)
+            : column.Key is not null ? Context.Schema?.FormatField(item, column.Key, null, FormatCulture) : null;
     }
 
     private string SummaryTitle(DataListRowSummary<TItem> summary, List<View> columns, TItem item)

@@ -85,7 +85,7 @@
     /// <summary>
     /// What a request may ask for: which fields sort, which filter, the default sort and page size. The schema is fixed for the life of the list: a new instance given after the first render is ignored
     /// (build it once, in a static field or a cached service; an inline <c>DataListSchema.For&lt;T&gt;(...)</c> in markup would create a new one on every render), and giving another schema means re-keying the list with <c>@key</c>. Optional for a list of rows in memory whose
-    /// <see cref="KlyDataListColumn{TItem}"/>s name a <c>Property</c>: those columns then describe the schema (every one sortable unless it says otherwise).
+    /// <see cref="KlyDataListColumnBase{TItem}"/>s name a <c>Property</c>: those columns then describe the schema (every one sortable unless it says otherwise).
     /// A provider or a queryable needs a schema, because it is the schema that drops what a request must not ask for.
     /// </summary>
     [Parameter] public DataListSchema<TItem>? Schema { get; set; }
@@ -437,7 +437,7 @@
 
     private DataListSchema<TItem> BuildImplicitSchema()
     {
-        var columns = _context.Columns.Where(c => c.Property is not null).ToList();
+        var columns = _context.Columns.Where(c => c.DescribesField).ToList();
         if (columns.Count == 0)
         {
             throw new InvalidOperationException($"{nameof(KlyDataList<TItem>)} has no Schema and its table has no column with a Property: give it a Schema, or name a Property on its columns.");
@@ -446,12 +446,7 @@
         {
             foreach (var column in columns)
             {
-                // The property of a column is an expression returning object: the schema reads its member chain (the boxing is dropped).
-                s.Field(column.Property!, f =>
-                {
-                    if (column.Key is not null) f.Key(column.Key);
-                    f.Sortable(column.Sortable ?? true);
-                });
+                column.AddImplicitField(s);
             }
         });
     }

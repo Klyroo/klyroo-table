@@ -148,7 +148,7 @@ public sealed class RowHookTests : TableHarness
             {
                 var seq = 0;
                 Column(b, ref seq, "name", "Name");
-                Column(b, ref seq, "salary", "Salary", (cb, s) => cb.AddComponentParameter(s, nameof(KlyDataListColumn<Person>.CellClass), (Func<Person, string?>)(p => p.Salary > 100_000m ? "high-pay" : null)));
+                Column(b, ref seq, "salary", "Salary", (cb, s) => cb.AddComponentParameter(s, nameof(KlyDataListFieldColumn<Person>.CellClass), (Func<Person, string?>)(p => p.Salary > 100_000m ? "high-pay" : null)));
             });
 
         var rows = cut.FindAll("tbody tr");

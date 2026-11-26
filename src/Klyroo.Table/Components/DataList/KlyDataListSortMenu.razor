@@ -119,7 +119,7 @@
     [Parameter] public KlySize Size { get; set; } = KlySize.Sm;
 
     /// <summary>
-    /// Explicit sortable field options. When <see langword="null"/>, the menu lists the sortable <see cref="KlyDataListColumn{TItem}"/>s in user order followed by any other sortable fields of the schema.
+    /// Explicit sortable field options. When <see langword="null"/>, the menu lists the sortable <see cref="KlyDataListColumnBase{TItem}"/>s in user order followed by any other sortable fields of the schema.
     /// </summary>
     [Parameter] public IReadOnlyList<DataListSortOption>? Items { get; set; }
 

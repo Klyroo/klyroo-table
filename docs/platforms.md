@@ -108,7 +108,7 @@ For a MAUI app that does not use a `BlazorWebView`, install `Klyroo.Table.Core` 
 
 **`Klyroo.Table`** sets `IsTrimmable` but not `IsAotCompatible`. What the source shows:
 
-- A `KlyDataListColumn` with a `Property` expression is compiled to a delegate with `Expression.Compile()` at render time, and the in-memory executor of Klyroo.Query builds and compiles its predicates from expressions. Check an AOT or WebAssembly AOT publish before relying on either.
+- A `KlyDataListColumn` (the one with a `Property` expression) is compiled to a delegate with `Expression.Compile()` at render time, and the in-memory executor of Klyroo.Query builds and compiles its predicates from expressions. Check an AOT or WebAssembly AOT publish before relying on either.
 - The prerendered result is serialized with the `JsonTypeInfo` you pass in `ResultJson` and with the source-generated `DataListJsonContext` of Klyroo.Query, so that part needs no reflection. Two internal call sites suppress the trimming warning `IL2026` for the string-only `PersistentComponentState` calls, with a justification in the code.
 - Components reach the browser through a JavaScript initializer (`Klyroo.Table.lib.module.js`) that Blazor loads on its own; nothing to register.
 

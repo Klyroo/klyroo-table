@@ -180,14 +180,14 @@ Child content replaces the default layout with the parts you place. Add filters 
     </div>
     <KlyDataListFilterTags TItem="Customer" ShowAdd="true" ShowClear="true" />
     <KlyDataListTable TItem="Customer" HeaderMenu="true">
-        <KlyDataListColumn TItem="Customer" Field="name" Title="Customer" />
-        <KlyDataListColumn TItem="Customer" Field="country" Title="Country" />
-        <KlyDataListColumn TItem="Customer" Field="mrr" Title="MRR" Format="C0" Align="DataListAlign.End" />
-        <KlyDataListColumn TItem="Customer" Title="Plan" Key="plan">
+        <KlyDataListFieldColumn TItem="Customer" Field="name" Title="Customer" />
+        <KlyDataListFieldColumn TItem="Customer" Field="country" Title="Country" />
+        <KlyDataListFieldColumn TItem="Customer" Field="mrr" Title="MRR" Format="C0" Align="DataListAlign.End" />
+        <KlyDataListTemplateColumn TItem="Customer" Title="Plan" Key="plan">
             <Template Context="customer">
                 <KlyBadge Label="@(customer.Mrr >= 1000m ? "Pro" : "Basic")" />
             </Template>
-        </KlyDataListColumn>
+        </KlyDataListTemplateColumn>
     </KlyDataListTable>
     <KlyDataListPagination TItem="Customer" />
 </KlyDataList>

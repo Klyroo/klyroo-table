@@ -48,12 +48,12 @@ public sealed class DataListBehaviorTests : BunitContext
         b.AddComponentParameter(1, nameof(KlyDataListTable<TaskRow>.Summaries), summaries);
         b.AddComponentParameter(2, nameof(KlyDataListTable<TaskRow>.ChildContent), (RenderFragment)(cb =>
         {
-            cb.OpenComponent<KlyDataListColumn<TaskRow>>(0);
-            cb.AddComponentParameter(1, nameof(KlyDataListColumn<TaskRow>.Field), "title");
+            cb.OpenComponent<KlyDataListFieldColumn<TaskRow>>(0);
+            cb.AddComponentParameter(1, nameof(KlyDataListFieldColumn<TaskRow>.Field), "title");
             cb.CloseComponent();
-            cb.OpenComponent<KlyDataListColumn<TaskRow>>(2);
-            cb.AddComponentParameter(3, nameof(KlyDataListColumn<TaskRow>.Field), "hours");
-            cb.AddComponentParameter(4, nameof(KlyDataListColumn<TaskRow>.Summary), DataListSummaryKind.Sum);
+            cb.OpenComponent<KlyDataListFieldColumn<TaskRow>>(2);
+            cb.AddComponentParameter(3, nameof(KlyDataListFieldColumn<TaskRow>.Field), "hours");
+            cb.AddComponentParameter(4, nameof(KlyDataListFieldColumn<TaskRow>.Summary), DataListSummaryKind.Sum);
             cb.CloseComponent();
         }));
         b.CloseComponent();

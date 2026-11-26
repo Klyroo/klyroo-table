@@ -62,22 +62,14 @@ public sealed partial class DataListContext<TItem>
         {
             // A column exports what it reads: its Property or Field, or for a column that only has a template the schema field its key names. The Format of the column applies in every case.
             return [.. _owner.TableColumns()
-                .Where(c => c.Property is not null || c.Field is not null || (c.ResolvedKey is { } k && schema?.FieldInfos.Any(f => f.Key == k && !f.IsCollection) == true))
+                .Where(c => c.CanExport(schema))
                 .Select(c => new ExportColumn(c.ResolvedTitle, (item, culture) =>
-                {
-                    var value = c.Property is not null || c.Field is not null ? c.ReadValue(item, schema) : schema!.ReadField(item, c.ResolvedKey!);
-                    return new DataListCsvCell(c.FormatValue(value, culture), IsTyped(value));
-                }))];
+                    new DataListCsvCell(c.ReadText(item, schema, culture), c.HasStructuredValue(schema))))];
         }
         if (schema is null) return [];
         return [.. schema.FieldInfos.Where(f => !f.IsCollection).Select(f => new ExportColumn(DataListText.Humanize(f.Key), (item, culture) =>
         {
-            var value = schema.ReadField(item, f.Key);
-            return new DataListCsvCell(value is IFormattable formattable ? formattable.ToString(null, culture) : value?.ToString(), IsTyped(value));
+            return new DataListCsvCell(schema.FormatField(item, f.Key, null, culture), f.HasStructuredValue);
         }))];
     }
-
-    // Only the values of these types are exempt from the formula guard: their text cannot be one. Any other type (an enum, a custom IFormattable, a string) is text somebody could have typed.
-    private static bool IsTyped(object? value) => value is sbyte or byte or short or ushort or int or uint or long or ulong or nint or nuint or float or double or decimal or Int128 or UInt128
-        or DateTime or DateTimeOffset or DateOnly or TimeOnly or TimeSpan or Guid or bool;
 }

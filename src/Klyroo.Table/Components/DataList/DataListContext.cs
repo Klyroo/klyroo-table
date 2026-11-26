@@ -230,27 +230,27 @@ public sealed partial class DataListContext<TItem>
         NotifyChanged();
     }
 
-    private readonly List<KlyDataListColumn<TItem>> _columns = [];
+    private readonly List<KlyDataListColumnBase<TItem>> _columns = [];
     private int _columnIndex;
 
     /// <summary>
-    /// Every column the list's table declares, visible or not (a columns panel lists them all), by <see cref="KlyDataListColumn{TItem}.Order"/> and then in the order they first rendered:
-    /// the order of the markup, except for a column that an <c>@if</c> adds later, which comes after the others unless it has an <c>Order</c>. Prefer <see cref="KlyDataListColumn{TItem}.Visible"/> to an <c>@if</c>.
+    /// Every column the list's table declares, visible or not (a columns panel lists them all), by <see cref="KlyDataListColumnBase{TItem}.Order"/> and then in the order they first rendered:
+    /// the order of the markup, except for a column that an <c>@if</c> adds later, which comes after the others unless it has an <c>Order</c>. Prefer <see cref="KlyDataListColumnBase{TItem}.Visible"/> to an <c>@if</c>.
     /// </summary>
-    public IReadOnlyList<KlyDataListColumn<TItem>> Columns => _columns;
+    public IReadOnlyList<KlyDataListColumnBase<TItem>> Columns => _columns;
 
     internal string? ColumnsSignature { get; set; }
 
     internal int NextColumnIndex() => _columnIndex++;
 
-    internal void AddColumn(KlyDataListColumn<TItem> column)
+    internal void AddColumn(KlyDataListColumnBase<TItem> column)
     {
         if (!_columns.Contains(column)) _columns.Add(column);
         // Stable: equal orders keep the order of first rendering.
         _columns.Sort((a, b) => a.Order != b.Order ? a.Order.CompareTo(b.Order) : a.RegistrationIndex.CompareTo(b.RegistrationIndex));
     }
 
-    internal void RemoveColumn(KlyDataListColumn<TItem> column) => _columns.Remove(column);
+    internal void RemoveColumn(KlyDataListColumnBase<TItem> column) => _columns.Remove(column);
 
     /// <summary>The name of the list, for the accessible names of its table and its pagination (<c>Label</c> of the list).</summary>
     public string? Label => _owner.Label;
@@ -514,13 +514,13 @@ public sealed partial class DataListContext<TItem>
 
     /// <summary>
     /// The sortable fields of the list for <see cref="KlyDataListSortMenu{TItem}"/>: from <paramref name="explicitOptions"/> when given (filtered to the schema's sortable keys),
-    /// otherwise from the sortable <see cref="KlyDataListColumn{TItem}"/>s in user order followed by any remaining sortable fields of the schema.
+    /// otherwise from the sortable <see cref="KlyDataListColumnBase{TItem}"/>s in user order followed by any remaining sortable fields of the schema.
     /// </summary>
     public IReadOnlyList<DataListSortOption> SortOptions(IReadOnlyList<DataListSortOption>? explicitOptions = null)
     {
         var schema = Schema;
         var allowed = schema?.SortKeys;
-        var columnsByKey = new Dictionary<string, KlyDataListColumn<TItem>>(StringComparer.Ordinal);
+        var columnsByKey = new Dictionary<string, KlyDataListColumnBase<TItem>>(StringComparer.Ordinal);
         foreach (var col in _owner.OrderedColumns())
         {
             if (col.ResolvedKey is { } k) columnsByKey.TryAdd(k, col);

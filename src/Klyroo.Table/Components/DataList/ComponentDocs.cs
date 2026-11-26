@@ -121,7 +121,7 @@ public partial class KlyDataListSelectionActions<TItem>;
 public partial class KlyDataListSortMenu<TItem>;
 
 /// <summary>
-/// The table of the list: <see cref="KlyDataListColumn{TItem}"/> children define the columns, and the table adds sorting, selection, row actions, pinned and resizable columns,
+/// The table of the list: <see cref="KlyDataListColumnBase{TItem}"/> children define the columns, and the table adds sorting, selection, row actions, pinned and resizable columns,
 /// grouping, a tree, summary footers, virtualization and the compact summary rows of a phone. Without columns it shows one per field of the schema.
 /// </summary>
 /// <typeparam name="TItem">The row type.</typeparam>

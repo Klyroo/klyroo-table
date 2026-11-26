@@ -69,18 +69,18 @@ public sealed class ComprehensiveTableTests : BunitContext
             {
                 b.OpenComponent<KlyDataListTable<OrgMember>>(0);
                 b.AddAttribute(1, nameof(KlyDataListTable<OrgMember>.HeaderMenu), true);
-                b.AddAttribute(2, nameof(KlyDataListTable<OrgMember>.GroupBy), new DataListGroupBy<OrgMember> { Key = m => m.Dept });
+                b.AddAttribute(2, nameof(KlyDataListTable<OrgMember>.GroupBy), DataListGroupBy<OrgMember>.By(m => m.Dept));
                 b.AddAttribute(3, nameof(KlyDataListTable<OrgMember>.Summaries), new DataListSummaries<OrgMember>());
                 b.AddAttribute(4, nameof(KlyDataListTable<OrgMember>.ChildContent), (RenderFragment)(cb =>
                 {
-                    cb.OpenComponent<KlyDataListColumn<OrgMember>>(0);
-                    cb.AddAttribute(1, nameof(KlyDataListColumn<OrgMember>.Field), "name");
-                    cb.AddAttribute(2, nameof(KlyDataListColumn<OrgMember>.Title), "Name");
+                    cb.OpenComponent<KlyDataListFieldColumn<OrgMember>>(0);
+                    cb.AddAttribute(1, nameof(KlyDataListFieldColumn<OrgMember>.Field), "name");
+                    cb.AddAttribute(2, nameof(KlyDataListFieldColumn<OrgMember>.Title), "Name");
                     cb.CloseComponent();
-                    cb.OpenComponent<KlyDataListColumn<OrgMember>>(3);
-                    cb.AddAttribute(4, nameof(KlyDataListColumn<OrgMember>.Field), "salary");
-                    cb.AddAttribute(5, nameof(KlyDataListColumn<OrgMember>.Title), "Salary");
-                    cb.AddAttribute(6, nameof(KlyDataListColumn<OrgMember>.Summary), DataListSummaryKind.Sum);
+                    cb.OpenComponent<KlyDataListFieldColumn<OrgMember>>(3);
+                    cb.AddAttribute(4, nameof(KlyDataListFieldColumn<OrgMember>.Field), "salary");
+                    cb.AddAttribute(5, nameof(KlyDataListFieldColumn<OrgMember>.Title), "Salary");
+                    cb.AddAttribute(6, nameof(KlyDataListFieldColumn<OrgMember>.Summary), DataListSummaryKind.Sum);
                     cb.CloseComponent();
                 }));
                 b.CloseComponent();

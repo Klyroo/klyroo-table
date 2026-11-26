@@ -1,0 +1,21 @@
+@* No explicit type argument anywhere: TItem comes from the list, TValue from the Property expression. *@
+<KlyDataList Items="Rows" Schema="Schema" UrlSync="false">
+    <KlyDataListTable GroupBy="Grouping" Summaries="@(new DataListSummaries<Person>())">
+        <KlyDataListColumn Property="@(p => p.Name)" Title="Name" />
+        <KlyDataListColumn Property="@(p => p.Salary)" Format="N0" Summary="DataListSummaryKind.Sum" Align="DataListAlign.End" />
+        <KlyDataListColumn Property="@(p => p.Hired)" Format="yyyy" Title="Hired" SummaryValue="@(rows => rows.Max(r => r.Hired))" SummaryFormat="yyyy" />
+        <KlyDataListColumn Property="@(p => p.Note)" Title="Note" />
+        <KlyDataListFieldColumn Field="team" Title="Team" Summary="DataListSummaryKind.Count" />
+        <KlyDataListTemplateColumn Title="Actions" Key="name">
+            <Template Context="person"><button type="button" class="act">Open @person.Id</button></Template>
+        </KlyDataListTemplateColumn>
+    </KlyDataListTable>
+</KlyDataList>
+
+@code {
+    [Parameter] public IReadOnlyList<Person> Rows { get; set; } = [];
+
+    [Parameter] public DataListSchema<Person>? Schema { get; set; }
+
+    private readonly DataListGroupBy<Person> Grouping = DataListGroupBy<Person>.By(p => p.Team);
+}

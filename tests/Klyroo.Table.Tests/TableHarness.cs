@@ -41,10 +41,10 @@ public abstract class TableHarness : BunitContext
 
     protected static void Column(RenderTreeBuilder b, ref int seq, string field, string title, Action<RenderTreeBuilder, int>? extra = null, string? format = null)
     {
-        b.OpenComponent<KlyDataListColumn<Person>>(seq);
-        b.AddComponentParameter(seq + 1, nameof(KlyDataListColumn<Person>.Field), field);
-        b.AddComponentParameter(seq + 2, nameof(KlyDataListColumn<Person>.Title), title);
-        if (format is not null) b.AddComponentParameter(seq + 3, nameof(KlyDataListColumn<Person>.Format), format);
+        b.OpenComponent<KlyDataListFieldColumn<Person>>(seq);
+        b.AddComponentParameter(seq + 1, nameof(KlyDataListFieldColumn<Person>.Field), field);
+        b.AddComponentParameter(seq + 2, nameof(KlyDataListFieldColumn<Person>.Title), title);
+        if (format is not null) b.AddComponentParameter(seq + 3, nameof(KlyDataListFieldColumn<Person>.Format), format);
         extra?.Invoke(b, seq + 4);
         b.CloseComponent();
         seq += 20;

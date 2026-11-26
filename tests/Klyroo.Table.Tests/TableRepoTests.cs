@@ -28,7 +28,7 @@ public sealed class TableRepoTests : BunitContext
         Assert.Equal(0, allNodes[0].Depth);
         Assert.Equal(1, allNodes[1].Depth);
 
-        var groupBy = new DataListGroupBy<Employee> { Key = e => e.Department };
+        var groupBy = DataListGroupBy<Employee>.By(e => e.Department);
         var groups = groupBy.BuildGroups(allNodes.Select(n => n.Item).ToList(), null, new KlyToolsMessages(), System.Globalization.CultureInfo.InvariantCulture);
         Assert.Single(groups);
         Assert.Equal("Engineering", groups[0].Key);
@@ -62,15 +62,15 @@ public sealed class TableRepoTests : BunitContext
                 .Add(x => x.Summaries, new DataListSummaries<Employee>())
                 .AddChildContent(b =>
                 {
-                    b.OpenComponent<KlyDataListColumn<Employee>>(0);
-                    b.AddComponentParameter(1, nameof(KlyDataListColumn<Employee>.Field), "name");
-                    b.AddComponentParameter(2, nameof(KlyDataListColumn<Employee>.Title), "Name");
+                    b.OpenComponent<KlyDataListFieldColumn<Employee>>(0);
+                    b.AddComponentParameter(1, nameof(KlyDataListFieldColumn<Employee>.Field), "name");
+                    b.AddComponentParameter(2, nameof(KlyDataListFieldColumn<Employee>.Title), "Name");
                     b.CloseComponent();
 
-                    b.OpenComponent<KlyDataListColumn<Employee>>(3);
-                    b.AddComponentParameter(4, nameof(KlyDataListColumn<Employee>.Field), "salary");
-                    b.AddComponentParameter(5, nameof(KlyDataListColumn<Employee>.Title), "Salary");
-                    b.AddComponentParameter(6, nameof(KlyDataListColumn<Employee>.Summary), DataListSummaryKind.Sum);
+                    b.OpenComponent<KlyDataListFieldColumn<Employee>>(3);
+                    b.AddComponentParameter(4, nameof(KlyDataListFieldColumn<Employee>.Field), "salary");
+                    b.AddComponentParameter(5, nameof(KlyDataListFieldColumn<Employee>.Title), "Salary");
+                    b.AddComponentParameter(6, nameof(KlyDataListFieldColumn<Employee>.Summary), DataListSummaryKind.Sum);
                     b.CloseComponent();
                 })));
 

@@ -29,18 +29,18 @@
             disabled="@(!Context.IsInteractive)" @onclick="HandleToggle">
         @RenderIcon(Options.Icons.ChevronRight, collapsed ? _slots["groupChevron"] : _slots["groupChevronExpanded"])
         <span class="@_slots["groupLabel"]" data-slot="group-label">
-            @if (GroupBy?.LabelTemplate is { } labelTemplate)
+            @if (GroupBy?.LabelFragment(Group) is { } labelContent)
             {
-                @labelTemplate(Group)
+                @labelContent
             }
             else
             {
                 @Group.Label
             }
         </span>
-        @if (GroupBy?.SummaryTemplate is { } summaryTemplate)
+        @if (GroupBy?.SummaryFragment(Group) is { } summaryContent)
         {
-            <span class="@_slots["groupSummary"]" data-slot="group-summary">@summaryTemplate(Group)</span>
+            <span class="@_slots["groupSummary"]" data-slot="group-summary">@summaryContent</span>
         }
         else if (!string.IsNullOrEmpty(Group.Summary))
         {
@@ -57,7 +57,7 @@
     /// <summary>The group rendered by this header.</summary>
     [Parameter, EditorRequired] public DataListGroup<TItem> Group { get; set; } = default!;
 
-    /// <summary>Optional grouping definition supplying <see cref="DataListGroupBy{TItem}.LabelTemplate"/> or <see cref="DataListGroupBy{TItem}.SummaryTemplate"/>.</summary>
+    /// <summary>Optional grouping definition supplying the label and summary templates of <see cref="DataListGroupBy{TItem, TKey}"/>.</summary>
     [Parameter] public DataListGroupBy<TItem>? GroupBy { get; set; }
 
     /// <summary>Overrides whether the group is currently collapsed. When <see langword="null"/>, reads <see cref="DataListContext{TItem}.IsGroupCollapsed(DataListGroup{TItem})"/>.</summary>

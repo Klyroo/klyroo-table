@@ -28,7 +28,7 @@ The split matters because the heavy logic is not in the Blazor package. What a l
 - **`DataListController<TItem>`** loads: it turns a state into a request, calls the source, cancels the load a newer one replaces, and keeps the previous rows while the next ones load. It is a plain class with no dependency on a renderer.
 - **`DataListContext<TItem>`** is what the parts read and change: the state, the rows, the loading flags, the selection, the columns, the expansion of tree nodes. The list cascades one for its whole life (the value is fixed), and a part subscribes to its `Changed` event once.
 - **The parts** (`KlyDataListTable`, `KlyDataListGrid`, `KlyDataListSearch`, `KlyDataListFilterTags`, `KlyDataListPagination` and the rest) are components that derive from `DataListPartBase<TItem>`: they take the context as a cascading parameter and render again when it changes. You can write your own part the same way.
-- **`KlyDataListColumn<TItem>`** renders nothing. It registers with the context, and the table reads the registered columns when it renders. That is why a columns panel can list the columns of a table that renders later.
+- **The columns** (`KlyDataListColumn<TItem, TValue>`, `KlyDataListFieldColumn<TItem>`, `KlyDataListTemplateColumn<TItem>`, all deriving from `KlyDataListColumnBase<TItem>`) render nothing. They register with the context, and the table reads the registered columns when it renders. That is why a columns panel can list the columns of a table that renders later.
 
 ## From a click to new rows
 

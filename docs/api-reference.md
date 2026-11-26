@@ -161,7 +161,7 @@ Which rows of a hierarchical tree table can be selected with checkboxes.
 
 ## Klyroo.Table
 
-Components (33) · Static classes and extensions (3) · Classes (16) · Records (11) · Interfaces (1) · Enums (12)
+Components (36) · Static classes and extensions (3) · Classes (18) · Records (11) · Structs (1) · Interfaces (1) · Enums (12)
 
 ### Components
 
@@ -270,7 +270,7 @@ A data list: it loads rows from one source (`KlyDataList.Items`, `KlyDataList.Qu
 | `Provider` | `DataListProvider<TItem>?` | Loads a page of rows for a request, from a database, an HTTP API or anything else. It receives a token that is cancelled when a newer request replaces it. |
 | `Queryable` | `IQueryable<TItem>?` | A query of a database provider (an EF Core `DbSet`, with the filters that are not the user's already applied): the list turns each request into queries with `QueryableDataList` and runs them through the `IDataListQueryExecutor` of the container. Needs a `KlyDataList.Schema`. The default executor blocks the thread while the database answers: register an asynchronous `IDataListQueryExecutor` (for EF Core, one that calls `CountAsync` and `ToListAsync` with the token). An `AsQueryable()` over a list is rejected: use `KlyDataList.Items`. A DbContext allows one query at a time: give the list a context of its own (a factory) when the page has several. |
 | `ResultJson` | `JsonTypeInfo<DataListResult<TItem>>?` | Metadata to serialize the result of the prerender (`MyJson.Default.DataListResultMyRow`, from a `JsonSerializerContext` of the app with `[JsonSerializable(typeof(DataListResult<MyRow>))]`). The result of a prerendered list is then handed to the interactive render (WebAssembly, Server or Auto), which shows it at once and does not load it again. Without it nothing is persisted and the interactive render loads the list a second time. Lists that persist need distinct `KlyDataList.UrlKey` or `KlyDataList.PersistKey` values (two of the same row type under the same key throw). |
-| `Schema` | `DataListSchema<TItem>?` | What a request may ask for: which fields sort, which filter, the default sort and page size. The schema is fixed for the life of the list: a new instance given after the first render is ignored (build it once, in a static field or a cached service; an inline `DataListSchema.For<T>(...)` in markup would create a new one on every render), and giving another schema means re-keying the list with `@key`. Optional for a list of rows in memory whose `KlyDataListColumn`s name a `Property`: those columns then describe the schema (every one sortable unless it says otherwise). A provider or a queryable needs a schema, because it is the schema that drops what a request must not ask for. |
+| `Schema` | `DataListSchema<TItem>?` | What a request may ask for: which fields sort, which filter, the default sort and page size. The schema is fixed for the life of the list: a new instance given after the first render is ignored (build it once, in a static field or a cached service; an inline `DataListSchema.For<T>(...)` in markup would create a new one on every render), and giving another schema means re-keying the list with `@key`. Optional for a list of rows in memory whose `KlyDataListColumnBase`s name a `Property`: those columns then describe the schema (every one sortable unless it says otherwise). A provider or a queryable needs a schema, because it is the schema that drops what a request must not ask for. |
 | `Selectable` | `bool?` | Shows a checkbox column (a header box that selects the rows of the page, a box per row). `null`, the default, shows it when the list has a `KlyDataListSelectionActions` bar or `KlyDataList.SelectedKeys` is bound; `false` turns selection off whatever else is there. Selection needs a `RowKey` in the schema and is interactive only: a statically rendered list has no checkbox column (a prerender of an interactive page shows the boxes disabled until the page is interactive). |
 | `SelectedKeys` | `IReadOnlySet<string>?` | The keys (`RowKey` of the schema, as text) of the ticked rows. Bind it with `@bind-SelectedKeys` to read or set the selection; give a new set when you change it (the list compares references). Keys the list cannot keep (rows that are not on the page of a list over a provider, rows the search no longer matches) are dropped and reported through `KlyDataList.SelectedKeysChanged`. |
 | `SelectedKeysChanged` | `EventCallback<IReadOnlySet<string>>` | Raised with a new set when the user ticks or unticks rows, or when rows leave the selection because a new result no longer holds them. |
@@ -332,44 +332,54 @@ A button that takes every filter off and goes back to the first page; the search
 
 Also accepts the parameters of `DataListPartBase<TItem>`.
 
-#### `KlyDataListColumn<TItem>`
+#### `KlyDataListColumn<TItem, TValue>`
+
+`Klyroo.Table` · component · inherits `KlyDataListColumnBase<TItem>`
+
+A column that shows a typed value of the row, `<KlyDataListColumn Property="@(o => o.Total)" Format="C2" />`. The row type comes from the list and the value type from the expression, so neither is written. Without a schema on the list the column describes the schema: its key is the member path in camel case (`name`, `department.name`) unless `KlyDataListColumnBase.Key` says otherwise, and it sorts (give `Sortable="false"` to turn that off). With a schema the key must be one of its fields to sort.
+
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `Property` | `Expression<Func<TItem, TValue>>` | The value of a cell as an expression, `@(e => e.Name)`: the cell shows it, formatted with `KlyDataListColumnBase.Format`. |
+| `SummaryValue` | `Func<IReadOnlyList<TItem>, TValue>?` | Custom synchronous aggregation calculator for this column in the table's summary footer (`<tfoot>`), receiving the rows of the active `DataListSummaryScope`. A numeric result stays a number (formatted with `KlyDataListColumnBase.SummaryFormat`), anything else is shown as text. |
+| `Template` | `RenderFragment<TItem>?` | The content of a cell, instead of the formatted value (which still sorts, summarizes and exports). |
+
+Also accepts the parameters of `KlyDataListColumnBase<TItem>`.
+
+#### `KlyDataListColumnBase<TItem>`
 
 `Klyroo.Table` · component · inherits `ComponentBase`
 
-A column of `KlyDataListTable`. Renders nothing itself: it registers with its list (`DataListContext.Columns`). What a cell shows comes from one of three places: `KlyDataListColumn.Template`, `KlyDataListColumn.Property` or `KlyDataListColumn.Field`.
+The parameters and behavior every column of `KlyDataListTable` shares. A column renders nothing itself: it registers with its list (`DataListContext.Columns`). What a cell shows comes from the kind of column: `KlyDataListColumn` reads a typed value of the row (`Property`), `KlyDataListFieldColumn` reads a field of the schema by its key and `KlyDataListTemplateColumn` renders a template.
 
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
 | `Align` | `DataListAlign` | Where the text of the column sits. Numbers read best at the end. |
-| `CellClass` | `Func<TItem, string?>?` | Classes added to the cell of this column for a row (a color for an overdue date, a muted style for an archived row): it receives the row. The header is not affected; use `KlyDataListColumn.Class` for both. It runs on every render of the row: keep it cheap. |
+| `CellClass` | `Func<TItem, string?>?` | Classes added to the cell of this column for a row (a color for an overdue date, a muted style for an archived row): it receives the row. The header is not affected; use `KlyDataListColumnBase.Class` for both. It runs on every render of the row: keep it cheap. |
 | `Class` | `string?` | Classes added to the header and the cells of this column. |
-| `Field` | `string?` | The key of a field of the schema: the cell shows its value and the header sorts by it when the schema allows. With `KlyDataListColumn.Template` it names the field the header sorts by. |
-| `Format` | `string?` | A format string for the value of a cell (`"C2"`, `"d"`), used with the culture of the page. Ignored with a `KlyDataListColumn.Template`. |
+| `Format` | `string?` | A format string for the value of a cell (`"C2"`, `"d"`), used with the culture of the page. Ignored by a `KlyDataListTemplateColumn` and by a template. |
 | `HeaderMenu` | `bool?` | Overrides `KlyDataListTable.HeaderMenu` for this column: `true` shows the header actions menu (sort, pin, hide), `false` omits it. |
-| `HeaderTemplate` | `RenderFragment?` | The content of the header cell, instead of `KlyDataListColumn.Title` and the sort control: a select-all checkbox, or an accessible name that is not shown (an actions column). It renders inside the list, so a part that derives from `DataListPartBase` works in it. A column that sorts but has this template has no sort control. |
-| `Key` | `string?` | The key of the column: of its field when it has a `KlyDataListColumn.Template` or a `KlyDataListColumn.Property` that is not a plain member path. |
+| `HeaderTemplate` | `RenderFragment?` | The content of the header cell, instead of `KlyDataListColumnBase.Title` and the sort control: a select-all checkbox, or an accessible name that is not shown (an actions column). It renders inside the list, so a part that derives from `DataListPartBase` works in it. A column that sorts but has this template has no sort control. |
+| `Key` | `string?` | The key of the column, and of the schema field its header sorts by. A `KlyDataListColumn` takes the member path of its `Property` in camel case when it has none (`name`, `department.name`), a `KlyDataListFieldColumn` its field, and a `KlyDataListTemplateColumn` needs one to sort. |
 | `MaxWidth` | `int` | Maximum width in pixels when resized (900 by default). |
 | `MinWidth` | `int` | Minimum width in pixels when resized (64 by default). |
-| `Order` | `int` | Where the column sits among the others: columns are sorted by this number, then by the order in which they first rendered (the order of the markup for columns that exist from the start). A column that an `@if` adds later renders after the others unless it has an `Order`; `KlyDataListColumn.Visible` avoids the question. |
-| `Pinned` | `DataListPin` | Default horizontal pin edge (`DataListPin.Start` or `DataListPin.End`). Users can override it through the column panel. A pinned column sticks from the `sm` breakpoint up (below it pinned columns scroll with the table but keep their place in the order), after the selection column and before the row actions column, and needs a width: without `KlyDataListColumn.Width` it gets 150 px. |
-| `Property` | `Expression<Func<TItem, object?>>?` | The value of a cell as an expression, `@(e => e.Name)`: the cell shows it and, without a schema on the list, the column describes the schema: its key is the member path in camel case (`name`, `department.name`) unless `KlyDataListColumn.Key` says otherwise, and it sorts (give `Sortable="false"` to turn that off). With a schema the key must be one of its fields to sort. |
+| `Order` | `int` | Where the column sits among the others: columns are sorted by this number, then by the order in which they first rendered (the order of the markup for columns that exist from the start). A column that an `@if` adds later renders after the others unless it has an `Order`; `KlyDataListColumnBase.Visible` avoids the question. |
+| `Pinned` | `DataListPin` | Default horizontal pin edge (`DataListPin.Start` or `DataListPin.End`). Users can override it through the column panel. A pinned column sticks from the `sm` breakpoint up (below it pinned columns scroll with the table but keep their place in the order), after the selection column and before the row actions column, and needs a width: without `KlyDataListColumnBase.Width` it gets 150 px. |
 | `Required` | `bool` | When `true`, the column cannot be hidden: `KlyDataListColumnPanel` does not list it and `DataListContext.SetColumnVisible` ignores it. It cannot be reordered or pinned from the panel either. |
 | `Resizable` | `bool` | Whether the user can resize the column by dragging its header handle or using the keyboard (true by default). Only when `KlyDataListTable.Resizable` is on. |
 | `Skeleton` | `DataListSkeletonKind` | Placeholder shape rendered inside this column's cells while the initial rows load (`DataListSkeletonKind.Text` by default). |
 | `Sortable` | `bool?` | Whether the header sorts. By default the schema decides (a field marked sortable); `false` keeps a sortable field from sorting here. A column cannot sort by what the schema does not allow. |
 | `Summary` | `DataListSummaryKind` | Built-in aggregation shown for this column in the table's summary footer (`<tfoot>`): `DataListSummaryKind.Sum`, `DataListSummaryKind.Average`, `DataListSummaryKind.Count`, `DataListSummaryKind.Min` or `DataListSummaryKind.Max`. |
-| `SummaryFormat` | `string?` | Format string applied to the summary footer value of this column. When `null`, falls back to `KlyDataListColumn.Format` (or the localized row count for `DataListSummaryKind.Count`). |
+| `SummaryFormat` | `string?` | Format string applied to the summary footer value of this column. When `null`, falls back to `KlyDataListColumnBase.Format` (or the localized row count for `DataListSummaryKind.Count`). |
 | `SummaryTemplate` | `RenderFragment<DataListSummaryCellContext<TItem>>?` | Custom template for rendering the summary footer cell (`<tfoot>`) of this column. |
-| `SummaryValue` | `Func<IReadOnlyList<TItem>, object?>?` | Custom synchronous aggregation calculator for this column in the table's summary footer (`<tfoot>`), receiving the rows of the active `DataListSummaryScope`. |
-| `Template` | `RenderFragment<TItem>?` | The content of a cell, instead of the value of the field. |
 | `Title` | `string?` | The header. Without it, the key written as words (`firstName` becomes "First name"). |
 | `Visible` | `bool` | Whether the table shows the column (true by default). A hidden column stays in `DataListContext.Columns` and keeps its place in the order, which is why this is the way to show and hide columns; an `@if` around a column works too, but the column then registers at its place in the markup only while it exists. |
-| `Width` | `int?` | Default width in pixels, clamped to [`KlyDataListColumn.MinWidth`, `KlyDataListColumn.MaxWidth`]. `null` lets the browser size the column to its content. A column with a width keeps it whatever its content (a longer text is cut with an ellipsis); when every column has one the table is as wide as their sum, otherwise the columns without a width share the room that is left. Rendered on the `<col>` and on every cell, so a static render has the width at the first paint. The user's width (the column resize, kept in the preferences) wins. |
+| `Width` | `int?` | Default width in pixels, clamped to [`KlyDataListColumnBase.MinWidth`, `KlyDataListColumnBase.MaxWidth`]. `null` lets the browser size the column to its content. A column with a width keeps it whatever its content (a longer text is cut with an ellipsis); when every column has one the table is as wide as their sum, otherwise the columns without a width share the room that is left. Rendered on the `<col>` and on every cell, so a static render has the width at the first paint. The user's width (the column resize, kept in the preferences) wins. |
 
 | Property | Type | Description |
 | :--- | :--- | :--- |
-| `EffectiveKey` | `string?` | The key of the column: `KlyDataListColumn.Key`, `KlyDataListColumn.Field` or the member path of `KlyDataListColumn.Property` in camel case. |
-| `EffectiveTitle` | `string` | The header of the column: `KlyDataListColumn.Title`, or its key written as words. |
+| `EffectiveKey` | `string?` | The key of the column: `KlyDataListColumnBase.Key`, or what its kind derives it from. |
+| `EffectiveTitle` | `string` | The header of the column: `KlyDataListColumnBase.Title`, or its key written as words. |
 
 #### `KlyDataListColumnPanel<TItem>`
 
@@ -436,6 +446,18 @@ A button that exports the list as a CSV file: the visible columns in the order t
 | `Scopes` | `IReadOnlyList<DataListExportScope>?` | The sources of rows the user can pick from, in the order of the menu. By default this page, the selection and every result; each is offered only while it applies (the selection needs a ticked row, every result needs a list of rows in memory or `KlyDataListExport.LoadAll`). With one source left the button exports at once. |
 
 Also accepts the parameters of `DataListPartBase<TItem>`.
+
+#### `KlyDataListFieldColumn<TItem>`
+
+`Klyroo.Table` · component · inherits `KlyDataListColumnBase<TItem>`
+
+A column that shows a field of the schema by its key, `<KlyDataListFieldColumn Field="status" />`: the cell shows the text of the field (formatted with `KlyDataListColumnBase.Format`) and the header sorts by it when the schema allows. It needs a schema on the list; use `KlyDataListColumn` for a typed value of the row.
+
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `Field` | `string` | The key of the field of the schema. |
+
+Also accepts the parameters of `KlyDataListColumnBase<TItem>`.
 
 #### `KlyDataListFilterEditor<TItem>`
 
@@ -514,7 +536,7 @@ The header of a group of rows in a table, a grid or a summary list: an optional 
 | :--- | :--- | :--- |
 | `Collapsed` | `bool?` | Overrides whether the group is currently collapsed. When `null`, reads `DataListContext.IsGroupCollapsed`. |
 | `Group` | `DataListGroup<TItem>` | The group rendered by this header. |
-| `GroupBy` | `DataListGroupBy<TItem>?` | Optional grouping definition supplying `DataListGroupBy.LabelTemplate` or `DataListGroupBy.SummaryTemplate`. |
+| `GroupBy` | `DataListGroupBy<TItem>?` | Optional grouping definition supplying the label and summary templates of `DataListGroupBy`. |
 | `OnToggle` | `EventCallback<bool>` | Raised when the fold/unfold button is clicked. When not bound, toggles the group on `DataListContext`. |
 | `Selectable` | `bool?` | Overrides whether the group header displays a select-all-in-group checkbox. Defaults to `DataListContext.SelectionVisible`. |
 | `ToggleLabel` | `string?` | Accessible name of the fold/unfold button. Defaults to the localized `KlyToolsMessages.GroupToggle` formatted with `DataListGroup.Label`. |
@@ -642,7 +664,7 @@ A menu that picks the sort field and its direction, or restores the default sort
 
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
-| `Items` | `IReadOnlyList<DataListSortOption>?` | Explicit sortable field options. When `null`, the menu lists the sortable `KlyDataListColumn`s in user order followed by any other sortable fields of the schema. |
+| `Items` | `IReadOnlyList<DataListSortOption>?` | Explicit sortable field options. When `null`, the menu lists the sortable `KlyDataListColumnBase`s in user order followed by any other sortable fields of the schema. |
 | `Label` | `string?` | Label of the trigger button and heading of the popover. Defaults to the localized "Sort". |
 | `Layouts` | `IReadOnlyList<DataListLayout>?` | Layouts in which the sort menu is shown (for example `[DataListLayout.Grid]` when the table headers already sort). When `null`, shown in every layout. |
 | `Multiple` | `bool?` | Whether the menu edits a list of sorts: `true` always shows the active sorts in order, with a button to reverse, move and remove each, and the fields that can still be added; `false` keeps the menu that picks one field and its direction; `null` (the default) is the second until the list sorts by more than one field (a Shift+click on a header), then the first, so a sort of several keys can always be seen and changed. |
@@ -654,27 +676,27 @@ Also accepts the parameters of `DataListPartBase<TItem>`.
 
 `Klyroo.Table` · component · inherits `DataListPartBase<TItem>`
 
-The table of the list: `KlyDataListColumn` children define the columns, and the table adds sorting, selection, row actions, pinned and resizable columns, grouping, a tree, summary footers, virtualization and the compact summary rows of a phone. Without columns it shows one per field of the schema.
+The table of the list: `KlyDataListColumnBase` children define the columns, and the table adds sorting, selection, row actions, pinned and resizable columns, grouping, a tree, summary footers, virtualization and the compact summary rows of a phone. Without columns it shows one per field of the schema.
 
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
 | `AriaLabel` | `string?` | The accessible name of the table when there is no `KlyDataListTable.Caption`. |
 | `Caption` | `string?` | Names the table for assistive technologies (visually hidden), and the scrolling region around it. Without it, the `AriaLabel` of the table, then the label of the list, then the localized "Results". |
-| `ChildContent` | `RenderFragment?` | The columns: `KlyDataListColumn` components. Without any, the table shows one column per field of the schema. |
+| `ChildContent` | `RenderFragment?` | The columns: `KlyDataListColumnBase` components. Without any, the table shows one column per field of the schema. |
 | `DetailTemplate` | `RenderFragment<TItem>?` | What to show under a row when it is expanded: a full-width row (master-detail) with this content. Each row gets a first column with a button (`aria-expanded`, named "Show details for {row label}") that opens and closes it; the state is the row expansion state of the list (`DataListContext.IsRowExpanded` and `DataListContext.SetRowExpanded`, by row key, so give the schema a `RowKey` to keep a row open across reloads). Interactive only (a static render draws the button disabled and no detail). Not supported with `KlyDataListTable.Virtualize` (its rows need one fixed height, a detail row has none: the detail is switched off), with `KlyDataListTable.Tree` (which uses the same expansion state for child rows), and not drawn in the compact summary view. |
 | `Empty` | `RenderFragment<DataListContext<TItem>>?` | Shown when the list has no rows. It receives the list, whose `DataListContext.IsFiltered` tells "nothing matches" from "nothing exists". Without it, `KlyDataListTable.EmptyState` or `KlyDataListEmpty`. |
 | `EmptyState` | `DataListEmptyState?` | Declarative configuration for the unfiltered empty state (icon, title, description, and an optional first-use `DataListEmptyState.Action`). When search or filters are active, the filtered empty state is still displayed instead and the first-use action is omitted. |
 | `GroupBy` | `DataListGroupBy<TItem>?` | Optional visual grouping of the loaded rows under collapsible `KlyDataListGroupHeader` headers with per-group selection checkboxes. Ignored when `KlyDataListTable.Tree` is set. |
-| `HeaderMenu` | `bool` | Adds a dropdown menu button to each column header in interactive mode with quick actions to sort ascending/descending, stop sorting, pin/unpin, or hide the column. Individual columns can override this via `KlyDataListColumn.HeaderMenu`. |
+| `HeaderMenu` | `bool` | Adds a dropdown menu button to each column header in interactive mode with quick actions to sort ascending/descending, stop sorting, pin/unpin, or hide the column. Individual columns can override this via `KlyDataListColumnBase.HeaderMenu`. |
 | `ItemSize` | `float?` | Height in pixels of one row when `KlyDataListTable.Virtualize` is on. Without it, follows `DataListDensity` (36, 44 or 60 px). |
 | `OnRowActionError` | `EventCallback<DataListRowActionFailure<TItem>>` | Raised when a row action threw or reported a failure. |
 | `OnRowClick` | `EventCallback<DataListRowClickArgs<TItem>>` | Raised when the user activates a row: a click anywhere on it that did not land on a link, button, box, field or other control inside the row (the padding of the selection, detail and actions cells counts as inside, and so does anything marked `data-row-ignore`; a click that ends a text selection is ignored too), or Enter or Space while the row itself has the focus. The browser decides this, so an ignored click costs no round trip. The row is then reachable with Tab, but it has no role: a screen reader announces its cells, not an action. `KlyDataListTable.RowHref` is the accessible way to open a row, and the click is best kept as a shortcut for it. The event carries the row and the modifier keys (for Ctrl or Shift to open in another way). Interactive only: a static render has no row click; use `KlyDataListTable.RowHref`. |
 | `OverscanCount` | `int` | Extra rows rendered above and below the viewport when `KlyDataListTable.Virtualize` is on (3 by default). |
-| `Resizable` | `bool` | Puts a resize handle (a vertical separator) on the end edge of the header of each `KlyDataListColumn.Resizable` column (false by default): drag it, or focus it and press ArrowLeft and ArrowRight (16 px, 64 with Shift; in right-to-left text the arrow that points away from the start edge grows the column), Home and End for the limits, Delete or a double click for the declared width. The browser changes the width while the gesture runs and reports it once; the list keeps it in its column preferences (`KlyDataList.PreferencesKey`). Interactive only: a static render has no handle but still applies a saved width. |
+| `Resizable` | `bool` | Puts a resize handle (a vertical separator) on the end edge of the header of each `KlyDataListColumnBase.Resizable` column (false by default): drag it, or focus it and press ArrowLeft and ArrowRight (16 px, 64 with Shift; in right-to-left text the arrow that points away from the start edge grows the column), Home and End for the limits, Delete or a double click for the declared width. The browser changes the width while the gesture runs and reports it once; the list keeps it in its column preferences (`KlyDataList.PreferencesKey`). Interactive only: a static render has no handle but still applies a saved width. |
 | `RowActions` | `IReadOnlyList<DataListRowAction<TItem>>?` | The actions of each row: a last column with buttons up to `KlyDataListTable.RowActionsMaxVisible`, then a menu, and below the `md` breakpoint one button that opens a sheet (`KlyDataListRowActions`). Interactive only, except the actions that are links. |
 | `RowActionsMaxVisible` | `int` | How many row actions show as buttons on a wide screen (3 by default); 0 keeps a single "Actions for ..." button per row. |
 | `RowAttributes` | `Func<TItem, IReadOnlyDictionary<string, object>?>?` | Attributes added to the `<tr>` of each item (`data-id`, `title`, `aria-*`). `class` and `data-slot` are ignored (use `KlyDataListTable.RowClass`), and so are the row's own event attributes. It runs on every render of the row: keep it cheap. |
-| `RowClass` | `Func<TItem, string?>?` | Classes added to the row for each item (a muted style for an archived row). It runs on every render of the row: keep it cheap. `KlyDataListColumn.CellClass` does the same for one cell. |
+| `RowClass` | `Func<TItem, string?>?` | Classes added to the row for each item (a muted style for an archived row). It runs on every render of the row: keep it cheap. `KlyDataListColumnBase.CellClass` does the same for one cell. |
 | `RowHref` | `Func<TItem, string?>?` | The address a row leads to. A row whose address is not empty gets a link that covers the row (an empty link named "Open {row label}", stretched over the row with CSS), so the whole row opens the page, the link is reachable with Tab and activated with Enter, and it works in a static render. Links, buttons, boxes and fields inside the row stay on top and keep their own clicks. A row with a link covers its text: the text of such a row cannot be selected with the mouse. Rows with an address are not activated through `KlyDataListTable.OnRowClick` (the link is), except that `KlyDataListTable.OnRowClick` is also raised when the link is clicked with the pointer or Enter. The address is written as given: do not pass text a user typed without checking its scheme. The link goes in the first column that is not pinned, and a pinned cell that floats above it (from `sm` up, after the link) does not take the row click. |
 | `RowSummary` | `DataListRowSummary<TItem>?` | Optional compact summary-row presentation (leading tile, title, status, details joined with ` · `, selection checkbox and row actions), active automatically below the `md` breakpoint when `DataListRowSummary.AutoPhone` is `true`, when `DataListRowSummary.DefaultActive` is `true`, or when toggled with `KlyDataListViewToggle`. |
 | `ShowProgressLine` | `bool` | Draws a subtle top progress indicator while the rows on screen are being refreshed or replaced (`true` by default). |
@@ -683,6 +705,18 @@ The table of the list: `KlyDataListColumn` children define the columns, and the 
 | `Virtualize` | `bool` | Renders only the rows around the scroll viewport with Blazor's `Virtualize`, using `tr` spacers, a sticky header and fixed single-line row heights matching `DataListDensity` (36 px compact, 44 px default, 60 px comfortable). Meant for `DataListPagingMode.None` and `DataListPagingMode.Cursor` lists with many loaded rows. Interactive only: static renders and prerenders draw regular rows without virtualization. |
 
 Also accepts the parameters of `DataListPartBase<TItem>`.
+
+#### `KlyDataListTemplateColumn<TItem>`
+
+`Klyroo.Table` · component · inherits `KlyDataListColumnBase<TItem>`
+
+A column whose cell is a template, `<KlyDataListTemplateColumn Title="Actions">...</KlyDataListTemplateColumn>`. It has no value of its own: give it a `KlyDataListColumnBase.Key` naming a field of the schema and the header sorts by that field, and a CSV export and a summary read it too.
+
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `Template` | `RenderFragment<TItem>` | The content of a cell. |
+
+Also accepts the parameters of `KlyDataListColumnBase<TItem>`.
 
 #### `KlyDataListViewToggle<TItem>`
 
@@ -821,7 +855,7 @@ What the parts of a `KlyDataList` (the table, the pagination, the result count..
 | `BulkScope` | `DataListActionScope` | What a bulk action targets: the ticked rows, or every result of the query on screen. |
 | `CanLink` | `bool` | The state lives in the URL and the renderer is not interactive: controls are links (`DataListContext.HrefWith`) and GET forms. |
 | `CanSelectAllResults` | `bool` | Whether the bulk scope can switch to every result: the source knows how many results there are and there are more than the ticked rows. |
-| `Columns` | `IReadOnlyList<KlyDataListColumn<TItem>>` | Every column the list's table declares, visible or not (a columns panel lists them all), by `KlyDataListColumn.Order` and then in the order they first rendered: the order of the markup, except for a column that an `@if` adds later, which comes after the others unless it has an `Order`. Prefer `KlyDataListColumn.Visible` to an `@if`. |
+| `Columns` | `IReadOnlyList<KlyDataListColumnBase<TItem>>` | Every column the list's table declares, visible or not (a columns panel lists them all), by `KlyDataListColumnBase.Order` and then in the order they first rendered: the order of the markup, except for a column that an `@if` adds later, which comes after the others unless it has an `Order`. Prefer `KlyDataListColumnBase.Visible` to an `@if`. |
 | `ColumnStates` | `IReadOnlyList<DataListColumnState>` | Every keyed column of the table in its active order, with its effective visibility, pin edge and width. |
 | `Density` | `DataListDensity` | The density of the rows. |
 | `EffectiveLayout` | `DataListLayout` | The layout currently shown: `DataListState.Layout` when both table and grid exist, otherwise the one that is present. |
@@ -905,10 +939,10 @@ What the parts of a `KlyDataList` (the table, the pagination, the result count..
 | `ResetState(DataListState state)` | `DataListState` | `state` without its search and its filters (those of the schema's default state), on the first page: what `DataListContext.Reset` sets. |
 | `ReverseSort(DataListState state, string key)` | `DataListState` | The state with the direction of `key` reversed, in the same place of the sort. First page. |
 | `RowKey(TItem item)` | `string` | The row key of a row, as text. Throws when the schema has no `RowKey`. |
-| `SetAllColumnsVisible(bool visible)` | `void` | Shows every column (`visible` true) or hides every column that is not `KlyDataListColumn.Required`; when none is, the first one stays so the table is never empty. |
+| `SetAllColumnsVisible(bool visible)` | `void` | Shows every column (`visible` true) or hides every column that is not `KlyDataListColumnBase.Required`; when none is, the first one stays so the table is never empty. |
 | `SetBulkScope(DataListActionScope scope)` | `void` | Sets what a bulk action targets. `DataListActionScope.All` needs `DataListContext.CanSelectAllResults`; it is dropped when the rows or the query change. |
 | `SetColumnPinned(string key, DataListPin pin)` | `void` | Pins a column to the start or end edge, or unpins it. |
-| `SetColumnVisible(string key, bool visible)` | `void` | Shows or hides a column by key. Does nothing for a `KlyDataListColumn.Required` column. |
+| `SetColumnVisible(string key, bool visible)` | `void` | Shows or hides a column by key. Does nothing for a `KlyDataListColumnBase.Required` column. |
 | `SetColumnWidth(string key, int? width)` | `void` | Sets a custom pixel width for a resizable column, or clears it when `null`. |
 | `SetGroupCollapsed(DataListGroup<TItem> group, bool collapsed)` | `void` | Sets whether `group` is collapsed (folded), persisting the toggle when `PreferencesKey` is set. |
 | `SetGroupSelected(DataListGroup<TItem> group, bool selected)` | `void` | Ticks or unticks every row in `group`. |
@@ -921,7 +955,7 @@ What the parts of a `KlyDataList` (the table, the pagination, the result count..
 | `SetSummaryView(bool active)` | `void` | Switches between compact summary rows (`true`) and the full table (`false`), persisting the choice when `PreferencesKey` is set. |
 | `SortDescending(string key)` | `bool?` | The sort of a key as it stands: `null` when the list is not sorted by it, else whether it is descending. The key can be anywhere in `DataListContext.EffectiveSort`, not only first. |
 | `SortIndex(string key)` | `int?` | The place of a key in `DataListContext.EffectiveSort`, from 0 for the first sort; `null` when the list is not sorted by it. |
-| `SortOptions(IReadOnlyList<DataListSortOption>? explicitOptions = null)` | `IReadOnlyList<DataListSortOption>` | The sortable fields of the list for `KlyDataListSortMenu`: from `explicitOptions` when given (filtered to the schema's sortable keys), otherwise from the sortable `KlyDataListColumn`s in user order followed by any remaining sortable fields of the schema. |
+| `SortOptions(IReadOnlyList<DataListSortOption>? explicitOptions = null)` | `IReadOnlyList<DataListSortOption>` | The sortable fields of the list for `KlyDataListSortMenu`: from `explicitOptions` when given (filtered to the schema's sortable keys), otherwise from the sortable `KlyDataListColumnBase`s in user order followed by any remaining sortable fields of the schema. |
 | `ToCsv(IEnumerable<TItem> rows, DataListCsvOptions? options = null)` | `string` | Writes `rows` as CSV: one cell per `DataListContext.ExportHeaders` entry, formatted like the table shows it (the `Format` of the column, the culture of the file). A cell that is text is protected against formula injection (see `DataListCsvOptions.ProtectFormulas`); numbers and dates are not, so a negative number stays a number. |
 | `ToggleGroup(DataListGroup<TItem> group)` | `void` | Folds or unfolds `group`, persisting the toggle when `PreferencesKey` is set. |
 | `ToggleNodeExpanded(DataListTreeNode<TItem> node)` | `void` | Expands or collapses `node`. |
@@ -1023,28 +1057,33 @@ Declarative configuration for the unfiltered empty state of `KlyDataListTable` o
 
 `Klyroo.Table` · class
 
-One visual group of rows produced by `DataListGroupBy` over the loaded rows of a data list.
+One visual group of rows produced by a `DataListGroupBy` over the loaded rows of a data list. The group of a `DataListGroupBy.By`` grouping is a `DataListGroup`, which also carries the typed value.
 
 | Property | Type | Description |
 | :--- | :--- | :--- |
 | `DefaultCollapsed` | `bool` | Whether the group starts folded before any user toggle. |
-| `IsEmptyValue` | `bool` | Whether the group holds rows whose group field is `null` or blank. |
+| `IsEmptyValue` | `bool` | Whether the group holds rows whose group value is `null` or blank. |
 | `Items` | `IReadOnlyList<TItem>` | The rows belonging to this group, in the active sort order. |
 | `Key` | `string` | Stable identifier of the group (`"~empty"` when the group value is null or blank). |
 | `Label` | `string` | The display label of the group header. |
 | `RowKeys` | `IReadOnlyList<string>` | The string keys of `DataListGroup.Items` when the schema defines a `RowKey`; empty otherwise. |
 | `Summary` | `string?` | The summary text shown beside the group label (the row count by default). |
-| `Value` | `object?` | The raw group value (`null` when empty). |
+
+#### `DataListGroup<TItem, TKey>`
+
+`Klyroo.Table` · class · inherits `DataListGroup<TItem>`
+
+A group of a grouping by a value of type `TKey`.
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `Value` | `TKey` | The group value; `default` when `DataListGroup.IsEmptyValue` is `true` (a null or blank value). |
 
 #### `DataListGroupBy<TItem>`
 
 `Klyroo.Table` · class
 
-Visual grouping configuration for `KlyDataListTable` and `KlyDataListGrid`. Groups are visual only: filtering, sorting, pagination and actions continue to operate on the flat rows, while rows on screen are partitioned under collapsible `KlyDataListGroupHeader` headers with optional per-group selection checkboxes.
-
-| Constructor | Description |
-| :--- | :--- |
-| `DataListGroupBy<TItem>()` | Creates a grouping. Set `DataListGroupBy.Key` or `DataListGroupBy.Field`. |
+Visual grouping configuration for `KlyDataListTable` and `KlyDataListGrid`. Create one with `DataListGroupBy.By`` (a value read from the row) or `DataListGroupBy.ByField` (a field of the schema). Groups are visual only: filtering, sorting, pagination and actions continue to operate on the flat rows, while rows on screen are partitioned under collapsible `KlyDataListGroupHeader` headers with optional per-group selection checkboxes.
 
 | Field | Type | Description |
 | :--- | :--- | :--- |
@@ -1052,15 +1091,32 @@ Visual grouping configuration for `KlyDataListTable` and `KlyDataListGrid`. Grou
 
 | Property | Type | Description |
 | :--- | :--- | :--- |
-| `Collapsed` (init) | `bool` | Whether groups start collapsed (folded) by default (`false` by default). Overridden by `DataListGroupBy.DefaultCollapsed` when set. |
-| `DefaultCollapsed` (init) | `Func<DataListGroup<TItem>, bool>?` | Optional per-group predicate determining whether a group starts collapsed (folded) by default. |
-| `Field` (init) | `string?` | Key of the field in the schema to group rows by when `DataListGroupBy.Key` is not provided. |
-| `Key` (init) | `Func<TItem, object?>?` | Extracts the group value for a row. When `null`, reads `DataListGroupBy.Field` from the schema. |
-| `Label` (init) | `Func<DataListGroup<TItem>, string?>?` | Formats the heading label of a group. When `null`, formats `DataListGroup.Value` or uses the localized "Other" label (`KlyToolsMessages.GroupEmpty`) for empty values. |
-| `LabelTemplate` (init) | `RenderFragment<DataListGroup<TItem>>?` | Custom template for the group heading label inside `KlyDataListGroupHeader`. |
-| `Order` (init) | `IReadOnlyList<object?>?` | Explicit group values placed first, in this order. Remaining non-empty groups follow in ascending value order, and the empty group (`null` or blank) comes last. |
-| `Summary` (init) | `Func<DataListGroup<TItem>, string?>?` | Formats the summary badge shown beside the group label. When `null`, shows the number of rows in the group. Return an empty string to hide the badge. |
-| `SummaryTemplate` (init) | `RenderFragment<DataListGroup<TItem>>?` | Custom template for the summary badge shown beside the group label inside `KlyDataListGroupHeader`. |
+| `Collapsed` (get, set) | `bool` | Whether groups start collapsed (folded) by default (`false` by default). The `DefaultCollapsed` predicate of the grouping, when set, decides instead. |
+
+| Method | Returns | Description |
+| :--- | :--- | :--- |
+| `static By<TKey>(Func<TItem, TKey> key, IReadOnlyList<TKey>? order = null, IEqualityComparer<TKey>? comparer = null)` | `DataListGroupBy<TItem, TKey>` | Groups the rows by a value read from each row: `DataListGroupBy<Order>.By(o => o.Status)`. A `null` or blank value goes to the empty group, which comes last. |
+| `static ByField(string fieldKey, IReadOnlyList<string>? order = null)` | `DataListGroupBy<TItem, string>` | Groups the rows by a field of the schema: `DataListGroupBy<Order>.ByField("status")`. The value of a group is the text of the field in the invariant culture; the label is formatted with the culture of the page. Groups come in the order of the field (numbers and dates by value). |
+
+#### `DataListGroupBy<TItem, TKey>`
+
+`Klyroo.Table` · class · inherits `DataListGroupBy<TItem>`
+
+A grouping by a value of type `TKey`, from `DataListGroupBy.By`` or `DataListGroupBy.ByField`.
+
+| Constructor | Description |
+| :--- | :--- |
+| `DataListGroupBy<TItem, TKey>(Func<TItem, TKey> key, IReadOnlyList<TKey>? order = null, IEqualityComparer<TKey>? comparer = null)` | Creates a grouping by a value read from each row, to set the label, summary and collapsing in an object initializer. `DataListGroupBy.By`` is the shorter form when none is needed. |
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `Comparer` | `IEqualityComparer<TKey>?` | Tells when two values are the same group; `null` for the default equality of the type. |
+| `DefaultCollapsed` (get, set) | `Func<DataListGroup<TItem, TKey>, bool>?` | Optional per-group predicate determining whether a group starts collapsed (folded) by default. Wins over `DataListGroupBy.Collapsed`. |
+| `Label` (get, set) | `Func<DataListGroup<TItem, TKey>, string?>?` | Formats the heading label of a group. When `null`, formats `DataListGroup.Value` or uses the localized "Other" label (`KlyToolsMessages.GroupEmpty`) for empty values. |
+| `LabelTemplate` (get, set) | `RenderFragment<DataListGroup<TItem, TKey>>?` | Custom template for the group heading label inside `KlyDataListGroupHeader`. |
+| `Order` | `IReadOnlyList<TKey>?` | Group values placed first, in this order. Remaining non-empty groups follow in ascending value order, and the empty group (`null` or blank) comes last unless a blank value is listed. |
+| `Summary` (get, set) | `Func<DataListGroup<TItem, TKey>, string?>?` | Formats the summary badge shown beside the group label. When `null`, shows the number of rows in the group. Return an empty string to hide the badge. |
+| `SummaryTemplate` (get, set) | `RenderFragment<DataListGroup<TItem, TKey>>?` | Custom template for the summary badge shown beside the group label inside `KlyDataListGroupHeader`. |
 
 #### `DataListRowAction<TItem>`
 
@@ -1130,7 +1186,7 @@ What a row action receives when it runs: the row, its key and place, and a way t
 
 `Klyroo.Table` · class
 
-Footer summary configuration (`<tfoot>`) for `KlyDataListTable`. When omitted on `KlyDataListTable`, a single summary row with `DataListSummaryScope.Filtered` is still rendered automatically whenever at least one `KlyDataListColumn` sets `KlyDataListColumn.Summary`, `KlyDataListColumn.SummaryValue` or `KlyDataListColumn.SummaryTemplate`.
+Footer summary configuration (`<tfoot>`) for `KlyDataListTable`. When omitted on `KlyDataListTable`, a single summary row with `DataListSummaryScope.Filtered` is still rendered automatically whenever at least one `KlyDataListColumnBase` sets `KlyDataListColumnBase.Summary`, `KlyDataListColumn.SummaryValue` or `KlyDataListColumnBase.SummaryTemplate`.
 
 | Constructor | Description |
 | :--- | :--- |
@@ -1139,7 +1195,7 @@ Footer summary configuration (`<tfoot>`) for `KlyDataListTable`. When omitted on
 | Property | Type | Description |
 | :--- | :--- | :--- |
 | `Label` (init) | `string?` | Label of the summary row (defaults to the localized `KlyToolsMessages.SummaryTotal` "Total" when a single scope is shown, or the localized scope name when multiple `DataListSummaries.Scopes` are shown). |
-| `ResolveAsync` (init) | `Func<DataListSummaryResolveContext<TItem>, ValueTask<IReadOnlyDictionary<string, object?>>>?` | Optional asynchronous resolver returning a map of column key to aggregated value for a scope (for remote sources or custom async totals). Columns not present in the returned dictionary fall back to their declared `KlyDataListColumn.Summary` or `KlyDataListColumn.SummaryValue`. |
+| `ResolveAsync` (init) | `Func<DataListSummaryResolveContext<TItem>, ValueTask<IReadOnlyDictionary<string, DataListSummaryValue>>>?` | Optional asynchronous resolver returning a map of column key to aggregated value (`DataListSummaryValue`, converted implicitly from a number or a text) for a scope (for remote sources or custom async totals). Columns not present in the returned dictionary fall back to their declared `KlyDataListColumnBase.Summary` or `KlyDataListColumn.SummaryValue`. |
 | `Scope` (init) | `DataListSummaryScope` | The default scope aggregated when `DataListSummaries.Scopes` is not set (`DataListSummaryScope.Filtered` by default). |
 | `Scopes` (init) | `IReadOnlyList<DataListSummaryScope>?` | Optional list of scopes to render as separate summary rows in `<tfoot>` (for example `[DataListSummaryScope.Page, DataListSummaryScope.Filtered]`). When `null` or empty, renders one row for `DataListSummaries.Scope`. |
 
@@ -1226,7 +1282,7 @@ The effective state of one column of a data list: visibility, pinning, width and
 
 | Property | Type | Description |
 | :--- | :--- | :--- |
-| `Key` (init) | `string` | The column key (`KlyDataListColumn.EffectiveKey`). |
+| `Key` (init) | `string` | The column key (`KlyDataListColumnBase.EffectiveKey`). |
 | `MaxWidth` (init) | `int` | Maximum width in pixels when resized. |
 | `MinWidth` (init) | `int` | Minimum width in pixels when resized. |
 | `Pinned` (init) | `DataListPin` | The active horizontal pin edge. |
@@ -1333,11 +1389,11 @@ An option offered by `KlyDataListSortMenu`.
 
 `Klyroo.Table` · record
 
-Context passed to `KlyDataListColumn.SummaryTemplate` when rendering a summary footer cell.
+Context passed to `KlyDataListColumnBase.SummaryTemplate` when rendering a summary footer cell.
 
 | Constructor | Description |
 | :--- | :--- |
-| `DataListSummaryCellContext<TItem>(DataListContext<TItem> List, string? ColumnKey, DataListSummaryScope Scope, IReadOnlyList<TItem> Rows, object? Value, string? FormattedValue, bool IsLoading)` | Context passed to `KlyDataListColumn.SummaryTemplate` when rendering a summary footer cell. |
+| `DataListSummaryCellContext<TItem>(DataListContext<TItem> List, string? ColumnKey, DataListSummaryScope Scope, IReadOnlyList<TItem> Rows, DataListSummaryValue Value, string? FormattedValue, bool IsLoading)` | Context passed to `KlyDataListColumnBase.SummaryTemplate` when rendering a summary footer cell. |
 
 | Property | Type | Description |
 | :--- | :--- | :--- |
@@ -1347,7 +1403,7 @@ Context passed to `KlyDataListColumn.SummaryTemplate` when rendering a summary f
 | `List` (init) | `DataListContext<TItem>` | The list the cell belongs to. |
 | `Rows` (init) | `IReadOnlyList<TItem>` | The rows of that scope. |
 | `Scope` (init) | `DataListSummaryScope` | The set of rows the value aggregates. |
-| `Value` (init) | `object?` | The aggregated value, before formatting. |
+| `Value` (init) | `DataListSummaryValue` | The aggregated value: a number (formatted with the format of the column) or a text that is already formatted. |
 
 #### `DataListSummaryResolveContext<TItem>`
 
@@ -1772,6 +1828,27 @@ Every text the components of Klyroo.Table render: accessible names, labels, hint
 | Method | Returns | Description |
 | :--- | :--- | :--- |
 | `OperatorLabel(FilterOperator op, bool forTag = false)` | `string` | The text of an operator for a filter tag and an operator picker. |
+
+### Structs
+
+#### `DataListSummaryValue`
+
+`Klyroo.Table` · struct
+
+The value of a summary footer cell: a number, which the column formats with its `SummaryFormat` or `Format` and the culture of the page, or a text shown as it is. A `Decimal`, an integer or a `String` converts (use `DataListSummaryValue.FromDouble` for a double) to it implicitly, so a resolver can write `["amount"] = 1234.5m`.
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `static Empty` | `DataListSummaryValue` | The value with nothing to show: the footer cell stays empty. |
+| `IsEmpty` | `bool` | Whether there is nothing to show. |
+| `Number` | `decimal?` | The number, or `null` when the value is a text or empty. |
+| `Text` | `string?` | The text, or `null` when the value is a number or empty. |
+
+| Method | Returns | Description |
+| :--- | :--- | :--- |
+| `static FromDouble(double number)` | `DataListSummaryValue` | A number from a `Double`; a value that is not finite or does not fit a decimal is `DataListSummaryValue.Empty`. |
+| `static FromNumber(decimal number)` | `DataListSummaryValue` | A number. |
+| `static FromText(string? text)` | `DataListSummaryValue` | A text shown as it is; a null or empty text is `DataListSummaryValue.Empty`. |
 
 ### Interfaces
 

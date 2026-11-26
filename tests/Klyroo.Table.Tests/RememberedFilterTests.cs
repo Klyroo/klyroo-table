@@ -48,7 +48,7 @@ public sealed class RememberedFilterTests : BunitContext
             .Add(x => x.Items, Tasks)
             .Add(x => x.UrlKey, "tasks")
             .AddChildContent<KlyDataListTable<TaskRow>>(t => t
-                .AddChildContent<KlyDataListColumn<TaskRow>>(c => c.Add(x => x.Field, "title").Add(x => x.Title, "Title"))));
+                .AddChildContent<KlyDataListFieldColumn<TaskRow>>(c => c.Add(x => x.Field, "title").Add(x => x.Title, "Title"))));
 
     private static IReadOnlyList<string> Titles(IRenderedComponent<KlyDataList<TaskRow>> cut) =>
         [.. cut.FindAll("tbody tr").Select(r => r.TextContent.Trim())];
@@ -221,7 +221,7 @@ public sealed class RememberedFilterTests : BunitContext
             .Add(x => x.UrlKey, "tasks")
             .Add(x => x.StateChanged, s => reported = s)
             .AddChildContent<KlyDataListTable<TaskRow>>(t => t
-                .AddChildContent<KlyDataListColumn<TaskRow>>(c => c.Add(x => x.Field, "title"))));
+                .AddChildContent<KlyDataListFieldColumn<TaskRow>>(c => c.Add(x => x.Field, "title"))));
 
         cut.WaitForAssertion(() => Assert.Equal(["Epsilon Deploy"], Titles(cut)));
         Assert.Contains(reported!.Filters, r => r.Key == "team");
@@ -233,7 +233,7 @@ public sealed class RememberedFilterTests : BunitContext
             .Add(x => x.UrlSync, false)
             .Add(x => x.State, given)
             .AddChildContent<KlyDataListTable<TaskRow>>(t => t
-                .AddChildContent<KlyDataListColumn<TaskRow>>(c => c.Add(x => x.Field, "title"))));
+                .AddChildContent<KlyDataListFieldColumn<TaskRow>>(c => c.Add(x => x.Field, "title"))));
 
         bound.WaitForAssertion(() => Assert.Equal(["Beta UI"], Titles(bound)));
         Assert.Single(_storage.Invocations, i => i.Identifier == "readAll");

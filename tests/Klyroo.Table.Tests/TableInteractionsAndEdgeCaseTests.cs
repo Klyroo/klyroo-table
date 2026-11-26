@@ -100,9 +100,9 @@ public sealed class TableInteractionsAndEdgeCaseTests : BunitContext
                 b.OpenComponent<KlyDataListTable<TaskRow>>(0);
                 b.AddAttribute(1, nameof(KlyDataListTable<TaskRow>.ChildContent), (RenderFragment)(cb =>
                 {
-                    cb.OpenComponent<KlyDataListColumn<TaskRow>>(0);
-                    cb.AddAttribute(1, nameof(KlyDataListColumn<TaskRow>.Field), "title");
-                    cb.AddAttribute(2, nameof(KlyDataListColumn<TaskRow>.Title), "Title");
+                    cb.OpenComponent<KlyDataListFieldColumn<TaskRow>>(0);
+                    cb.AddAttribute(1, nameof(KlyDataListFieldColumn<TaskRow>.Field), "title");
+                    cb.AddAttribute(2, nameof(KlyDataListFieldColumn<TaskRow>.Title), "Title");
                     cb.CloseComponent();
                 }));
                 b.CloseComponent();
@@ -132,9 +132,9 @@ public sealed class TableInteractionsAndEdgeCaseTests : BunitContext
                 b.OpenComponent<KlyDataListTable<TaskRow>>(0);
                 b.AddAttribute(1, nameof(KlyDataListTable<TaskRow>.ChildContent), (RenderFragment)(cb =>
                 {
-                    cb.OpenComponent<KlyDataListColumn<TaskRow>>(0);
-                    cb.AddAttribute(1, nameof(KlyDataListColumn<TaskRow>.Field), "title");
-                    cb.AddAttribute(2, nameof(KlyDataListColumn<TaskRow>.Title), "Title");
+                    cb.OpenComponent<KlyDataListFieldColumn<TaskRow>>(0);
+                    cb.AddAttribute(1, nameof(KlyDataListFieldColumn<TaskRow>.Field), "title");
+                    cb.AddAttribute(2, nameof(KlyDataListFieldColumn<TaskRow>.Title), "Title");
                     cb.CloseComponent();
                 }));
                 b.CloseComponent();
@@ -166,15 +166,15 @@ public sealed class TableInteractionsAndEdgeCaseTests : BunitContext
                 b.AddAttribute(1, nameof(KlyDataListTable<TaskRow>.Summaries), new DataListSummaries<TaskRow>());
                 b.AddAttribute(2, nameof(KlyDataListTable<TaskRow>.ChildContent), (RenderFragment)(cb =>
                 {
-                    cb.OpenComponent<KlyDataListColumn<TaskRow>>(0);
-                    cb.AddAttribute(1, nameof(KlyDataListColumn<TaskRow>.Field), "title");
-                    cb.AddAttribute(2, nameof(KlyDataListColumn<TaskRow>.Title), "Title");
-                    cb.AddAttribute(3, nameof(KlyDataListColumn<TaskRow>.Summary), DataListSummaryKind.Count);
+                    cb.OpenComponent<KlyDataListFieldColumn<TaskRow>>(0);
+                    cb.AddAttribute(1, nameof(KlyDataListFieldColumn<TaskRow>.Field), "title");
+                    cb.AddAttribute(2, nameof(KlyDataListFieldColumn<TaskRow>.Title), "Title");
+                    cb.AddAttribute(3, nameof(KlyDataListFieldColumn<TaskRow>.Summary), DataListSummaryKind.Count);
                     cb.CloseComponent();
-                    cb.OpenComponent<KlyDataListColumn<TaskRow>>(4);
-                    cb.AddAttribute(5, nameof(KlyDataListColumn<TaskRow>.Field), "hours");
-                    cb.AddAttribute(6, nameof(KlyDataListColumn<TaskRow>.Title), "Hours");
-                    cb.AddAttribute(7, nameof(KlyDataListColumn<TaskRow>.Summary), DataListSummaryKind.Sum);
+                    cb.OpenComponent<KlyDataListFieldColumn<TaskRow>>(4);
+                    cb.AddAttribute(5, nameof(KlyDataListFieldColumn<TaskRow>.Field), "hours");
+                    cb.AddAttribute(6, nameof(KlyDataListFieldColumn<TaskRow>.Title), "Hours");
+                    cb.AddAttribute(7, nameof(KlyDataListFieldColumn<TaskRow>.Summary), DataListSummaryKind.Sum);
                     cb.CloseComponent();
                 }));
                 b.CloseComponent();
