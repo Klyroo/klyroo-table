@@ -165,5 +165,7 @@ public static partial class KlyToolsLocales
             DatePresetThisMonth = "هذا الشهر",
             DatePresetLastMonth = "الشهر الماضي",
             DatePresetYearToDate = "منذ بداية السنة",
+            RowOpen = "فتح {0}",
+            RowOpenAt = "فتح الصف {0}",
         };
 }

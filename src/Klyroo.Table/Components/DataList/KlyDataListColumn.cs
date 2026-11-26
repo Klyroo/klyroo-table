@@ -56,6 +56,9 @@ public sealed class KlyDataListColumn<TItem> : ComponentBase, IDisposable
     /// <summary>Classes added to the header and the cells of this column.</summary>
     [Parameter] public string? Class { get; set; }
 
+    /// <summary>Classes added to the cell of this column for a row (a color for an overdue date, a muted style for an archived row): it receives the row. The header is not affected; use <see cref="Class"/> for both. It runs on every render of the row: keep it cheap.</summary>
+    [Parameter] public Func<TItem, string?>? CellClass { get; set; }
+
     /// <summary>
     /// Where the column sits among the others: columns are sorted by this number, then by the order in which they first rendered (the order of the markup for columns that
     /// exist from the start). A column that an <c>@if</c> adds later renders after the others unless it has an <c>Order</c>; <see cref="Visible"/> avoids the question.

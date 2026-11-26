@@ -371,6 +371,41 @@ Three details are easy to miss. The list here reads its rows through a provider,
 
 A row action with a `Href` is a link and works in a statically rendered list; every other action needs interactivity. Each row action button group shows up to `RowActionsMaxVisible` buttons (3), puts the rest in a menu, and below the `md` breakpoint collapses into one button that opens a sheet.
 
+## Open, style and annotate rows
+
+Goal: make a row lead somewhere, react to a click on it, and style or tag rows and cells from the data.
+
+```razor
+<KlyDataListTable TItem="Order"
+                  RowHref="@(o => $"/orders/{o.Id}")"
+                  RowClass="@(o => o.Status == "Archived" ? "opacity-60" : null)"
+                  RowAttributes="@(o => new Dictionary<string, object> { ["data-order"] = o.Id })">
+    <KlyDataListColumn TItem="Order" Field="customer" Title="Customer" />
+    <KlyDataListColumn TItem="Order" Field="total" Title="Total" Format="C0" Align="DataListAlign.End"
+                       CellClass="@(o => o.Total > 1000m ? "font-semibold text-(--klyroo-error-text)" : null)" />
+</KlyDataListTable>
+```
+
+`RowHref` gives each row with an address an empty link named "Open {row label}" (the `RowLabel` of the schema, else "Open row 3"). The link is stretched over the whole row with CSS, so a click anywhere on the row opens the page, the link is the one Tab stop of the row and Enter follows it, and it is a real `<a>` in a static render. Links, buttons, boxes and fields inside the row (the selection box, the row actions, a link in a cell template) are lifted above it and keep their own clicks. The address is written as given, so check the scheme of anything a user typed. Pinned columns float above the link: a pinned column that sits after it does not take the click, and the link is put in the first column that is not pinned.
+
+`OnRowClick` is for the interactive case. It runs for a click on the row that did not land on a link, button, box or field inside it (and that does not end a text selection), and for Enter or Space while the row itself has the focus, so the row is reachable with Tab. The argument carries the row, its key, its place on the page and the modifier keys:
+
+```razor
+<KlyDataListTable TItem="Order" OnRowClick="Open">...</KlyDataListTable>
+
+@code {
+    private void Open(DataListRowClickArgs<Order> click)
+    {
+        if (click.CtrlKey || click.MetaKey) _selected.Add(click.Item);
+        else _current = click.Item;
+    }
+}
+```
+
+A row with an address is not activated through the browser events, because its link already does it; `OnRowClick` is then raised from the click on the link (with its modifier keys) and the navigation still happens. A control of your own inside a cell that is not a link, button or field can opt out of the row click with `data-row-ignore`. A static render has no row click; use `RowHref` there.
+
+`RowClass` and `RowAttributes` receive the item and run on every render of the row, so keep them cheap; `class` and `data-slot` in `RowAttributes` are ignored in favor of `RowClass`. `CellClass` on a column styles that cell only (the header keeps `Class`).
+
 ## Group rows, total columns and show a tree
 
 Goal: collapsible groups, footer totals, and hierarchical rows.

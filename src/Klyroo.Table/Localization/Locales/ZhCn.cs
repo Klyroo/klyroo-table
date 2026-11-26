@@ -165,5 +165,7 @@ public static partial class KlyToolsLocales
             DatePresetThisMonth = "本月",
             DatePresetLastMonth = "上月",
             DatePresetYearToDate = "年初至今",
+            RowOpen = "打开 {0}",
+            RowOpenAt = "打开第 {0} 行",
         };
 }

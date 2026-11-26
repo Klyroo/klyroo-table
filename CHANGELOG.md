@@ -12,6 +12,7 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Added
 
+- Row hooks on `KlyDataListTable`: `RowHref` (an accessible link stretched over the row, also in a static render, with the controls inside the row kept above it), `OnRowClick` (a `DataListRowClickArgs<TItem>` with the row and the modifier keys; Enter and Space activate a focused row, and clicks on controls inside the row or that end a text selection are ignored), `RowClass` and `RowAttributes`, plus `CellClass` on `KlyDataListColumn`. The click filter runs in the browser through two new custom events (`klyrowclick`, `klyrowkey`) that `Klyroo.Table.lib.module.js` registers.
 - Remembered filters: `KlyDataList` now honors `DataListFilter.WithPersist()`. A change of such a filter is stored in `localStorage` (key scoped by row type, `PersistKey` or `UrlKey` and filter key, value in the URL form of `DataListStateQuery`) through the new `klyroo-table-storage.js` module; clearing the filter removes the entry, and the first interactive render, like any later navigation to the page whose address does not name a marked filter (a menu link, Back), restores its value, then writes it to the address. A filter cleared in the list stays cleared. Static renders and prerenders never touch storage, and every storage call is guarded.
 - Tests for the summary scopes (`Filtered`, `Page`, `Selection`), the default sticky position of the selection bar and `DataListController.PagesLoaded` across appends, refreshes, new loads and failed appends.
 

@@ -165,5 +165,7 @@ public static partial class KlyToolsLocales
             DatePresetThisMonth = "Questo mese",
             DatePresetLastMonth = "Mese scorso",
             DatePresetYearToDate = "Da inizio anno",
+            RowOpen = "Apri {0}",
+            RowOpenAt = "Apri la riga {0}",
         };
 }

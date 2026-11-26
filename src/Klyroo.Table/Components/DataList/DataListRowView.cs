@@ -28,6 +28,15 @@ public sealed class DataListRowView<TItem> : ComponentBase
     /// <summary>The classes of the row.</summary>
     [Parameter] public string? Class { get; set; }
 
+    /// <summary>Attributes of the row from <see cref="KlyDataListTable{TItem}.RowAttributes"/>. <c>class</c> and <c>data-slot</c> are ignored: the row sets them itself.</summary>
+    [Parameter] public IReadOnlyDictionary<string, object>? Attributes { get; set; }
+
+    /// <summary>Makes the row reachable with the keyboard and listen to clicks and to Enter and Space on itself.</summary>
+    [Parameter] public bool Clickable { get; set; }
+
+    /// <summary>Raised for a click on the row that did not land on a control inside it, or for Enter or Space on the row.</summary>
+    [Parameter] public EventCallback<KlyRowEventArgs> OnActivate { get; set; }
+
     /// <summary>The cells.</summary>
     [Parameter] public RenderFragment? ChildContent { get; set; }
 
@@ -47,10 +56,25 @@ public sealed class DataListRowView<TItem> : ComponentBase
         _revision = Revision;
         _rowIndex = RowIndex;
         builder.OpenElement(0, "tr");
-        builder.AddAttribute(1, "class", Class);
-        builder.AddAttribute(2, "data-slot", "row");
-        if (RowIndex is { } index) builder.AddAttribute(3, "aria-rowindex", index);
-        builder.AddContent(4, ChildContent);
+        // The attributes of the app come first, so that what the row sets itself wins over a duplicate.
+        if (Attributes is { Count: > 0 })
+        {
+            builder.AddMultipleAttributes(1, Attributes.Where(a => !a.Key.Equals("class", StringComparison.OrdinalIgnoreCase)
+                && !a.Key.Equals("data-slot", StringComparison.OrdinalIgnoreCase)
+                && !a.Key.Equals("onklyrowclick", StringComparison.OrdinalIgnoreCase)
+                && !a.Key.Equals("onklyrowkey", StringComparison.OrdinalIgnoreCase)));
+        }
+        builder.AddAttribute(2, "class", Class);
+        builder.AddAttribute(3, "data-slot", "row");
+        if (RowIndex is { } index) builder.AddAttribute(4, "aria-rowindex", index);
+        if (Clickable)
+        {
+            builder.AddAttribute(5, "tabindex", "0");
+            builder.AddAttribute(6, "data-clickable", "true");
+            builder.AddAttribute(7, "onklyrowclick", OnActivate);
+            builder.AddAttribute(8, "onklyrowkey", OnActivate);
+        }
+        builder.AddContent(9, ChildContent);
         builder.CloseElement();
     }
 }

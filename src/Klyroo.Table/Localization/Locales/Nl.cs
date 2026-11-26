@@ -165,5 +165,7 @@ public static partial class KlyToolsLocales
             DatePresetThisMonth = "Deze maand",
             DatePresetLastMonth = "Vorige maand",
             DatePresetYearToDate = "Dit jaar tot nu toe",
+            RowOpen = "{0} openen",
+            RowOpenAt = "Rij {0} openen",
         };
 }

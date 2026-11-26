@@ -211,7 +211,7 @@
                         else if (virtualizing)
                         {
                             <Virtualize TItem="RowEntry" Items="entries" ItemSize="EffectiveItemSize" OverscanCount="OverscanCount" SpacerElement="tr" Context="row">
-                                <DataListRowView TItem="TItem" @key="row.Key" Item="row.Item" Revision="Revision" RowIndex="row.Position + 1" Class="@RowClass(selecting)">
+                                <DataListRowView TItem="TItem" @key="row.Key" Item="row.Item" Revision="Revision" RowIndex="row.Position + 1" Class="@RowClasses(row, selecting)" Attributes="@RowAttributes?.Invoke(row.Item)" Clickable="@IsRowActivatable(row)" OnActivate="@RowActivation(row)">
                                     @Cells(row, selecting, acting, columns, pinStart, pinEnd)
                                 </DataListRowView>
                             </Virtualize>
@@ -231,7 +231,7 @@
                                 {
                                     @foreach (var row in grp.Entries)
                                     {
-                                        <DataListRowView TItem="TItem" @key="row.Key" Item="row.Item" Revision="Revision" RowIndex="null" Class="@RowClass(selecting)">
+                                        <DataListRowView TItem="TItem" @key="row.Key" Item="row.Item" Revision="Revision" RowIndex="null" Class="@RowClasses(row, selecting)" Attributes="@RowAttributes?.Invoke(row.Item)" Clickable="@IsRowActivatable(row)" OnActivate="@RowActivation(row)">
                                             @Cells(row, selecting, acting, columns, pinStart, pinEnd)
                                         </DataListRowView>
                                     }
@@ -243,7 +243,7 @@
                             @* The key is on the component itself, directly in the loop: a keyed element inside a RenderFragment would sit in a region of its own, where a key cannot match a row of another position, and every row after a removed one would be rebuilt. *@
                             @foreach (var row in entries!)
                             {
-                                <DataListRowView TItem="TItem" @key="row.Key" Item="row.Item" Revision="Revision" RowIndex="null" Class="@RowClass(selecting)">
+                                <DataListRowView TItem="TItem" @key="row.Key" Item="row.Item" Revision="Revision" RowIndex="null" Class="@RowClasses(row, selecting)" Attributes="@RowAttributes?.Invoke(row.Item)" Clickable="@IsRowActivatable(row)" OnActivate="@RowActivation(row)">
                                     @Cells(row, selecting, acting, columns, pinStart, pinEnd)
                                 </DataListRowView>
                             }
@@ -338,6 +338,29 @@
 
     /// <summary>Raised when a row action threw or reported a failure.</summary>
     [Parameter] public EventCallback<DataListRowActionFailure<TItem>> OnRowActionError { get; set; }
+
+    /// <summary>
+    /// The address a row leads to. A row whose address is not empty gets a link that covers the row (an empty link named "Open {row label}", stretched over the row with CSS), so the whole
+    /// row opens the page, the link is reachable with Tab and activated with Enter, and it works in a static render. Links, buttons, boxes and fields inside the row stay on top and keep their own clicks.
+    /// Rows with an address are not activated through <see cref="OnRowClick"/> (the link is), except that <see cref="OnRowClick"/> is also raised when the link is clicked with the pointer or Enter.
+    /// The address is written as given: do not pass text a user typed without checking its scheme. A pinned column that sits after the link, and the pinned columns on screens from <c>sm</c> up, float above the link and do not take the click.
+    /// </summary>
+    [Parameter] public Func<TItem, string?>? RowHref { get; set; }
+
+    /// <summary>
+    /// Raised when the user activates a row: a click anywhere on it that did not land on a link, button, box, field or other control inside the row (and that does not end a text selection), or Enter or Space while the
+    /// row itself has the focus. The row is then reachable with Tab. The event carries the row and the modifier keys (for Ctrl or Shift to open in another way). Interactive only: a static render has no row click; use <see cref="RowHref"/>.
+    /// </summary>
+    [Parameter] public EventCallback<DataListRowClickArgs<TItem>> OnRowClick { get; set; }
+
+    /// <summary>Classes added to the row for each item (a muted style for an archived row). It runs on every render of the row: keep it cheap. <see cref="KlyDataListColumn{TItem}.CellClass"/> does the same for one cell.</summary>
+    [Parameter] public Func<TItem, string?>? RowClass { get; set; }
+
+    /// <summary>
+    /// Attributes added to the <c>&lt;tr&gt;</c> of each item (<c>data-id</c>, <c>title</c>, <c>aria-*</c>). <c>class</c> and <c>data-slot</c> are ignored (use <see cref="RowClass"/>), and so are the row's own event attributes.
+    /// It runs on every render of the row: keep it cheap.
+    /// </summary>
+    [Parameter] public Func<TItem, IReadOnlyDictionary<string, object>?>? RowAttributes { get; set; }
 
     /// <summary>The accessible name of the table when there is no <see cref="Caption"/>.</summary>
     [Parameter] public string? AriaLabel { get; set; }
@@ -771,7 +794,59 @@
     private sealed record RowEntry(object Key, TItem Item, int Position, DataListTreeNode<TItem>? TreeNode = null);
     private sealed record GroupedRowEntries(DataListGroup<TItem> Group, List<RowEntry> Entries);
 
-    private string RowClass(bool selecting) => selecting ? _slots["tr"] + " " + _slots["rowSelected"] : _slots["tr"];
+    private string RowClasses(RowEntry row, bool selecting)
+    {
+        var classes = selecting ? _slots["tr"] + " " + _slots["rowSelected"] : _slots["tr"];
+        if (!string.IsNullOrEmpty(HrefOf(row.Item))) classes += " " + _slots["rowLinked"];
+        else if (IsRowActivatable(row)) classes += " " + _slots["rowClickable"];
+        return RowClass?.Invoke(row.Item) is { Length: > 0 } extra ? classes + " " + extra : classes;
+    }
+
+    private string? HrefOf(TItem item) => RowHref?.Invoke(item);
+
+    // A row without an address that the pointer or the keyboard can activate.
+    private bool IsRowActivatable(RowEntry row) => Context.IsInteractive && OnRowClick.HasDelegate && string.IsNullOrEmpty(HrefOf(row.Item));
+
+    private static string RowKeyText(RowEntry row) => row.Key as string ?? "#" + row.Position;
+
+    private EventCallback<KlyRowEventArgs> RowActivation(RowEntry row) =>
+        IsRowActivatable(row) ? EventCallback.Factory.Create<KlyRowEventArgs>(this, e => ActivateRow(row, e)) : default;
+
+    private Task ActivateRow(RowEntry row, KlyRowEventArgs e) =>
+        e.Ignore ? Task.CompletedTask : OnRowClick.InvokeAsync(new DataListRowClickArgs<TItem>(row.Item, RowKeyText(row), row.Position, e.ShiftKey, e.CtrlKey, e.AltKey, e.MetaKey, FromKeyboard: e.Key is not null));
+
+    // The link raises OnRowClick too, with the modifier keys of the click. The navigation still happens: the handler does not cancel it.
+    private EventCallback<MouseEventArgs> LinkClick(RowEntry row) =>
+        Context.IsInteractive && OnRowClick.HasDelegate
+            ? EventCallback.Factory.Create<MouseEventArgs>(this, e => OnRowClick.InvokeAsync(new DataListRowClickArgs<TItem>(row.Item, RowKeyText(row), row.Position, e.ShiftKey, e.CtrlKey, e.AltKey, e.MetaKey, FromKeyboard: e.Detail == 0)))
+            : default;
+
+    private string RowOpenLabel(RowEntry row)
+    {
+        var label = Context.Schema?.GetRowLabel(row.Item);
+        return !string.IsNullOrWhiteSpace(label)
+            ? string.Format(FormatCulture, ToolsMessages.RowOpen, label)
+            : string.Format(FormatCulture, ToolsMessages.RowOpenAt, row.Position);
+    }
+
+    // The link goes in the first column that is not pinned: a pinned (sticky) cell is a box of its own that the link would stretch over.
+    private static int LinkColumn(List<View> columns)
+    {
+        var index = columns.FindIndex(c => c.Pinned == DataListPin.None);
+        return index < 0 ? 0 : index;
+    }
+
+    private RenderFragment RowLink(RowEntry row) => builder =>
+    {
+        if (HrefOf(row.Item) is not { Length: > 0 } href) return;
+        builder.OpenElement(0, "a");
+        builder.AddAttribute(1, "href", href);
+        builder.AddAttribute(2, "class", _slots["rowLink"]);
+        builder.AddAttribute(3, "data-slot", "row-link");
+        builder.AddAttribute(4, "aria-label", RowOpenLabel(row));
+        builder.AddAttribute(5, "onclick", LinkClick(row));
+        builder.CloseElement();
+    };
 
     private RenderFragment SummaryCells(RowEntry row, DataListRowSummary<TItem> summary, List<View> columns, bool selecting, bool acting) =>
         @<text>
@@ -844,13 +919,16 @@
                     }
                 </td>
             }
+            @{
+                var linkColumn = RowHref is null ? -1 : LinkColumn(columns);
+            }
             @for (var i = 0; i < columns.Count; i++)
             {
                 var column = columns[i];
                 if (i == 0 && row.TreeNode is { } treeNode)
                 {
                     var expanded = treeNode.HasChildren && Context.IsNodeExpanded(treeNode);
-                    <td class="@CellClass(column)" style="@CellStyle(column)" data-pinned="@PinAttr(column)" data-tree-depth="@treeNode.Depth">
+                    <td class="@CellClass(column, row.Item)" style="@CellStyle(column)" data-pinned="@PinAttr(column)" data-tree-depth="@treeNode.Depth">
                         <div class="@_slots["treeCell"]" data-slot="tree-cell" data-depth="@treeNode.Depth">
                             @foreach (var cont in treeNode.AncestorContinuations)
                             {
@@ -876,11 +954,21 @@
                             }
                             <span class="@_slots["treeContent"]" data-slot="tree-content">@Cell(column, row.Item)</span>
                         </div>
+                        @if (i == linkColumn)
+                        {
+                            @RowLink(row)
+                        }
                     </td>
                 }
                 else
                 {
-                    <td class="@CellClass(column)" style="@CellStyle(column)" data-pinned="@PinAttr(column)">@Cell(column, row.Item)</td>
+                    <td class="@CellClass(column, row.Item)" style="@CellStyle(column)" data-pinned="@PinAttr(column)">
+                        @Cell(column, row.Item)
+                        @if (i == linkColumn)
+                        {
+                            @RowLink(row)
+                        }
+                    </td>
                 }
             }
             @if (acting)
@@ -1266,6 +1354,9 @@
         var sized = column.Width is not null ? _slots["colSized"] : "";
         return $"{_slots["th"]} {AlignClass(column.Align, "th")} {pin} {resize} {sized} {column.Class}".Trim();
     }
+
+    private string CellClass(View column, TItem item) =>
+        column.Source?.CellClass?.Invoke(item) is { Length: > 0 } extra ? $"{CellClass(column)} {extra}" : CellClass(column);
 
     private string CellClass(View column)
     {

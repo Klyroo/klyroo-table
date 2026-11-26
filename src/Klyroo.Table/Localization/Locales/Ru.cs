@@ -165,5 +165,7 @@ public static partial class KlyToolsLocales
             DatePresetThisMonth = "Этот месяц",
             DatePresetLastMonth = "Прошлый месяц",
             DatePresetYearToDate = "С начала года",
+            RowOpen = "Открыть {0}",
+            RowOpenAt = "Открыть строку {0}",
         };
 }

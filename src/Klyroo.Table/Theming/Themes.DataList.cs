@@ -22,7 +22,7 @@ internal static partial class ToolsThemes
                 "empty", "skeleton", "pagination", "pageSize", "pageSizeLabel", "pageSizeSelect", "pageSizeForm", "error",
                 "filters", "filterTags", "filterTag", "filterTagButton", "filterTagLabel", "filterTagOperator", "filterTagValue", "filterTagRemove", "filterTagRemoveIcon", "addFilter", "clearFilters", "filterPopover", "filterEditor", "filterEditorTitle", "filterField", "filterFieldLabel", "filterOperator", "filterInput", "filterOptions", "filterOption", "filterOptionLink", "filterOptionCount", "filterOptionCheck", "filterEmpty", "filterActions", "filterChoices", "filterMenu", "filterMenuItem", "filterMenuHeader", "filterBack", "filterSection", "filterRange", "filterRangeSlider", "filterPresets", "filterHint", "filterPopoverWide",
                 "filterPanel", "filterPanelHeader", "filterPanelTitle", "filterPanelCount", "filterPanelDescription", "filterPanelSection", "filterPanelTrigger", "filterPanelContent", "filterPanelEditor", "filterPanelFooter", "filterPanelEmpty", "filterPanelResults", "filterNativeLabel", "filterNativeInput",
-                "selectCell", "rowSelected", "selectionActions", "selectionBar", "selectionCount", "selectionLive", "selectionScope", "selectionGroup", "actionsDropdown",
+                "selectCell", "rowSelected", "rowClickable", "rowLinked", "rowLink", "selectionActions", "selectionBar", "selectionCount", "selectionLive", "selectionScope", "selectionGroup", "actionsDropdown",
                 "rowActionsCell", "rowActions", "rowActionsInline", "rowActionsMenu", "rowActionsPhone", "sheetList", "sheetDivider", "sheetEntry", "sheetHeading", "sheetItem", "sheetReason", "sheetIcon",
                 "infiniteLoader", "loadMoreError", "loadMoreErrorText", "cursorReset", "infiniteEnd", "infiniteStatus",
                 "thPinnedStart", "thPinnedEnd", "tdPinnedStart", "tdPinnedEnd", "colResize", "colSized", "columnsAll", "columnsHint", "columnsGrip", "columnsLive", "columnsPinGroup", "columnsSearch",
@@ -126,6 +126,12 @@ internal static partial class ToolsThemes
             .Slot("filterNativeInput", "size-4 shrink-0 accent-(--klyroo-primary-text)")
             .Slot("filterPanelEmpty", "px-3 py-3 text-sm text-(--klyroo-text-muted)")
             .Slot("selectCell", "w-10 pe-0")
+            .Slot("rowClickable", "cursor-pointer hover:bg-(--klyroo-bg-muted) focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-(--klyroo-primary-text)")
+            // The link covers the row (its ::after is stretched over the nearest positioned box, the row); what a person can click inside the row is lifted above it.
+            .Slot("rowLinked", "relative hover:bg-(--klyroo-bg-muted) " +
+                               "[&_:is(a,button,input,select,textarea,label,summary,[role=button],[data-row-ignore]):not([data-slot=row-link])]:relative " +
+                               "[&_:is(a,button,input,select,textarea,label,summary,[role=button],[data-row-ignore]):not([data-slot=row-link])]:z-[2]")
+            .Slot("rowLink", "after:absolute after:inset-0 after:z-[1] focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:-outline-offset-2 focus-visible:after:outline-(--klyroo-primary-text)")
             .Slot("rowSelected", "has-[input[data-select=row]:checked]:bg-(--klyroo-bg-muted) has-[input[data-select=row]:checked]:[&>td[data-pinned]]:bg-(--klyroo-bg-muted)")
             .Slot("selectionActions", "contents")
             .Slot("selectionBar", "z-10 flex w-fit max-w-full flex-wrap items-center gap-2 rounded-(--klyroo-radius) border border-(--klyroo-border-accented) bg-(--klyroo-bg) px-3 py-2 text-sm text-(--klyroo-text) shadow-lg")

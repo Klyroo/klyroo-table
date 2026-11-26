@@ -165,5 +165,7 @@ public static partial class KlyToolsLocales
             DatePresetThisMonth = "今月",
             DatePresetLastMonth = "先月",
             DatePresetYearToDate = "年初から今日まで",
+            RowOpen = "{0}を開く",
+            RowOpenAt = "{0}行目を開く",
         };
 }
