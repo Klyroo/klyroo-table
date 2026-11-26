@@ -369,7 +369,7 @@
     /// The address a row leads to. A row whose address is not empty gets a link that covers the row (an empty link named "Open {row label}", stretched over the row with CSS), so the whole
     /// row opens the page, the link is reachable with Tab and activated with Enter, and it works in a static render. Links, buttons, boxes and fields inside the row stay on top and keep their own clicks.
     /// Rows with an address are not activated through <see cref="OnRowClick"/> (the link is), except that <see cref="OnRowClick"/> is also raised when the link is clicked with the pointer or Enter.
-    /// The address is written as given: do not pass text a user typed without checking its scheme. A pinned column that sits after the link, and the pinned columns on screens from <c>sm</c> up, float above the link and do not take the click.
+    /// The address is written as given: do not pass text a user typed without checking its scheme. The link goes in the first column that is not pinned, and a pinned cell that floats above it (from <c>sm</c> up, after the link) does not take the row click.
     /// </summary>
     [Parameter] public Func<TItem, string?>? RowHref { get; set; }
 

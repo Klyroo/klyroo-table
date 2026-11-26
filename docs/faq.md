@@ -88,6 +88,18 @@ Troubleshooting first (symptom, cause, fix), then known limitations, then freque
 
 **Fix.** Drop `GroupBy` and `Tree` on the virtualized table, or accept regular rows. Pair `Virtualize` with `DataListPagingMode.Cursor` or `None`.
 
+### `DetailTemplate` shows no button or no detail
+
+**Cause.** The detail row is switched off while the table is `Virtualize` (even in a static render, so a prerender and the interactive page agree), has a `Tree` (which uses the same expansion state for child rows) or shows the phone summary rows. A static render draws the buttons disabled and no detail, because opening a row needs interactivity.
+
+**Fix.** Drop `Virtualize` or `Tree` on that table, or page the rows instead. Give the schema a `RowKey` if rows should stay open across reloads.
+
+### A click on a row does nothing
+
+**Cause.** `OnRowClick` runs only in an interactive render, and ignores clicks that land on a link, button, box or field inside the row and clicks that end a text selection. A row with a `RowHref` is activated through its link instead, and in a pinned cell that floats above the link the click goes to the cell.
+
+**Fix.** Use `RowHref` for a static render, put `data-row-ignore` on your own controls that should keep their click, and give the link a column that is not pinned.
+
 ### A pinned column does not stick
 
 **Cause.** Pinned columns stick from the `sm` breakpoint up; below it they scroll with the table but keep their place in the order. A pinned column also needs a width and gets 150 px without one.
@@ -121,6 +133,7 @@ Troubleshooting first (symptom, cause, fix), then known limitations, then freque
 ## Known limitations
 
 - **Selection, bulk actions and most row actions need an interactive render.** A statically rendered list has no checkbox column, no selection bar, no toolbar actions menu, and only the row actions that are links.
+- **Export, detail rows and the row click need an interactive render.** A static render draws no export button, disabled detail toggles and no row click (a `RowHref` link still works). Exporting every result of a provider or a queryable needs a `LoadAll` function: the list never holds those rows.
 - **Groups are visual.** They partition the rows on screen. They do not change a query, a count or a page, and a table with a tree ignores `GroupBy`.
 - **A tree works on loaded top-level rows.** Children come with their parent item. Search, filters, sort and paging act on the rows the source returns, not inside the hierarchy, and nothing loads children on demand.
 - **Selection across pages needs rows in memory.** Over a provider or a queryable the selection holds the rows of the page on screen; "Select all N results" hands your server the request instead of the rows.
