@@ -18,8 +18,8 @@ packages:
 
 # The home page. headline is two lines, the second in the accent color; lead is the paragraph under it. Without them: the title and the tagline.
 headline: |
-  Data lists for Blazor,
-  with the state in the URL.
+  Blazor data lists
+  with URL state.
 lead: >-
   KlyDataList holds search, filters, sort and paging for rows from memory, an IQueryable or any async provider, and keeps the state in the query string.
 
