@@ -3,6 +3,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>Klyroo.Table</RootNamespace>
     <PackageId>Klyroo.Table.Core</PackageId>
+    <PackageTags>klyroo;tree;data-list;headless;nativeaot</PackageTags>
     <Description>Klyroo Table Core: Headless DataList tree hierarchy models. Zero UI dependency, NativeAOT compatible.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsTrimmable>true</IsTrimmable>

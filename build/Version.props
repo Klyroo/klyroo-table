@@ -1,0 +1,7 @@
+<Project>
+  <!-- The version of every Klyroo package. All nine repositories release together with the same value: change it in each of them. -->
+  <PropertyGroup>
+    <VersionPrefix>0.1.0</VersionPrefix>
+    <VersionSuffix>preview.1</VersionSuffix>
+  </PropertyGroup>
+</Project>

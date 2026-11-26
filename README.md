@@ -4,7 +4,7 @@ Data lists for Blazor and .NET MAUI Blazor Hybrid: a table and a card grid with 
 
 [![CI](https://github.com/klyroo/klyroo-table/actions/workflows/ci.yml/badge.svg)](https://github.com/klyroo/klyroo-table/actions/workflows/ci.yml)
 [![NuGet](https://img.shields.io/nuget/vpre/Klyroo.Table.svg)](https://www.nuget.org/packages/Klyroo.Table)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/klyroo/klyroo-table/blob/main/LICENSE)
 
 A list page needs search, filters, sort, paging and URL state wired to a data source, and it needs them again on the next page. `KlyDataList` holds that state, loads rows from memory, an `IQueryable` or any asynchronous provider, and shares it with parts you compose: table, grid, search field, filter tags, pagination. The state lives in the query string, so the same markup works in static server rendering (links and forms) and in the interactive render modes. The request and filter model comes from [Klyroo.Query](https://github.com/klyroo/klyroo-query) and the controls are [Klyroo.UI](https://github.com/klyroo/klyroo-ui) components.
 
@@ -38,7 +38,7 @@ To use the library in an app:
 - **Network access on the first build** only if your app self-hosts web fonts (`KlyrooFont`), uses icons outside the built-in set, or compiles Tailwind (`KlyrooTailwind`): the build downloads them once and caches them under `obj/klyroo`. Node.js is not needed.
 - **`Klyroo.Table.Core`** alone (the tree model) runs in any .NET 10 app.
 
-To build this repository you need the .NET 10 SDK (a newer SDK works too, see `global.json`) and clones of `klyroo-query` and `klyroo-ui` in the same parent folder: some projects reference them by relative path (`../klyroo-query/...`). See [Contributing](CONTRIBUTING.md).
+To build this repository you need the .NET 10 SDK (a newer SDK works too, see `global.json`) and clones of `klyroo-query` and `klyroo-ui` in the same parent folder: some projects reference them by relative path (`../klyroo-query/...`). See [Contributing](https://github.com/klyroo/klyroo-table/blob/main/CONTRIBUTING.md).
 
 ## Installation
 
@@ -62,7 +62,7 @@ Add the imports to `_Imports.razor`:
 @using Klyroo.Query
 ```
 
-Klyroo.Table ships no stylesheet that is safe to load next to the Klyroo.UI one, so the app compiles Tailwind CSS itself. See [Getting started](docs/getting-started.md#4-style-the-list) for the stylesheet setup.
+Klyroo.Table ships no stylesheet that is safe to load next to the Klyroo.UI one, so the app compiles Tailwind CSS itself. See [Getting started](https://github.com/klyroo/klyroo-table/blob/main/docs/getting-started.md#4-style-the-list) for the stylesheet setup.
 
 For code that needs no UI, install only the core package:
 
@@ -127,12 +127,12 @@ Without child content the list renders a default layout: a search field (when th
 
 | | |
 | :--- | :--- |
-| [Getting started](docs/getting-started.md) | Step-by-step first integration |
-| [Guides](docs/guides.md) | Task-oriented recipes |
-| [Concepts](docs/concepts.md) | How the library works |
-| [Platforms](docs/platforms.md) | Render modes, .NET MAUI, NativeAOT |
-| [API reference](docs/api-reference.md) | Every public type and member |
-| [FAQ](docs/faq.md) | Troubleshooting and limitations |
+| [Getting started](https://github.com/klyroo/klyroo-table/blob/main/docs/getting-started.md) | Step-by-step first integration |
+| [Guides](https://github.com/klyroo/klyroo-table/blob/main/docs/guides.md) | Task-oriented recipes |
+| [Concepts](https://github.com/klyroo/klyroo-table/blob/main/docs/concepts.md) | How the library works |
+| [Platforms](https://github.com/klyroo/klyroo-table/blob/main/docs/platforms.md) | Render modes, .NET MAUI, NativeAOT |
+| [API reference](https://github.com/klyroo/klyroo-table/blob/main/docs/api-reference.md) | Every public type and member |
+| [FAQ](https://github.com/klyroo/klyroo-table/blob/main/docs/faq.md) | Troubleshooting and limitations |
 
 ## Compatibility
 
@@ -140,7 +140,7 @@ Without child content the list renders a default layout: a search field (when th
 - Blazor Web App in static server rendering, Interactive Server, WebAssembly or Auto. In static rendering the controls are links and GET forms; selection and actions need an interactive render.
 - .NET MAUI Blazor Hybrid: the package declares `browser`, `ios`, `android`, `maccatalyst` and `windows` as supported platforms. This repository has no MAUI app or test that runs it.
 - NativeAOT and trimming: `Klyroo.Table.Core` sets `IsAotCompatible` and `IsTrimmable`, and CI builds it with the AOT and trimming analyzers. `Klyroo.Table` sets `IsTrimmable` only.
-- Tailwind CSS v4 compiled by your app, as described in [Getting started](docs/getting-started.md#4-style-the-list).
+- Tailwind CSS v4 compiled by your app, as described in [Getting started](https://github.com/klyroo/klyroo-table/blob/main/docs/getting-started.md#4-style-the-list).
 
 ## Klyroo ecosystem
 
@@ -160,9 +160,9 @@ Klyroo is a family of independent .NET libraries that compose. Each one has its 
 
 ## Contributing
 
-Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request, and follow the
-[code of conduct](CODE_OF_CONDUCT.md). Report security issues privately as described in [SECURITY.md](SECURITY.md).
+Contributions are welcome. Read [CONTRIBUTING.md](https://github.com/klyroo/klyroo-table/blob/main/CONTRIBUTING.md) before opening a pull request, and follow the
+[code of conduct](https://github.com/klyroo/klyroo-table/blob/main/CODE_OF_CONDUCT.md). Report security issues privately as described in [SECURITY.md](https://github.com/klyroo/klyroo-table/blob/main/SECURITY.md).
 
 ## License
 
-[MIT](LICENSE)
+[MIT](https://github.com/klyroo/klyroo-table/blob/main/LICENSE)

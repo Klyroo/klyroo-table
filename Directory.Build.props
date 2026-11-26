@@ -1,4 +1,5 @@
 <Project>
+  <Import Project="build/Version.props" />
   <PropertyGroup>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -7,13 +8,10 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <Deterministic>true</Deterministic>
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
-    <VersionPrefix Condition="'$(VersionPrefix)' == ''">0.1.0</VersionPrefix>
-    <VersionSuffix Condition="'$(VersionSuffix)' == ''">preview.1</VersionSuffix>
     <Authors>Klyroo Contributors</Authors>
     <Copyright>Copyright (c) 2026 Klyroo Contributors</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/klyroo/klyroo-table</PackageProjectUrl>
-    <PackageTags>klyroo;blazor;maui;dotnet;headless;nativeaot</PackageTags>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/klyroo/klyroo-table</RepositoryUrl>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -21,6 +19,12 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(IsPackable)' != 'false'">
+    <PackageIcon>icon.png</PackageIcon>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(IsPackable)' != 'false'">
+    <None Include="$(MSBuildThisFileDirectory)build/icon.png" Pack="true" PackagePath="\" Visible="false" />
+  </ItemGroup>
   <PropertyGroup Condition="'$(IsPackable)' != 'false' and '$(PackageType)' != 'Template' and '$(PackageReadmeFile)' == '' and Exists('$(MSBuildThisFileDirectory)README.md')">
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>

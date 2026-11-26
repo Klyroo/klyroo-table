@@ -1,0 +1,4 @@
+<Project>
+  <!-- Klyroo packages depend on each other in exactly the same version. -->
+  <Import Project="build/ExactProjectReferences.targets" Condition="'$(IsPackable)' != 'false'" />
+</Project>
