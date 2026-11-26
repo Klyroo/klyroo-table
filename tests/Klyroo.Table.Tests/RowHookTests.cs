@@ -46,7 +46,7 @@ public sealed class RowHookTests : TableHarness
     }
 
     [Fact]
-    public async Task OnRowClick_reports_the_row_and_the_modifier_keys_and_ignores_flagged_events()
+    public async Task OnRowClick_reports_the_row_and_the_modifier_keys()
     {
         Prepare();
         var clicks = new List<DataListRowClickArgs<Person>>();
@@ -56,10 +56,7 @@ public sealed class RowHookTests : TableHarness
         Assert.Equal("0", row.GetAttribute("tabindex"));
         Assert.Equal("true", row.GetAttribute("data-clickable"));
 
-        await row.TriggerEventAsync("onklyrowclick", new KlyRowEventArgs { Ignore = true });
-        Assert.Empty(clicks);
-
-        await row.TriggerEventAsync("onklyrowclick", new KlyRowEventArgs { ShiftKey = true, CtrlKey = true });
+        await row.TriggerEventAsync("onklyrowactivate", new KlyRowEventArgs { ShiftKey = true, CtrlKey = true });
         var click = Assert.Single(clicks);
         Assert.Equal(2, click.Item.Id);
         Assert.Equal("2", click.Key);
@@ -78,13 +75,30 @@ public sealed class RowHookTests : TableHarness
         var cut = Mount(t => t.Add(x => x.OnRowClick, EventCallback.Factory.Create<DataListRowClickArgs<Person>>(this, a => clicks.Add(a))));
 
         var row = cut.Find("tbody tr:first-child");
-        await row.TriggerEventAsync("onklyrowkey", new KlyRowEventArgs { Key = "Enter" });
-        await row.TriggerEventAsync("onklyrowkey", new KlyRowEventArgs { Key = " " });
-        await row.TriggerEventAsync("onklyrowkey", new KlyRowEventArgs { Key = "a", Ignore = true });
+        await row.TriggerEventAsync("onklyrowactivate", new KlyRowEventArgs { Key = "Enter" });
+        await row.TriggerEventAsync("onklyrowactivate", new KlyRowEventArgs { Key = " " });
 
         Assert.Equal(2, clicks.Count);
         Assert.All(clicks, c => Assert.True(c.FromKeyboard));
         Assert.All(clicks, c => Assert.Equal(1, c.Item.Id));
+    }
+
+    [Fact]
+    public void The_padding_of_the_selection_and_actions_cells_does_not_activate_the_row()
+    {
+        Prepare();
+        var actions = new List<DataListRowAction<Person>> { new() { Key = "edit", Label = "Edit", OnExecute = _ => Task.CompletedTask } };
+        var cut = Mount(
+            t => t
+                .Add(x => x.RowActions, actions)
+                .Add(x => x.OnRowClick, EventCallback.Factory.Create<DataListRowClickArgs<Person>>(this, _ => { })),
+            list: l => l.Add(x => x.Selectable, true));
+
+        var cells = cut.Find("tbody tr:first-child").QuerySelectorAll("td");
+        // The browser side ignores a click inside anything marked data-row-ignore: the first and the last cell are.
+        Assert.True(cells[0].HasAttribute("data-row-ignore"));
+        Assert.True(cells[^1].HasAttribute("data-row-ignore"));
+        Assert.False(cells[1].HasAttribute("data-row-ignore"));
     }
 
     [Fact]

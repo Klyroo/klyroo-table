@@ -29,6 +29,12 @@ dotnet format Klyroo.Table.slnx --include src/ tests/   # fix formatting of the 
 The build treats warnings as errors and nullable reference types are enabled everywhere: fix a warning instead
 of suppressing it, and justify any `#pragma` or `[SuppressMessage]` in the code.
 
+## The browser module
+
+`src/Klyroo.Table/wwwroot/Klyroo.Table.lib.module.js` has no source in any repository: it is minified output whose original was lost, and it is now **maintained by hand**. Edit the file itself, keep the new
+code readable, keep the `export` list at the end, and run `node --test tests/js/*.test.mjs` (Node 22 or later, no dependencies) after a change. The other modules in `wwwroot` (`klyroo-table-storage.js`,
+`klyroo-table-download.js`) are plain readable source.
+
 ## Workflow
 
 1. **Discuss first** for anything larger than a bug fix: open an issue (or comment on an existing one) so the

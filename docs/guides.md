@@ -524,7 +524,7 @@ Goal: make a row lead somewhere, react to a click on it, and style or tag rows a
 
 `RowHref` gives each row with an address an empty link named "Open {row label}" (the `RowLabel` of the schema, else "Open row 3"). The link is stretched over the whole row with CSS, so a click anywhere on the row opens the page, the link is the one Tab stop of the row and Enter follows it, and it is a real `<a>` in a static render. Links, buttons, boxes and fields inside the row (the selection box, the row actions, a link in a cell template) are lifted above it and keep their own clicks. The address is written as given, so check the scheme of anything a user typed. Pinned columns float above the link: a pinned column that sits after it does not take the click, and the link is put in the first column that is not pinned.
 
-`OnRowClick` is for the interactive case. It runs for a click on the row that did not land on a link, button, box or field inside it (and that does not end a text selection), and for Enter or Space while the row itself has the focus, so the row is reachable with Tab. The argument carries the row, its key, its place on the page and the modifier keys:
+`OnRowClick` is for the interactive case. It runs for a click on the row that did not land on a link, button, box or field inside it (the padding of the selection, detail and actions cells counts as inside, and so does anything marked `data-row-ignore`; a click that ends a text selection is ignored too), and for Enter or Space while the row itself has the focus, so the row is reachable with Tab. The browser makes that decision before anything is sent, so a click on a checkbox or a key typed in a field costs no round trip. The argument carries the row, its key, its place on the page and the modifier keys:
 
 ```razor
 <KlyDataListTable TItem="Order" OnRowClick="Open">...</KlyDataListTable>
@@ -538,7 +538,7 @@ Goal: make a row lead somewhere, react to a click on it, and style or tag rows a
 }
 ```
 
-A row with an address is not activated through the browser events, because its link already does it; `OnRowClick` is then raised from the click on the link (with its modifier keys) and the navigation still happens. A control of your own inside a cell that is not a link, button or field can opt out of the row click with `data-row-ignore`. A static render has no row click; use `RowHref` there.
+A row with an address is not activated through the browser events, because its link already does it; `OnRowClick` is then raised from the click on the link (with its modifier keys) and the navigation still happens. **`RowHref` is the accessible way to open a row**: the focusable row of `OnRowClick` has no role, so a screen reader announces its cells, not an action, and the click should stay a shortcut for the same thing. The price of the link is that the text of a row that has one cannot be selected with the mouse, because the link covers it. A control of your own inside a cell that is not a link, button or field can opt out of the row click with `data-row-ignore`. A static render has no row click; use `RowHref` there.
 
 `RowClass` and `RowAttributes` receive the item and run on every render of the row, so keep them cheap; `class` and `data-slot` in `RowAttributes` are ignored in favor of `RowClass`. `CellClass` on a column styles that cell only (the header keeps `Class`).
 

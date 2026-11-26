@@ -26,14 +26,11 @@ public sealed record DataListRowClickArgs<TItem>(
     bool FromKeyboard = false);
 
 /// <summary>
-/// Payload of the <c>klyrowclick</c> and <c>klyrowkey</c> browser events that a clickable row listens to. The browser side works out whether the event
-/// is for the row at all (<see cref="Ignore"/>), because .NET cannot see which element a click landed on.
+/// Payload of the <c>klyrowactivate</c> browser event of a clickable row. The browser side works out whether a click or a key is an activation of the row at all, because .NET cannot see which
+/// element a click landed on, and only sends the ones that are: a click on a control inside the row, or a key typed in a field, never reaches .NET.
 /// </summary>
 public sealed class KlyRowEventArgs : EventArgs
 {
-    /// <summary>The event is not an activation of the row: a click on a control inside it (a link, a button, a box, a field), a key other than Enter and Space, or a key pressed inside a control.</summary>
-    public bool Ignore { get; set; }
-
     /// <summary>Shift was held.</summary>
     public bool ShiftKey { get; set; }
 
@@ -46,11 +43,10 @@ public sealed class KlyRowEventArgs : EventArgs
     /// <summary>Meta was held.</summary>
     public bool MetaKey { get; set; }
 
-    /// <summary>The key of a keyboard event; <see langword="null"/> for a click.</summary>
+    /// <summary><c>Enter</c> or a space for an activation with the keyboard; <see langword="null"/> for a click.</summary>
     public string? Key { get; set; }
 }
 
 /// <summary>Custom events of Klyroo.Table, registered on the browser side by <c>Klyroo.Table.lib.module.js</c>.</summary>
-[EventHandler("onklyrowclick", typeof(KlyRowEventArgs), enableStopPropagation: true, enablePreventDefault: true)]
-[EventHandler("onklyrowkey", typeof(KlyRowEventArgs), enableStopPropagation: true, enablePreventDefault: true)]
+[EventHandler("onklyrowactivate", typeof(KlyRowEventArgs), enableStopPropagation: true, enablePreventDefault: true)]
 public static class TableEventHandlers;

@@ -31,10 +31,10 @@ public sealed class DataListRowView<TItem> : ComponentBase
     /// <summary>Attributes of the row from <see cref="KlyDataListTable{TItem}.RowAttributes"/>. <c>class</c> and <c>data-slot</c> are ignored: the row sets them itself.</summary>
     [Parameter] public IReadOnlyDictionary<string, object>? Attributes { get; set; }
 
-    /// <summary>Makes the row reachable with the keyboard and listen to clicks and to Enter and Space on itself.</summary>
+    /// <summary>Makes the row reachable with the keyboard and listen to activations: a click on it that is not on a control inside it, and Enter or Space on the row itself.</summary>
     [Parameter] public bool Clickable { get; set; }
 
-    /// <summary>Raised for a click on the row that did not land on a control inside it, or for Enter or Space on the row.</summary>
+    /// <summary>Raised for an activation of the row, as the browser side decided it.</summary>
     [Parameter] public EventCallback<KlyRowEventArgs> OnActivate { get; set; }
 
     /// <summary>The cells.</summary>
@@ -61,8 +61,7 @@ public sealed class DataListRowView<TItem> : ComponentBase
         {
             builder.AddMultipleAttributes(1, Attributes.Where(a => !a.Key.Equals("class", StringComparison.OrdinalIgnoreCase)
                 && !a.Key.Equals("data-slot", StringComparison.OrdinalIgnoreCase)
-                && !a.Key.Equals("onklyrowclick", StringComparison.OrdinalIgnoreCase)
-                && !a.Key.Equals("onklyrowkey", StringComparison.OrdinalIgnoreCase)));
+                && !a.Key.Equals("onklyrowactivate", StringComparison.OrdinalIgnoreCase)));
         }
         builder.AddAttribute(2, "class", Class);
         builder.AddAttribute(3, "data-slot", "row");
@@ -71,8 +70,7 @@ public sealed class DataListRowView<TItem> : ComponentBase
         {
             builder.AddAttribute(5, "tabindex", "0");
             builder.AddAttribute(6, "data-clickable", "true");
-            builder.AddAttribute(7, "onklyrowclick", OnActivate);
-            builder.AddAttribute(8, "onklyrowkey", OnActivate);
+            builder.AddAttribute(7, "onklyrowactivate", OnActivate);
         }
         builder.AddContent(9, ChildContent);
         builder.CloseElement();

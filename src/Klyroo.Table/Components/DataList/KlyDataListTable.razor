@@ -368,14 +368,16 @@
     /// <summary>
     /// The address a row leads to. A row whose address is not empty gets a link that covers the row (an empty link named "Open {row label}", stretched over the row with CSS), so the whole
     /// row opens the page, the link is reachable with Tab and activated with Enter, and it works in a static render. Links, buttons, boxes and fields inside the row stay on top and keep their own clicks.
-    /// Rows with an address are not activated through <see cref="OnRowClick"/> (the link is), except that <see cref="OnRowClick"/> is also raised when the link is clicked with the pointer or Enter.
+    /// A row with a link covers its text: the text of such a row cannot be selected with the mouse. Rows with an address are not activated through <see cref="OnRowClick"/> (the link is), except that <see cref="OnRowClick"/> is also raised when the link is clicked with the pointer or Enter.
     /// The address is written as given: do not pass text a user typed without checking its scheme. The link goes in the first column that is not pinned, and a pinned cell that floats above it (from <c>sm</c> up, after the link) does not take the row click.
     /// </summary>
     [Parameter] public Func<TItem, string?>? RowHref { get; set; }
 
     /// <summary>
-    /// Raised when the user activates a row: a click anywhere on it that did not land on a link, button, box, field or other control inside the row (and that does not end a text selection), or Enter or Space while the
-    /// row itself has the focus. The row is then reachable with Tab. The event carries the row and the modifier keys (for Ctrl or Shift to open in another way). Interactive only: a static render has no row click; use <see cref="RowHref"/>.
+    /// Raised when the user activates a row: a click anywhere on it that did not land on a link, button, box, field or other control inside the row (the padding of the selection, detail and actions cells counts as
+    /// inside, and so does anything marked <c>data-row-ignore</c>; a click that ends a text selection is ignored too), or Enter or Space while the row itself has the focus. The browser decides this, so an ignored
+    /// click costs no round trip. The row is then reachable with Tab, but it has no role: a screen reader announces its cells, not an action. <see cref="RowHref"/> is the accessible way to open a row, and the click
+    /// is best kept as a shortcut for it. The event carries the row and the modifier keys (for Ctrl or Shift to open in another way). Interactive only: a static render has no row click; use <see cref="RowHref"/>.
     /// </summary>
     [Parameter] public EventCallback<DataListRowClickArgs<TItem>> OnRowClick { get; set; }
 
@@ -895,7 +897,7 @@
         IsRowActivatable(row) ? EventCallback.Factory.Create<KlyRowEventArgs>(this, e => ActivateRow(row, e)) : default;
 
     private Task ActivateRow(RowEntry row, KlyRowEventArgs e) =>
-        e.Ignore ? Task.CompletedTask : OnRowClick.InvokeAsync(new DataListRowClickArgs<TItem>(row.Item, RowKeyText(row), row.Position, e.ShiftKey, e.CtrlKey, e.AltKey, e.MetaKey, FromKeyboard: e.Key is not null));
+        OnRowClick.InvokeAsync(new DataListRowClickArgs<TItem>(row.Item, RowKeyText(row), row.Position, e.ShiftKey, e.CtrlKey, e.AltKey, e.MetaKey, FromKeyboard: e.Key is not null));
 
     // The link raises OnRowClick too, with the modifier keys of the click. The navigation still happens: the handler does not cancel it.
     private EventCallback<MouseEventArgs> LinkClick(RowEntry row) =>
@@ -994,7 +996,7 @@
             @if (detailing)
             {
                 var detailOpen = Context.IsRowExpanded(DetailKey(row));
-                <td class="@SelectClass("td", pinStart)" style="@(pinStart ? "inset-inline-start:0" : null)" data-pinned="@(pinStart ? "start" : null)" data-slot="detail-cell-toggle">
+                <td class="@SelectClass("td", pinStart)" style="@(pinStart ? "inset-inline-start:0" : null)" data-pinned="@(pinStart ? "start" : null)" data-slot="detail-cell-toggle" data-row-ignore>
                     <button type="button" class="@_slots["detailToggle"]" data-slot="detail-toggle" data-key="@DetailKeyText(row)"
                             aria-expanded="@(detailOpen ? "true" : "false")" aria-controls="@(detailOpen ? DetailId(row) : null)" aria-label="@DetailToggleLabel(row, detailOpen)"
                             disabled="@(!Context.IsInteractive)"
@@ -1007,7 +1009,7 @@
             @if (selecting)
             {
                 var showCheckbox = row.TreeNode is null || Tree is not { Selectable: DataListTreeSelectionMode.Roots } || row.TreeNode.Depth == 0;
-                <td class="@SelectClass("td", pinStart)" style="@(pinStart ? SelectInset(detailing) : null)" data-pinned="@(pinStart ? "start" : null)">
+                <td class="@SelectClass("td", pinStart)" style="@(pinStart ? SelectInset(detailing) : null)" data-pinned="@(pinStart ? "start" : null)" data-row-ignore>
                     @if (showCheckbox)
                     {
                         <DataListRowSelect TItem="TItem" Item="row.Item" Position="row.Position" />
@@ -1068,7 +1070,7 @@
             }
             @if (acting)
             {
-                <td class="@ActionsClass("td", pinEnd)" style="@(pinEnd ? "inset-inline-end:0" : null)" data-pinned="@(pinEnd ? "end" : null)">
+                <td class="@ActionsClass("td", pinEnd)" style="@(pinEnd ? "inset-inline-end:0" : null)" data-pinned="@(pinEnd ? "end" : null)" data-row-ignore>
                     <KlyDataListRowActions TItem="TItem" Item="row.Item" Position="row.Position" Actions="RowActions!" MaxVisible="RowActionsMaxVisible" OnError="OnRowActionError" />
                 </td>
             }

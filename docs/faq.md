@@ -96,7 +96,7 @@ Troubleshooting first (symptom, cause, fix), then known limitations, then freque
 
 ### A click on a row does nothing
 
-**Cause.** `OnRowClick` runs only in an interactive render, and ignores clicks that land on a link, button, box or field inside the row and clicks that end a text selection. A row with a `RowHref` is activated through its link instead, and in a pinned cell that floats above the link the click goes to the cell.
+**Cause.** `OnRowClick` runs only in an interactive render, and ignores clicks that land on a link, button, box or field inside the row (or in the selection, detail and actions cells) and clicks that end a text selection. A row with a `RowHref` is activated through its link instead, and in a pinned cell that floats above the link the click goes to the cell.
 
 **Fix.** Use `RowHref` for a static render, put `data-row-ignore` on your own controls that should keep their click, and give the link a column that is not pinned.
 

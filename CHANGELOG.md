@@ -12,6 +12,7 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Fixed
 
+- The row click is decided in the browser: only a real activation of a row (not a click on a control inside it, nor in the padding of the selection, detail and actions cells, nor a key typed in a field) is sent to .NET, through one custom event `klyrowactivate` that replaces `klyrowclick` and `klyrowkey`. `KlyRowEventArgs.Ignore` is removed. `Klyroo.Table.lib.module.js` guards the event registration so that loading the module twice does not throw, and now carries a header saying it is maintained by hand; tests for it run with `node --test tests/js/*.test.mjs`.
 - A detail row opened in a table whose schema has no `RowKey` (or whose keys repeat) no longer shows up open on another row after a page, sort or filter change: the open state kept by place on the page is dropped when new rows arrive, while the state kept by row key stays.
 - A plain click on a sort column that is in a multi-column sort but not first makes it the only sort, ascending. Before, its next step could leave a sort on neither column.
 
