@@ -420,8 +420,8 @@ public sealed partial class DataListContext<TItem>
     private IReadOnlyList<DataListSort> SortOf(DataListState state) => state.Sort.Count > 0 ? state.Sort : Schema?.DefaultSort ?? [];
 
     /// <summary>
-    /// The state after a plain click on the sort control of <paramref name="key"/>: ascending, then descending, then back to the default sort, whatever the sort was before (a click that
-    /// does not hold Shift keeps one sort). The page goes back to the first.
+    /// The state after a plain click on the sort control of <paramref name="key"/>, which keeps one sort: ascending, then descending, then back to the default sort. A key that is in the sort but not
+    /// first becomes the only sort, ascending. The page goes back to the first.
     /// </summary>
     public DataListState NextSort(DataListState state, string key) => NextSort(state, key, append: false);
 
@@ -446,12 +446,11 @@ public sealed partial class DataListContext<TItem>
         }
         else
         {
-            next = current switch
-            {
-                null => [new DataListSort(key)],
-                false => [new DataListSort(key, true)],
-                true => Schema?.DefaultSort ?? [],
-            };
+            // A key that is in the sort but not first becomes the only sort, ascending: its next step is never "go back to a sort on neither column".
+            var first = sort.Count > 0 && sort[0].Key == key;
+            next = !first || current is null
+                ? [new DataListSort(key)]
+                : current == false ? [new DataListSort(key, true)] : Schema?.DefaultSort ?? [];
         }
         return state with { Sort = next, Page = 1, Cursor = null };
     }

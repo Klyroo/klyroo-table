@@ -10,6 +10,10 @@ All notable changes to this project are documented in this file. The format foll
 
 - The prerender persistence of a data list is counted as sent, with the escaping and the two base64 encodings Blazor adds, and draws on the budget every Klyroo library of the page shares (`KlyrooOptions.PersistedStateMaxBytes`, 28 KB). Before, the lists of a page counted raw JSON against their own 8 KB budget, so a page with a dashboard could pass SignalR's 32 KB message limit and fail to start its circuit. `PersistMaxBytes` now counts sent bytes (24 KB by default), and `PersistPageMaxBytes` is removed. Column preferences handed over by the prerender count in the same budget.
 
+### Fixed
+
+- A plain click on a sort column that is in a multi-column sort but not first makes it the only sort, ascending. Before, its next step could leave a sort on neither column.
+
 ### Added
 
 - Guide: edit a row through a row action that opens a Klyroo.Form drawer or a Klyroo.UI modal and updates the list with `UpdateRow` or `RefreshAsync`, with the table staying read-only.

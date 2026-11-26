@@ -1511,7 +1511,7 @@
     // What a click on the sort control of the column does, as its accessible name.
     private string SortLabel(View column)
     {
-        var template = Context.SortDescending(column.Key!) switch
+        var template = (Context.SortIndex(column.Key!) is > 0 ? null : Context.SortDescending(column.Key!)) switch
         {
             null => ToolsMessages.SortAscending,
             false => ToolsMessages.SortDescending,

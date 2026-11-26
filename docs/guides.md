@@ -546,7 +546,7 @@ A row with an address is not activated through the browser events, because its l
 
 Goal: let users sort by a second and a third column, like a spreadsheet or a DataGrid.
 
-The query layer already takes a list of sorts, and the state keeps it in the URL (`s=team|-salary`). In the table a plain click on a sortable header keeps one sort, as before: ascending, then descending, then the default sort. **Shift+click** appends instead: a column that is not sorted yet joins the end of the list ascending, a second Shift+click turns it descending in place, and a third takes it out. The other sorts stay.
+The query layer already takes a list of sorts, and the state keeps it in the URL (`s=team|-salary`). In the table a plain click on a sortable header keeps one sort, as before: ascending, then descending, then the default sort; a column that is in the sort but not first becomes the only sort, ascending. **Shift+click** appends instead: a column that is not sorted yet joins the end of the list ascending, a second Shift+click turns it descending in place, and a third takes it out. The other sorts stay.
 
 While more than one sort is active, each sorted header shows its place in the list (1, 2, 3) beside its arrow, and the accessible name of its button adds "sort order 2". `aria-sort` stays on the first sort only, which is the one assistive technology reads as the sort of the table. The sort buttons carry the tooltip "Shift+click to add to the sort" (`SortAppendHint`). A static render has plain links only: they keep one sort, because a link cannot see the Shift key.
 

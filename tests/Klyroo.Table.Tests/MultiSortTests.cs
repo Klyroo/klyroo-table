@@ -65,6 +65,9 @@ public sealed class MultiSortTests : TableHarness
         // A plain click on a key that is not the only one goes back to one sort.
         Header("Name").Click(new MouseEventArgs { ShiftKey = true });
         Assert.Equal(["salary+", "name+"], Keys());
+        // A plain click on a key that is in the sort but not first makes it the only sort, ascending, never a sort on neither column.
+        Header("Name").Click();
+        Assert.Equal(["name+"], Keys());
         Header("Name").Click();
         Assert.Equal(["name-"], Keys());
     }
