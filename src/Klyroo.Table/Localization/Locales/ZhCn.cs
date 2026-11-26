@@ -167,5 +167,14 @@ public static partial class KlyToolsLocales
             DatePresetYearToDate = "年初至今",
             RowOpen = "打开 {0}",
             RowOpenAt = "打开第 {0} 行",
+            SortPriority = "排序顺序 {0}",
+            SortAppendHint = "按住 Shift 点击以添加到排序",
+            SortMultiple = "按 {0} 个字段排序",
+            SortOrderHeading = "排序顺序",
+            SortAddHeading = "添加排序",
+            SortRemove = "移除按 {0} 的排序",
+            SortMoveEarlier = "将 {0} 在排序中前移",
+            SortMoveLater = "将 {0} 在排序中后移",
+            SortReverse = "反转 {0} 的排序方向",
         };
 }

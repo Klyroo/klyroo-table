@@ -27,6 +27,7 @@ internal static partial class ToolsThemes
                 "infiniteLoader", "loadMoreError", "loadMoreErrorText", "cursorReset", "infiniteEnd", "infiniteStatus",
                 "thPinnedStart", "thPinnedEnd", "tdPinnedStart", "tdPinnedEnd", "colResize", "colSized", "columnsAll", "columnsHint", "columnsGrip", "columnsLive", "columnsPinGroup", "columnsSearch",
                 "columnsPanel", "columnsPopover", "columnsContent", "columnsHeader", "columnsTitle", "columnsCount", "columnsList", "columnsItem", "columnsLabel", "columnsActions", "columnsIconBtn", "columnsIconBtnActive",
+                "sortOrder", "sortOrderHeading", "sortOrderList", "sortOrderItem", "sortOrderIndex", "sortOrderControls", "sortOrderButton",
                 "sortMenu", "sortMenuPopover", "sortMenuContent", "sortMenuHeader", "sortMenuTitle", "sortMenuDirections", "sortMenuDirection", "sortMenuList", "sortMenuItem",
                 "layoutSwitch", "layoutOption",
                 "gridRoot", "gridHeader", "grid", "gridCard", "gridCardTop", "gridCardBody", "gridCardFields", "gridCardField", "gridCardFieldLabel", "gridCardFieldValue", "gridEmpty",
@@ -183,6 +184,14 @@ internal static partial class ToolsThemes
             .Slot("columnsPinGroup", "contents max-sm:hidden")
             .Slot("columnsSearch", "h-9 w-full rounded-(--klyroo-radius) border border-(--klyroo-border-accented) bg-(--klyroo-bg) px-3 text-sm text-(--klyroo-text) placeholder:text-(--klyroo-text-dimmed) focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-(--klyroo-primary-text)")
             .Slot("columnsIconBtnActive", "bg-(--klyroo-bg-elevated) text-(--klyroo-primary-text)")
+            .Slot("sortOrder", "inline-flex size-4 shrink-0 items-center justify-center rounded-full bg-(--klyroo-primary)/15 text-xs font-medium tabular-nums text-(--klyroo-primary-text)")
+            .Slot("sortOrderHeading", "px-1 pt-1 text-xs font-medium text-(--klyroo-text-muted)")
+            .Slot("sortOrderList", "m-0 flex list-none flex-col gap-0.5 p-0")
+            .Slot("sortOrderItem", "flex items-center gap-1 rounded-(--klyroo-radius) px-1 py-0.5 text-sm text-(--klyroo-text)")
+            .Slot("sortOrderIndex", "inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-(--klyroo-bg-muted) text-xs tabular-nums text-(--klyroo-text-muted)")
+            .Slot("sortOrderControls", "ms-auto flex shrink-0 items-center gap-0.5")
+            .Slot("sortOrderButton", "inline-flex size-7 items-center justify-center rounded-(--klyroo-radius) text-(--klyroo-text-muted) hover:bg-(--klyroo-bg-muted) hover:text-(--klyroo-text) " +
+                                     "focus-visible:outline-2 focus-visible:outline-(--klyroo-primary-text) disabled:cursor-not-allowed disabled:opacity-40")
             .Slot("sortMenu", "inline-flex")
             .Slot("sortMenuPopover", "w-64 max-w-[calc(100vw-1rem)]")
             .Slot("sortMenuContent", "flex max-h-[min(24rem,70dvh)] flex-col gap-2 overflow-y-auto p-3")

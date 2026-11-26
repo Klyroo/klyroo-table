@@ -1407,12 +1407,13 @@
         _ => _slots[kind + "Start"],
     };
 
+    // Only the first sort is the sort of the table for assistive technology; the others are named in the accessible name of their button.
     private string? AriaSort(View column) =>
-        !column.Sortable ? null : Context.SortDescending(column.Key!) switch
+        !column.Sortable ? null : Context.SortIndex(column.Key!) is not 0 ? "none" : Context.SortDescending(column.Key!) switch
         {
-            null => "none",
             false => "ascending",
             true => "descending",
+            _ => "none",
         };
 
     // What a click on the sort control of the column does, as its accessible name.
@@ -1424,8 +1425,26 @@
             false => ToolsMessages.SortDescending,
             true => ToolsMessages.SortClear,
         };
-        return string.Format(FormatCulture, template, column.Title);
+        var label = string.Format(FormatCulture, template, column.Title);
+        return SortPosition(column) is { } position ? $"{label}, {string.Format(FormatCulture, ToolsMessages.SortPriority, position)}" : label;
     }
+
+    // The place of the column in a sort of several keys, from 1; null while the list sorts by one key or less, or not by this column.
+    private int? SortPosition(View column) =>
+        Context.EffectiveSort.Count > 1 && column.Key is { } key && Context.SortIndex(key) is { } index ? index + 1 : null;
+
+    // The number of the column in a sort of several keys, next to its arrow. The accessible name of the button says it in words.
+    private RenderFragment? SortOrderBadge(View column) => SortPosition(column) is { } position
+        ? builder =>
+        {
+            builder.OpenElement(0, "span");
+            builder.AddAttribute(1, "class", _slots["sortOrder"]);
+            builder.AddAttribute(2, "data-slot", "sort-order");
+            builder.AddAttribute(3, "aria-hidden", "true");
+            builder.AddContent(4, position.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            builder.CloseElement();
+        }
+        : null;
 
     private RenderFragment Header(View column) => builder =>
     {
@@ -1453,9 +1472,11 @@
             builder.AddAttribute(2, "type", "button");
             builder.AddAttribute(3, "class", _slots["sortButton"]);
             builder.AddAttribute(4, "aria-label", SortLabel(column));
-            builder.AddAttribute(5, "onclick", EventCallback.Factory.Create(this, () => Context.SetState(s => Context.NextSort(s, key), QueryHistory.Push)));
+            builder.AddAttribute(5, "onclick", EventCallback.Factory.Create<MouseEventArgs>(this, e => Context.SetState(s => Context.NextSort(s, key, e.ShiftKey), QueryHistory.Push)));
+            builder.AddAttribute(16, "title", ToolsMessages.SortAppendHint);
             builder.AddContent(6, column.Title);
             builder.AddContent(7, icon);
+            builder.AddContent(17, SortOrderBadge(column));
             builder.CloseElement();
         }
         else if (Context.HrefWith(s => Context.NextSort(s, key)) is { } href)
@@ -1466,6 +1487,7 @@
             builder.AddAttribute(11, "aria-label", SortLabel(column));
             builder.AddContent(12, column.Title);
             builder.AddContent(13, icon);
+            builder.AddContent(18, SortOrderBadge(column));
             builder.CloseElement();
         }
         else

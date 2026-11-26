@@ -17,6 +17,7 @@ A list page needs search, filters, sort, paging and URL state wired to a data so
 - **Three paging modes**: numbered pages, keyset cursor paging with an infinite loader, or no paging; the table can virtualize rows in the last two.
 - **Selection and actions**: checkbox column, a bulk action bar that can target every result of a query, per-row actions with confirmation dialogs, and a toolbar actions menu.
 - **Grouping, totals and trees**: collapsible row groups, footer aggregates (sum, average, count, min, max) and a headless `DataListTree<T>` for hierarchical rows.
+- **Multi-column sort**: Shift+click appends a column to the sort, headers number the sorts, and the sort menu edits the list.
 - **Row hooks**: `RowHref` stretches an accessible link over each row (static renders too), `OnRowClick` reports clicks and Enter on a row with the modifier keys, and `RowClass`, `RowAttributes` and `CellClass` style rows and cells from the data.
 - **Column control**: show, hide, reorder, pin and resize columns, with preferences kept in a cookie (or `localStorage` in a MAUI web view).
 

@@ -167,5 +167,14 @@ public static partial class KlyToolsLocales
             DatePresetYearToDate = "年初から今日まで",
             RowOpen = "{0}を開く",
             RowOpenAt = "{0}行目を開く",
+            SortPriority = "並べ替えの順序 {0}",
+            SortAppendHint = "Shift+クリックで並べ替えに追加",
+            SortMultiple = "{0}個のフィールドで並べ替え",
+            SortOrderHeading = "並べ替えの順序",
+            SortAddHeading = "並べ替えを追加",
+            SortRemove = "{0}の並べ替えを削除",
+            SortMoveEarlier = "{0}を並べ替えの前に移動",
+            SortMoveLater = "{0}を並べ替えの後ろに移動",
+            SortReverse = "{0}の並べ替え方向を反転",
         };
 }

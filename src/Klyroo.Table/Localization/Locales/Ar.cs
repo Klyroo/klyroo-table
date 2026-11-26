@@ -167,5 +167,14 @@ public static partial class KlyToolsLocales
             DatePresetYearToDate = "منذ بداية السنة",
             RowOpen = "فتح {0}",
             RowOpenAt = "فتح الصف {0}",
+            SortPriority = "ترتيب الفرز {0}",
+            SortAppendHint = "Shift+نقر للإضافة إلى الفرز",
+            SortMultiple = "ترتيب حسب {0} حقول",
+            SortOrderHeading = "ترتيب الفرز",
+            SortAddHeading = "إضافة فرز",
+            SortRemove = "إزالة الفرز حسب {0}",
+            SortMoveEarlier = "تقديم {0} في الفرز",
+            SortMoveLater = "تأخير {0} في الفرز",
+            SortReverse = "عكس اتجاه {0}",
         };
 }

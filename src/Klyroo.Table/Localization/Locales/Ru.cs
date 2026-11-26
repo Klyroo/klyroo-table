@@ -167,5 +167,14 @@ public static partial class KlyToolsLocales
             DatePresetYearToDate = "С начала года",
             RowOpen = "Открыть {0}",
             RowOpenAt = "Открыть строку {0}",
+            SortPriority = "порядок сортировки {0}",
+            SortAppendHint = "Shift+щелчок, чтобы добавить к сортировке",
+            SortMultiple = "Сортировка по {0} полям",
+            SortOrderHeading = "Порядок сортировки",
+            SortAddHeading = "Добавить сортировку",
+            SortRemove = "Убрать сортировку по {0}",
+            SortMoveEarlier = "Поднять {0} в сортировке",
+            SortMoveLater = "Опустить {0} в сортировке",
+            SortReverse = "Изменить направление {0}",
         };
 }

@@ -167,5 +167,14 @@ public static partial class KlyToolsLocales
             DatePresetYearToDate = "Dit jaar tot nu toe",
             RowOpen = "{0} openen",
             RowOpenAt = "Rij {0} openen",
+            SortPriority = "sorteervolgorde {0}",
+            SortAppendHint = "Shift+klik om aan de sortering toe te voegen",
+            SortMultiple = "Sorteren op {0} velden",
+            SortOrderHeading = "Sorteervolgorde",
+            SortAddHeading = "Sortering toevoegen",
+            SortRemove = "Sortering op {0} verwijderen",
+            SortMoveEarlier = "{0} eerder in de sortering plaatsen",
+            SortMoveLater = "{0} later in de sortering plaatsen",
+            SortReverse = "Richting van {0} omkeren",
         };
 }

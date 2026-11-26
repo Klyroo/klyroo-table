@@ -19,10 +19,14 @@
         var descending = active?.Descending ?? false;
         var targetKey = active?.Key ?? options[0].Key;
         var isDefault = Context.IsDefaultSort(Context.State);
-        var triggerText = activeLabel is not null
-            ? (Label is not null ? $"{Label}: {activeLabel}" : string.Format(FormatCulture, ToolsMessages.SortBy, activeLabel))
-            : (Label ?? ToolsMessages.Sort);
-        var triggerIcon = active is null ? "arrow-up-down" : descending ? Options.Icons.ArrowDown : Options.Icons.ArrowUp;
+        var sorts = Context.EffectiveSort;
+        var editor = Multiple ?? sorts.Count > 1;
+        var triggerText = sorts.Count > 1 && editor
+            ? (Label is not null ? $"{Label}: {string.Format(FormatCulture, ToolsMessages.SortMultiple, sorts.Count)}" : string.Format(FormatCulture, ToolsMessages.SortMultiple, sorts.Count))
+            : activeLabel is not null
+                ? (Label is not null ? $"{Label}: {activeLabel}" : string.Format(FormatCulture, ToolsMessages.SortBy, activeLabel))
+                : (Label ?? ToolsMessages.Sort);
+        var triggerIcon = active is null || (editor && sorts.Count > 1) ? "arrow-up-down" : descending ? Options.Icons.ArrowDown : Options.Icons.ArrowUp;
 
         <div class="@_slots["sortMenu"]" data-slot="sort-menu" @attributes="AdditionalAttributes">
             <KlyPopover Placement="bottom-end" Ui="_popoverUi">
@@ -46,6 +50,12 @@
                                           Label="@ToolsMessages.SortDefault" Href="@resetHref" data-slot="sort-reset" />
                             }
                         </div>
+                        @if (editor)
+                        {
+                            @Editor(options, sorts)
+                        }
+                        else
+                        {
                         <div class="@_slots["sortMenuDirections"]" role="group" aria-label="@(Label ?? ToolsMessages.Sort)" data-slot="sort-directions">
                             @DirectionControl(targetKey, isDescending: false, active is not null && !descending, ToolsMessages.SortDirectionAscending, Options.Icons.ArrowUp, "asc")
                             @DirectionControl(targetKey, isDescending: true, active is not null && descending, ToolsMessages.SortDirectionDescending, Options.Icons.ArrowDown, "desc")
@@ -90,6 +100,7 @@
                                 </li>
                             }
                         </ul>
+                        }
                     </div>
                 </Content>
             </KlyPopover>
@@ -117,6 +128,13 @@
     /// </summary>
     [Parameter] public IReadOnlyList<DataListLayout>? Layouts { get; set; }
 
+    /// <summary>
+    /// Whether the menu edits a list of sorts: <see langword="true"/> always shows the active sorts in order, with a button to reverse, move and remove each, and the fields that can still be added;
+    /// <see langword="false"/> keeps the menu that picks one field and its direction; <see langword="null"/> (the default) is the second until the list sorts by more than one field (a Shift+click on a header),
+    /// then the first, so a sort of several keys can always be seen and changed.
+    /// </summary>
+    [Parameter] public bool? Multiple { get; set; }
+
     private bool ShouldShow => Layouts is null || Layouts.Contains(Context.EffectiveLayout) || (Context.EffectiveLayout == DataListLayout.Table && Context.SummaryViewActive);
 
     protected override void OnParametersSet()
@@ -124,6 +142,87 @@
         _slots = ResolveSlots(ToolsOptions.DataList, new Dictionary<string, string?>(), Ui, "sortMenu");
         _popoverUi = new PopoverUi { Content = _slots["sortMenuPopover"] };
     }
+
+    private string OptionLabel(IReadOnlyList<DataListSortOption> options, string key) =>
+        options.FirstOrDefault(o => string.Equals(o.Key, key, StringComparison.Ordinal))?.Label ?? DataListText.Humanize(key);
+
+    // The editor of a sort of several keys: the active sorts in the order they apply, then the fields that can be added.
+    private RenderFragment Editor(IReadOnlyList<DataListSortOption> options, IReadOnlyList<DataListSort> sorts) =>
+        @<text>
+            @if (sorts.Count > 0)
+            {
+                <p class="@_slots["sortOrderHeading"]" data-slot="sort-order-heading">@ToolsMessages.SortOrderHeading</p>
+                <ol class="@_slots["sortOrderList"]" data-slot="sort-order-list">
+                    @for (var i = 0; i < sorts.Count; i++)
+                    {
+                        var entry = sorts[i];
+                        var key = entry.Key;
+                        var label = OptionLabel(options, key);
+                        var index = i;
+                        <li class="@_slots["sortOrderItem"]" data-slot="sort-order-item" data-sort-key="@key" data-direction="@(entry.Descending ? "desc" : "asc")">
+                            <span class="@_slots["sortOrderIndex"]" aria-hidden="true">@(i + 1)</span>
+                            <span class="truncate">@label</span>
+                            <span class="@_slots["sortOrderControls"]">
+                                @OrderButton(entry.Descending ? Options.Icons.ArrowDown : Options.Icons.ArrowUp, string.Format(FormatCulture, ToolsMessages.SortReverse, label), "reverse", s => Context.ReverseSort(s, key), disabled: false)
+                                @if (Context.IsInteractive)
+                                {
+                                    @OrderButton("chevron-up", string.Format(FormatCulture, ToolsMessages.SortMoveEarlier, label), "earlier", s => Context.MoveSort(s, key, -1), disabled: index == 0)
+                                    @OrderButton("chevron-down", string.Format(FormatCulture, ToolsMessages.SortMoveLater, label), "later", s => Context.MoveSort(s, key, 1), disabled: index == sorts.Count - 1)
+                                }
+                                @OrderButton(Options.Icons.Close, string.Format(FormatCulture, ToolsMessages.SortRemove, label), "remove", s => Context.RemoveSort(s, key), disabled: false)
+                            </span>
+                        </li>
+                    }
+                </ol>
+            }
+            @{
+                var addable = options.Where(o => !sorts.Any(x => string.Equals(x.Key, o.Key, StringComparison.Ordinal))).ToList();
+            }
+            @if (addable.Count > 0)
+            {
+                <p class="@_slots["sortOrderHeading"]" data-slot="sort-add-heading">@ToolsMessages.SortAddHeading</p>
+                <ul class="@_slots["sortMenuList"]" data-slot="sort-list">
+                    @foreach (var opt in addable)
+                    {
+                        var key = opt.Key;
+                        var label = opt.Label ?? DataListText.Humanize(key);
+                        <li>
+                            @if (Context.IsInteractive)
+                            {
+                                <button type="button" class="@_slots["sortMenuItem"]" data-slot="sort-item" data-sort-key="@key"
+                                        @onclick="@(() => Context.SetState(s => Context.AddSort(s, key), QueryHistory.Push))">
+                                    <span class="truncate">@label</span>
+                                </button>
+                            }
+                            else if (Context.CanLink && Context.HrefWith(s => Context.AddSort(s, key)) is { } href)
+                            {
+                                <a href="@href" class="@_slots["sortMenuItem"]" data-slot="sort-item" data-sort-key="@key">
+                                    <span class="truncate">@label</span>
+                                </a>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+        </text>;
+
+    // A button of an entry of the sort order list: a button when interactive, a link in a static render (the reorder buttons are interactive only).
+    private RenderFragment OrderButton(string icon, string name, string slot, Func<DataListState, DataListState> change, bool disabled) =>
+        @<text>
+            @if (Context.IsInteractive)
+            {
+                <button type="button" class="@_slots["sortOrderButton"]" aria-label="@name" title="@name" disabled="@disabled" data-slot="sort-order-@slot"
+                        @onclick="@(() => Context.SetState(change, QueryHistory.Push))">
+                    @RenderIcon(icon, "size-3.5 shrink-0")
+                </button>
+            }
+            else if (Context.CanLink && Context.HrefWith(change) is { } href)
+            {
+                <a href="@href" class="@_slots["sortOrderButton"]" aria-label="@name" title="@name" data-slot="sort-order-@slot">
+                    @RenderIcon(icon, "size-3.5 shrink-0")
+                </a>
+            }
+        </text>;
 
     private RenderFragment DirectionControl(string targetKey, bool isDescending, bool isActive, string text, string icon, string slotDir) =>
         @<text>
