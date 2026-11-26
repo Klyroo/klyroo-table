@@ -4,7 +4,22 @@
 
 ## Klyroo.Table.Core
 
-Classes (2) · Enums (1)
+Static classes and extensions (1) · Classes (2) · Records (2) · Structs (1) · Enums (2)
+
+### Static classes and extensions
+
+#### `DataListCsv`
+
+`Klyroo.Table` · service
+
+A CSV writer: RFC 4180 quoting, a delimiter that fits the culture, and protection against formula injection.
+
+| Method | Returns | Description |
+| :--- | :--- | :--- |
+| `static DelimiterFor(CultureInfo culture)` | `char` | The delimiter a culture needs: `;` when its decimal separator is a comma, else `,`. |
+| `static Field(DataListCsvCell cell, char delimiter, bool protectFormulas = true)` | `string` | One field as it is written in the file: protected against formula injection when it is text and the protection is on, and quoted when it needs quotes. |
+| `static FileName(string? name)` | `string` | A file name for an export: `name` without the characters Windows file names refuse, and `.csv`. `export.csv` when nothing is left. |
+| `static Write(IReadOnlyList<string> header, IEnumerable<IReadOnlyList<DataListCsvCell>> rows, DataListCsvOptions? options = null)` | `string` | Writes a header line and rows as CSV text. |
 
 ### Classes
 
@@ -48,7 +63,75 @@ One node in the flattened hierarchy produced by `DataListTree{TItem}` over the l
 | `Parent` | `DataListTreeNode<TItem>?` | Parent tree node, or `null` for top-level root rows. |
 | `RootIndex` | `int` | Zero-based index of the top-level root ancestor. |
 
+### Records
+
+#### `DataListCsvOptions`
+
+`Klyroo.Table` · record
+
+How `DataListCsv.Write` writes a file.
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `Culture` (init) | `CultureInfo?` | The culture of the numbers and dates, and of the choice of the delimiter. `null` uses the culture of the page, or the current culture where there is no page. |
+| `Delimiter` (init) | `char?` | The field delimiter. `null` (the default) follows `DataListCsvOptions.Culture`: `;` for a culture whose decimal separator is a comma (French, German), else `,`, so that a spreadsheet of that locale opens the file in columns. |
+| `IncludeHeader` (init) | `bool` | Writes the header line (true by default). |
+| `NewLine` (init) | `string` | The end of a line. `\r\n` by default, as RFC 4180 says. |
+| `ProtectFormulas` (init) | `bool` | Keeps a spreadsheet from running a text as a formula (true by default): a text cell that starts with `=`, `+`, `-`, `@`, a tab or a carriage return gets an apostrophe in front. Cells that hold a number or a date (see `DataListCsvCell.Trusted`) are left alone, so that a negative number stays a number. |
+| `Utf8Bom` (init) | `bool` | Starts the text with a byte order mark (U+FEFF, written as EF BB BF in UTF-8), which makes Excel read accents correctly. Off by default. |
+
+#### `DataListExportResult`
+
+`Klyroo.Table` · record
+
+A CSV file as text, ready to download or hand to the app.
+
+| Constructor | Description |
+| :--- | :--- |
+| `DataListExportResult(string FileName, string Content, int RowCount, DataListExportScope Scope)` | A CSV file as text, ready to download or hand to the app. |
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `Content` (init) | `string` | The text, with the byte order mark when it was asked for. |
+| `FileName` (init) | `string` | The suggested file name, with `.csv`. |
+| `MimeType` | `string` | The media type of the file. |
+| `RowCount` (init) | `int` | How many data rows it holds (not counting the header). |
+| `Scope` (init) | `DataListExportScope` | Which rows were exported. |
+
+| Method | Returns | Description |
+| :--- | :--- | :--- |
+| `ToBytes()` | `byte[]` | The bytes to write to a file: UTF-8 of `DataListExportResult.Content`, without adding a byte order mark that `DataListExportResult.Content` does not hold. |
+
+### Structs
+
+#### `DataListCsvCell`
+
+`Klyroo.Table` · struct
+
+A cell of a CSV file: its text, and whether the text comes from a typed value that cannot be a formula.
+
+| Constructor | Description |
+| :--- | :--- |
+| `DataListCsvCell(string? Text, bool Trusted = false)` | A cell of a CSV file: its text, and whether the text comes from a typed value that cannot be a formula. |
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `Text` (init) | `string?` | The text, already formatted with the culture of the file; `null` is an empty cell. |
+| `Trusted` (init) | `bool` | The text is the format of a number, a date or another typed value, not text somebody typed: it is never prefixed against formula injection. |
+
 ### Enums
+
+#### `DataListExportScope`
+
+`Klyroo.Table` · enum
+
+Which rows an export takes.
+
+| Value | Description |
+| :--- | :--- |
+| `Page` | The rows on screen: the current page, or the rows loaded so far with cursor paging. |
+| `Selection` | The ticked rows, including those ticked on other pages of a list of rows in memory. |
+| `All` | Every row the search and the filters match, on every page. A list of rows in memory holds them; a list over a provider or a queryable does not, so it needs a `LoadAll` function on the export part, which receives the request that stands for "every result". |
 
 #### `DataListTreeSelectionMode`
 
@@ -63,7 +146,7 @@ Which rows of a hierarchical tree table can be selected with checkboxes.
 
 ## Klyroo.Table
 
-Components (32) · Static classes and extensions (2) · Classes (15) · Records (10) · Interfaces (1) · Enums (12)
+Components (33) · Static classes and extensions (3) · Classes (16) · Records (11) · Interfaces (1) · Enums (12)
 
 ### Components
 
@@ -137,9 +220,12 @@ A row of the table. It renders its cells again only when its row, or the `Revisi
 
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
+| `Attributes` | `IReadOnlyDictionary<string, object>?` | Attributes of the row from `KlyDataListTable.RowAttributes`. `class` and `data-slot` are ignored: the row sets them itself. |
 | `ChildContent` | `RenderFragment?` | The cells. |
 | `Class` | `string?` | The classes of the row. |
+| `Clickable` | `bool` | Makes the row reachable with the keyboard and listen to clicks and to Enter and Space on itself. |
 | `Item` | `TItem` | The row. |
+| `OnActivate` | `EventCallback<KlyRowEventArgs>` | Raised for a click on the row that did not land on a control inside it, or for Enter or Space on the row. |
 | `Revision` | `int` | Changes when the cells must be built again. |
 | `RowIndex` | `int?` | 1-based row index in a virtualized table (2 for the first data row, after the header); `null` otherwise. |
 
@@ -240,6 +326,7 @@ A column of `KlyDataListTable`. Renders nothing itself: it registers with its li
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
 | `Align` | `DataListAlign` | Where the text of the column sits. Numbers read best at the end. |
+| `CellClass` | `Func<TItem, string?>?` | Classes added to the cell of this column for a row (a color for an overdue date, a muted style for an archived row): it receives the row. The header is not affected; use `KlyDataListColumn.Class` for both. It runs on every render of the row: keep it cheap. |
 | `Class` | `string?` | Classes added to the header and the cells of this column. |
 | `Field` | `string?` | The key of a field of the schema: the cell shows its value and the header sorts by it when the schema allows. With `KlyDataListColumn.Template` it names the field the header sorts by. |
 | `Format` | `string?` | A format string for the value of a cell (`"C2"`, `"d"`), used with the culture of the page. Ignored with a `KlyDataListColumn.Template`. |
@@ -312,6 +399,25 @@ The error state, shown when the newest load failed. The rows of the previous res
 | :--- | :--- | :--- |
 | `Description` | `string?` | The text under the title. Without it, the localized hint to try again. |
 | `Title` | `string?` | The title. Without it, the localized "Could not load the data". |
+
+Also accepts the parameters of `DataListPartBase<TItem>`.
+
+#### `KlyDataListExport<TItem>`
+
+`Klyroo.Table` · component · inherits `DataListPartBase<TItem>`
+
+A button that exports the list as a CSV file: the visible columns in the order the user sees them, formatted like the table, with the culture of the page and a delimiter that fits it. With several sources of rows (this page, the selection, every result) it opens a menu. The file is downloaded by the browser, or handed to `KlyDataListExport.OnExport` when the app saves it itself.
+
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| `CsvOptions` | `DataListCsvOptions?` | How the file is written: delimiter, byte order mark, header, protection against formulas. Its culture defaults to the culture of the page, and the delimiter follows it (`;` where the decimal separator is a comma). |
+| `FileName` | `string?` | The name of the file, with or without `.csv`. Without it the label of the list, else `export`. |
+| `Icon` | `string` | The name of the icon of the button (`download` by default). |
+| `Label` | `string?` | The label of the button. Without it the localized "Export". |
+| `LoadAll` | `Func<DataListRequest, CancellationToken, Task<IReadOnlyList<TItem>>>?` | Loads every row a request matches, for `DataListExportScope.All` on a list over a provider or a queryable (the list never holds those rows). It receives the request without paging and facets, as the list sent it: send it to your server and apply it there with `schema.Apply(query, request)`. A list of rows in memory does not need it. |
+| `OnError` | `EventCallback<Exception>` | Raised when loading the rows or saving the file threw. Without a handler the failure is logged. |
+| `OnExport` | `EventCallback<DataListExportResult>` | Raised with the finished file instead of the browser's download: save it yourself (a file picker in a MAUI app, an upload, a copy to the clipboard). Without a handler the browser downloads the file. |
+| `Scopes` | `IReadOnlyList<DataListExportScope>?` | The sources of rows the user can pick from, in the order of the menu. By default this page, the selection and every result; each is offered only while it applies (the selection needs a ticked row, every result needs a list of rows in memory or `KlyDataListExport.LoadAll`). With one source left the button exports at once. |
 
 Also accepts the parameters of `DataListPartBase<TItem>`.
 
@@ -523,6 +629,7 @@ A menu that picks the sort field and its direction, or restores the default sort
 | `Items` | `IReadOnlyList<DataListSortOption>?` | Explicit sortable field options. When `null`, the menu lists the sortable `KlyDataListColumn`s in user order followed by any other sortable fields of the schema. |
 | `Label` | `string?` | Label of the trigger button and heading of the popover. Defaults to the localized "Sort". |
 | `Layouts` | `IReadOnlyList<DataListLayout>?` | Layouts in which the sort menu is shown (for example `[DataListLayout.Grid]` when the table headers already sort). When `null`, shown in every layout. |
+| `Multiple` | `bool?` | Whether the menu edits a list of sorts: `true` always shows the active sorts in order, with a button to reverse, move and remove each, and the fields that can still be added; `false` keeps the menu that picks one field and its direction; `null` (the default) is the second until the list sorts by more than one field (a Shift+click on a header), then the first, so a sort of several keys can always be seen and changed. |
 | `Size` | `KlySize` | Size of the trigger button (small by default). |
 
 Also accepts the parameters of `DataListPartBase<TItem>`.
@@ -538,16 +645,21 @@ The table of the list: `KlyDataListColumn` children define the columns, and the 
 | `AriaLabel` | `string?` | The accessible name of the table when there is no `KlyDataListTable.Caption`. |
 | `Caption` | `string?` | Names the table for assistive technologies (visually hidden), and the scrolling region around it. Without it, the `AriaLabel` of the table, then the label of the list, then the localized "Results". |
 | `ChildContent` | `RenderFragment?` | The columns: `KlyDataListColumn` components. Without any, the table shows one column per field of the schema. |
+| `DetailTemplate` | `RenderFragment<TItem>?` | What to show under a row when it is expanded: a full-width row (master-detail) with this content. Each row gets a first column with a button (`aria-expanded`, named "Show details for {row label}") that opens and closes it; the state is the row expansion state of the list (`DataListContext.IsRowExpanded` and `DataListContext.SetRowExpanded`, by row key, so give the schema a `RowKey` to keep a row open across reloads). Interactive only (a static render draws the button disabled and no detail). Not supported with `KlyDataListTable.Virtualize` (its rows need one fixed height, a detail row has none: the detail is switched off), with `KlyDataListTable.Tree` (which uses the same expansion state for child rows), and not drawn in the compact summary view. |
 | `Empty` | `RenderFragment<DataListContext<TItem>>?` | Shown when the list has no rows. It receives the list, whose `DataListContext.IsFiltered` tells "nothing matches" from "nothing exists". Without it, `KlyDataListTable.EmptyState` or `KlyDataListEmpty`. |
 | `EmptyState` | `DataListEmptyState?` | Declarative configuration for the unfiltered empty state (icon, title, description, and an optional first-use `DataListEmptyState.Action`). When search or filters are active, the filtered empty state is still displayed instead and the first-use action is omitted. |
 | `GroupBy` | `DataListGroupBy<TItem>?` | Optional visual grouping of the loaded rows under collapsible `KlyDataListGroupHeader` headers with per-group selection checkboxes. Ignored when `KlyDataListTable.Tree` is set. |
 | `HeaderMenu` | `bool` | Adds a dropdown menu button to each column header in interactive mode with quick actions to sort ascending/descending, stop sorting, pin/unpin, or hide the column. Individual columns can override this via `KlyDataListColumn.HeaderMenu`. |
 | `ItemSize` | `float?` | Height in pixels of one row when `KlyDataListTable.Virtualize` is on. Without it, follows `DataListDensity` (36, 44 or 60 px). |
 | `OnRowActionError` | `EventCallback<DataListRowActionFailure<TItem>>` | Raised when a row action threw or reported a failure. |
+| `OnRowClick` | `EventCallback<DataListRowClickArgs<TItem>>` | Raised when the user activates a row: a click anywhere on it that did not land on a link, button, box, field or other control inside the row (and that does not end a text selection), or Enter or Space while the row itself has the focus. The row is then reachable with Tab. The event carries the row and the modifier keys (for Ctrl or Shift to open in another way). Interactive only: a static render has no row click; use `KlyDataListTable.RowHref`. |
 | `OverscanCount` | `int` | Extra rows rendered above and below the viewport when `KlyDataListTable.Virtualize` is on (3 by default). |
 | `Resizable` | `bool` | Puts a resize handle (a vertical separator) on the end edge of the header of each `KlyDataListColumn.Resizable` column (false by default): drag it, or focus it and press ArrowLeft and ArrowRight (16 px, 64 with Shift; in right-to-left text the arrow that points away from the start edge grows the column), Home and End for the limits, Delete or a double click for the declared width. The browser changes the width while the gesture runs and reports it once; the list keeps it in its column preferences (`KlyDataList.PreferencesKey`). Interactive only: a static render has no handle but still applies a saved width. |
 | `RowActions` | `IReadOnlyList<DataListRowAction<TItem>>?` | The actions of each row: a last column with buttons up to `KlyDataListTable.RowActionsMaxVisible`, then a menu, and below the `md` breakpoint one button that opens a sheet (`KlyDataListRowActions`). Interactive only, except the actions that are links. |
 | `RowActionsMaxVisible` | `int` | How many row actions show as buttons on a wide screen (3 by default); 0 keeps a single "Actions for ..." button per row. |
+| `RowAttributes` | `Func<TItem, IReadOnlyDictionary<string, object>?>?` | Attributes added to the `<tr>` of each item (`data-id`, `title`, `aria-*`). `class` and `data-slot` are ignored (use `KlyDataListTable.RowClass`), and so are the row's own event attributes. It runs on every render of the row: keep it cheap. |
+| `RowClass` | `Func<TItem, string?>?` | Classes added to the row for each item (a muted style for an archived row). It runs on every render of the row: keep it cheap. `KlyDataListColumn.CellClass` does the same for one cell. |
+| `RowHref` | `Func<TItem, string?>?` | The address a row leads to. A row whose address is not empty gets a link that covers the row (an empty link named "Open {row label}", stretched over the row with CSS), so the whole row opens the page, the link is reachable with Tab and activated with Enter, and it works in a static render. Links, buttons, boxes and fields inside the row stay on top and keep their own clicks. Rows with an address are not activated through `KlyDataListTable.OnRowClick` (the link is), except that `KlyDataListTable.OnRowClick` is also raised when the link is clicked with the pointer or Enter. The address is written as given: do not pass text a user typed without checking its scheme. The link goes in the first column that is not pinned, and a pinned cell that floats above it (from `sm` up, after the link) does not take the row click. |
 | `RowSummary` | `DataListRowSummary<TItem>?` | Optional compact summary-row presentation (leading tile, title, status, details joined with ` · `, selection checkbox and row actions), active automatically below the `md` breakpoint when `DataListRowSummary.AutoPhone` is `true`, when `DataListRowSummary.DefaultActive` is `true`, or when toggled with `KlyDataListViewToggle`. |
 | `ShowProgressLine` | `bool` | Draws a subtle top progress indicator while the rows on screen are being refreshed or replaced (`true` by default). |
 | `Summaries` | `DataListSummaries<TItem>?` | Optional footer summary (`<tfoot>`) configuration: target `DataListSummaryScope`(s) (`Filtered`, `Page`, `Selection`), custom row label, and optional `DataListSummaries.ResolveAsync` delegate for remote or asynchronous totals. When `null`, a single `DataListSummaryScope.Filtered` summary row is still rendered automatically whenever any column declares a summary. |
@@ -612,6 +724,12 @@ The message tables of Klyroo.Table, one per locale of `KlyLocales.All` and keyed
 | `static Ru` | `KlyToolsMessages` | Русский (ru). Needs review. |
 | `static Tables` | `IReadOnlyDictionary<string, KlyToolsMessages>` | Every table by locale code: the codes of `KlyLocales.All`. |
 | `static ZhCn` | `KlyToolsMessages` | 简体中文 (zh-Hans). Needs review. |
+
+#### `TableEventHandlers`
+
+`Klyroo.Table` · service
+
+Custom events of Klyroo.Table, registered on the browser side by `Klyroo.Table.lib.module.js`.
 
 ### Classes
 
@@ -693,13 +811,15 @@ What the parts of a `KlyDataList` (the table, the pagination, the result count..
 | `EffectiveLayout` | `DataListLayout` | The layout currently shown: `DataListState.Layout` when both table and grid exist, otherwise the one that is present. |
 | `EffectiveSort` | `IReadOnlyList<DataListSort>` | The sort that applies: the state's, or the schema's default one when the state has none. |
 | `Error` | `Exception?` | Why the newest load failed. |
-| `ExpandedKeys` | `IReadOnlySet<string>` | Keys of all currently expanded branch nodes in the loaded tree. |
+| `ExpandedKeys` | `IReadOnlySet<string>` | Keys of all currently expanded branch nodes in the loaded tree; with a detail row, the keys of the rows the user opened. |
 | `HasCustomColumnPreferences` | `bool` | Whether any column visibility, order, pinning or width currently differs from the columns' defaults. |
+| `HasDetail` | `bool` | Whether the table shows a detail row under each row (`KlyDataListTable.DetailTemplate`). Its rows are opened and closed with `DataListContext.SetRowExpanded`. |
 | `HasError` | `bool` | The newest load failed. The previous rows, if any, are still in `DataListContext.Rows`. |
 | `HasLoadMoreError` | `bool` | The newest load-more request failed while the previously loaded rows stayed on screen. |
 | `HasMore` | `bool` | Whether the source has another page after the rows loaded so far (cursor paging only). |
 | `HasRowSummary` | `bool` | Whether the table has a `DataListRowSummary` configured. |
 | `HasTree` | `bool` | Whether the table has a `DataListTree` configured. |
+| `HoldsAllRows` | `bool` | Whether the list holds every row its query matches (a list of rows in memory, `Items`), so that `DataListContext.ExportRows` can return them for `DataListExportScope.All`. A list over a provider or a queryable does not: export those rows from the request in `DataListContext.AllResultsRequest`. |
 | `IsFiltered` | `bool` | The rows have a search or filters applied, so an empty result means "nothing matches" rather than "nothing exists". |
 | `IsInitial` | `bool` | No result yet and nothing failed: show placeholders. |
 | `IsInteractive` | `bool` | The renderer can run handlers: controls are buttons. Otherwise (static rendering, prerendering) they are links and forms when `DataListContext.CanLink`. |
@@ -733,10 +853,14 @@ What the parts of a `KlyDataList` (the table, the pagination, the result count..
 
 | Method | Returns | Description |
 | :--- | :--- | :--- |
+| `AddSort(DataListState state, string key, bool descending = false)` | `DataListState` | The state with `key` added to the end of the sort in the given direction, or turned to that direction in place when it is already sorted. First page. |
 | `ClearSelection()` | `void` | Unticks every row, and goes back to acting on the selection when the bulk scope was every result. |
 | `ClearSort(DataListState state)` | `DataListState` | The state with the sort restored to the schema's default sort (or no sort when the schema has none), on the first page. |
 | `CollapseAll()` | `void` | Collapses every branch node in the tree. |
 | `ExpandAll()` | `void` | Expands every branch node in the tree. |
+| `ExportCsv(DataListExportScope scope, DataListCsvOptions? options = null)` | `string` | Writes the rows of `scope` as CSV, see `DataListContext.ExportRows` and `DataListContext.ToCsv`. For `DataListExportScope.All` over a provider or a queryable, load the rows from `DataListContext.AllResultsRequest` and pass them to `DataListContext.ToCsv`. |
+| `ExportHeaders()` | `IReadOnlyList<string>` | The columns an export writes: the visible columns of the table in the order the user sees them (pinned ones first and last, hidden ones left out), without the columns that only have a template (they have no value to write), or without any declared column the fields of the schema that are not collections. Each has the title of the header. |
+| `ExportRows(DataListExportScope scope)` | `IReadOnlyList<TItem>` | The rows an export takes: `DataListContext.Rows` for `DataListExportScope.Page`, the ticked rows for `DataListExportScope.Selection`, and for `DataListExportScope.All` every row the search and the filters match when `DataListContext.HoldsAllRows` (empty otherwise). |
 | `FieldName(string key)` | `string` | The name of a form field for a key of the list (`ps` becomes `users.ps` with `UrlKey="users"`). |
 | `FilteredRows()` | `IReadOnlyList<TItem>` | Every row matching the active search and filters for an in-memory list (`Items`), or the loaded `DataListContext.Rows` for a provider or queryable source. |
 | `FormFields(DataListState state, params string[] exclude)` | `IReadOnlyList<KeyValuePair<string, string>>` | The fields of a GET form that submits `state`: every parameter of the URL that is not the list's own, then the list's own for the state, so submitting the form does not drop anything. Keys the form supplies itself (`exclude`, names relative to `DataListContext.UrlKey`: `ps`, `p`) are left out. |
@@ -748,18 +872,22 @@ What the parts of a `KlyDataList` (the table, the pagination, the result count..
 | `IsGroupCollapsed(DataListGroup<TItem> group)` | `bool` | Whether `group` is currently collapsed (folded). |
 | `IsKeySelected(string key)` | `bool` | Whether a key is ticked. |
 | `IsNodeExpanded(DataListTreeNode<TItem> node)` | `bool` | Whether `node` is currently expanded. |
-| `IsRowExpanded(string key, int depth = 0)` | `bool` | Whether the tree row with `key` at `depth` is currently expanded. |
+| `IsRowExpanded(string key, int depth = 0)` | `bool` | Whether the row with `key` is currently expanded: for a tree the row at `depth` shows its children, for a table with a `KlyDataListTable.DetailTemplate` (`depth` stays 0) it shows its detail row. Always `false` when the table has neither. |
 | `IsSelected(TItem item)` | `bool` | Whether a row is ticked. |
 | `LoadMoreAsync()` | `Task` | Appends the next page of a cursor-paged list. Does nothing outside cursor mode, while a load is running, when there is no next cursor, or when the renderer is not interactive. |
 | `MoveColumn(string key, int delta)` | `void` | Moves a column earlier (`-1`) or later (`+1`) in the column order. |
 | `MoveColumnNextTo(string key, string targetKey, bool after)` | `void` | Puts a column right before or right after another one in the column order: what dropping a dragged column on another does. |
-| `NextSort(DataListState state, string key)` | `DataListState` | The state after a click on the sort control of `key`: ascending, then descending, then back to the default sort. The page goes back to the first. |
+| `MoveSort(DataListState state, string key, int offset)` | `DataListState` | The state with `key` moved `offset` places in the sort (negative is earlier), kept inside the list. First page. |
+| `NextSort(DataListState state, string key)` | `DataListState` | The state after a plain click on the sort control of `key`: ascending, then descending, then back to the default sort, whatever the sort was before (a click that does not hold Shift keeps one sort). The page goes back to the first. |
+| `NextSort(DataListState state, string key, bool append)` | `DataListState` | The state after a click on the sort control of `key`. Without `append` it keeps one sort: ascending, then descending, then the default sort. With `append` (Shift held) the other sorts stay: a key that is not sorted yet joins the end of the list ascending, then turns descending in place, then leaves the list. The page goes back to the first. |
 | `RefreshAsync()` | `Task` | Loads the rows on screen again, or the failed request again after an error. |
+| `RemoveSort(DataListState state, string key)` | `DataListState` | The state without `key` in its sort (the default sort when nothing else is left). First page. |
 | `Reset(QueryHistory history = Push)` | `void` | Takes the search and the filters off and goes back to the first page (the sort, the page size and the layout stay), with a history entry by default. Nothing happens in a renderer that is not interactive: link to `DataListContext.HrefWith` with `DataListContext.ResetState`. |
 | `ResetAll(QueryHistory history = Push)` | `void` | Resets the search and filters to the schema defaults (on page 1), clears the row selection, and resets tree expansion to its defaults. |
 | `ResetColumns()` | `void` | Restores every column's visibility, order, pinning and width to its declared defaults and clears any saved cookie. |
 | `ResetExpansion()` | `void` | Resets tree expansion back to the `DataListTree` defaults. |
 | `ResetState(DataListState state)` | `DataListState` | `state` without its search and its filters (those of the schema's default state), on the first page: what `DataListContext.Reset` sets. |
+| `ReverseSort(DataListState state, string key)` | `DataListState` | The state with the direction of `key` reversed, in the same place of the sort. First page. |
 | `RowKey(TItem item)` | `string` | The row key of a row, as text. Throws when the schema has no `RowKey`. |
 | `SetAllColumnsVisible(bool visible)` | `void` | Shows every column (`visible` true) or hides every column that is not `KlyDataListColumn.Required`; when none is, the first one stays so the table is never empty. |
 | `SetBulkScope(DataListActionScope scope)` | `void` | Sets what a bulk action targets. `DataListActionScope.All` needs `DataListContext.CanSelectAllResults`; it is dropped when the rows or the query change. |
@@ -771,12 +899,14 @@ What the parts of a `KlyDataList` (the table, the pagination, the result count..
 | `SetLayout(DataListLayout layout)` | `void` | Switches the active layout (`DataListLayout.Table` or `DataListLayout.Grid`) as a history entry. |
 | `SetNodeExpanded(DataListTreeNode<TItem> node, bool expanded)` | `void` | Sets whether `node` is expanded. |
 | `SetPageSelected(bool selected)` | `void` | Ticks or unticks the rows on screen. |
-| `SetRowExpanded(string key, bool expanded, int depth = 0)` | `void` | Sets whether the tree row with `key` is expanded. |
+| `SetRowExpanded(string key, bool expanded, int depth = 0)` | `void` | Sets whether the row with `key` is expanded: its children in a tree, its detail row in a table with a `KlyDataListTable.DetailTemplate`. Nothing happens when the table has neither. |
 | `SetSelected(TItem item, bool selected, bool range = false)` | `void` | Ticks or unticks a row. With `range` (a click with Shift held) every row on screen between the row ticked last and this one gets the same state. Nothing happens in a renderer that is not interactive. |
 | `SetState(Func<DataListState, DataListState> change, QueryHistory history = Push)` | `void` | Changes the state: `change` receives the current one and returns the new one. With URL sync the change is written to the URL (`history` says whether it adds an entry: push for a page or a sort, replace for typing) and the list follows the URL; without it the list keeps the state itself and reports it through `StateChanged`. Nothing happens in a renderer that is not interactive: use `DataListContext.HrefWith`. |
 | `SetSummaryView(bool active)` | `void` | Switches between compact summary rows (`true`) and the full table (`false`), persisting the choice when `PreferencesKey` is set. |
-| `SortDescending(string key)` | `bool?` | The sort of a key as it stands: `null` when the list is not sorted by it, else whether it is descending. |
+| `SortDescending(string key)` | `bool?` | The sort of a key as it stands: `null` when the list is not sorted by it, else whether it is descending. The key can be anywhere in `DataListContext.EffectiveSort`, not only first. |
+| `SortIndex(string key)` | `int?` | The place of a key in `DataListContext.EffectiveSort`, from 0 for the first sort; `null` when the list is not sorted by it. |
 | `SortOptions(IReadOnlyList<DataListSortOption>? explicitOptions = null)` | `IReadOnlyList<DataListSortOption>` | The sortable fields of the list for `KlyDataListSortMenu`: from `explicitOptions` when given (filtered to the schema's sortable keys), otherwise from the sortable `KlyDataListColumn`s in user order followed by any remaining sortable fields of the schema. |
+| `ToCsv(IEnumerable<TItem> rows, DataListCsvOptions? options = null)` | `string` | Writes `rows` as CSV: one cell per `DataListContext.ExportHeaders` entry, formatted like the table shows it (the `Format` of the column, the culture of the file). A cell that is text is protected against formula injection (see `DataListCsvOptions.ProtectFormulas`); numbers and dates are not, so a negative number stays a number. |
 | `ToggleGroup(DataListGroup<TItem> group)` | `void` | Folds or unfolds `group`, persisting the toggle when `PreferencesKey` is set. |
 | `ToggleNodeExpanded(DataListTreeNode<TItem> node)` | `void` | Expands or collapses `node`. |
 | `UpdateRow(TItem item)` | `bool` | Replaces a single row in the loaded result in place by its schema `RowKey`, without querying the source again. |
@@ -1018,6 +1148,21 @@ Configuration of Klyroo.Table: its component themes and its message tables. It i
 | :--- | :--- | :--- |
 | `Messages(string localeCode, Func<KlyToolsMessages, KlyToolsMessages> change)` | `KlyrooTableOptions` | Changes the texts of a locale, like `KlyLocales.Extend` does for Klyroo.UI: `change` receives the table the locale resolves to and returns the one to use, usually `m => m with { ... }`. `localeCode` is a code of `KlyLocales.All` ("fr"), or the code of a locale you added ("en-AU", "tlh"): a locale without a table of its own starts from the table `KlyLocales.ResolveCode` picks for it, then its changes apply. Like the themes, the messages become read-only the first time a component resolves a text. |
 
+#### `KlyRowEventArgs`
+
+`Klyroo.Table` · class · inherits `EventArgs`
+
+Payload of the `klyrowclick` and `klyrowkey` browser events that a clickable row listens to. The browser side works out whether the event is for the row at all (`KlyRowEventArgs.Ignore`), because .NET cannot see which element a click landed on.
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `AltKey` (get, set) | `bool` | Alt was held. |
+| `CtrlKey` (get, set) | `bool` | Ctrl was held. |
+| `Ignore` (get, set) | `bool` | The event is not an activation of the row: a click on a control inside it (a link, a button, a box, a field), a key other than Enter and Space, or a key pressed inside a control. |
+| `Key` (get, set) | `string?` | The key of a keyboard event; `null` for a click. |
+| `MetaKey` (get, set) | `bool` | Meta was held. |
+| `ShiftKey` (get, set) | `bool` | Shift was held. |
+
 #### `SynchronousDataListQueryExecutor`
 
 `Klyroo.Table` · class
@@ -1110,6 +1255,27 @@ A row action that failed: it threw, or called `DataListRowActionContext.Fail`.
 | `Exception` (init) | `Exception?` | What it threw; `null` when it reported the failure itself. |
 | `Item` (init) | `TItem` | The row. |
 | `Message` (init) | `string?` | What `DataListRowActionContext.Fail` was given. |
+
+#### `DataListRowClickArgs<TItem>`
+
+`Klyroo.Table` · record
+
+What a row of `KlyDataListTable` reports when the user activates it (`KlyDataListTable.OnRowClick`): a click anywhere on the row that did not land on a control inside it, or Enter or Space while the row itself has the focus.
+
+| Constructor | Description |
+| :--- | :--- |
+| `DataListRowClickArgs<TItem>(TItem Item, string Key, int Position, bool ShiftKey = false, bool CtrlKey = false, bool AltKey = false, bool MetaKey = false, bool FromKeyboard = false)` | What a row of `KlyDataListTable` reports when the user activates it (`KlyDataListTable.OnRowClick`): a click anywhere on the row that did not land on a control inside it, or Enter or Space while the row itself has the focus. |
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `AltKey` (init) | `bool` | Alt was held. |
+| `CtrlKey` (init) | `bool` | Ctrl was held. |
+| `FromKeyboard` (init) | `bool` | The row was activated with Enter or Space, not with the pointer. |
+| `Item` (init) | `TItem` | The row. |
+| `Key` (init) | `string` | The row key (`RowKey` of the schema) as text; `#3` (the position) for a list whose schema has none. |
+| `MetaKey` (init) | `bool` | Meta (Command on a Mac, the Windows key) was held. |
+| `Position` (init) | `int` | The place of the row on the page, from 1. |
+| `ShiftKey` (init) | `bool` | Shift was held. |
 
 #### `DataListRowSummary<TItem>`
 
@@ -1460,9 +1626,17 @@ Every text the components of Klyroo.Table render: accessible names, labels, hint
 | `DatePresetToday` (init) | `string` | Date preset: the current day. |
 | `DatePresetYearToDate` (init) | `string` | Range preset: from the first day of the year to today. |
 | `DatePresetYesterday` (init) | `string` | Date preset: the day before today. |
+| `DetailCollapse` (init) | `string` | Accessible name of the button that closes the detail row of a row. {0} is the label of the row, or its position (`#3`) when it has none. |
+| `DetailColumn` (init) | `string` | Header, read by assistive technology only, of the column of the buttons that open the detail rows. |
+| `DetailExpand` (init) | `string` | Accessible name of the button that opens the detail row of a row. {0} is the label of the row (`RowLabel` of the schema), or its position (`#3`) when it has none. |
 | `EditFilter` (init) | `string` | Accessible name of the editor panel of a filter. {0} is the name of the filter. |
 | `ErrorDescription` (init) | `string` | Text of the error state of a data list. |
 | `ErrorTitle` (init) | `string` | Title of the error state of a data list. |
+| `ExportAll` (init) | `string` | Menu entry that exports every result of the search and the filters. {0} is how many results match. |
+| `ExportAllUnknown` (init) | `string` | Menu entry that exports every result when the source does not say how many there are. |
+| `ExportLabel` (init) | `string` | Label of the button that exports a data list as a CSV file. |
+| `ExportPage` (init) | `string` | Menu entry that exports the rows of the current page. |
+| `ExportSelection` (init) | `string` | Menu entry that exports the selected rows. {0} is how many are selected. |
 | `FilterAny` (init) | `string` | The choice of a boolean filter that takes the filter off. |
 | `FilterApply` (init) | `string` | Button of a filter editor that applies the changes (the Submit apply mode). |
 | `FilterCalendarFor` (init) | `string` | Accessible name of the calendar of a date filter editor. {0} is the name of the filter. |
@@ -1535,6 +1709,8 @@ Every text the components of Klyroo.Table render: accessible names, labels, hint
 | `Retry` (init) | `string` | Button of the error state that sends the request again. |
 | `RowActionsLabel` (init) | `string` | Accessible name of the button that opens the actions of one row of a data list; {0} is the label of the row. |
 | `RowActionsLabelAt` (init) | `string` | Accessible name of the button that opens the actions of a row that has no label; {0} is its position on the page. |
+| `RowOpen` (init) | `string` | Accessible name of the link that covers a row of a table with `RowHref`. {0} is the label of the row (`RowLabel` of the schema). |
+| `RowOpenAt` (init) | `string` | Accessible name of the link that covers a row that has no label. {0} is the position of the row on the page, from 1. |
 | `Search` (init) | `string` | Accessible name of the search field of a data list that has no label. It also labels the button that submits the search of a statically rendered list. |
 | `SearchFor` (init) | `string` | Accessible name of the search field of a labelled data list. {0} is the label of the list. |
 | `SearchPlaceholder` (init) | `string` | Placeholder of the search field of a data list. |
@@ -1548,6 +1724,8 @@ Every text the components of Klyroo.Table render: accessible names, labels, hint
 | `SelectRow` (init) | `string` | Accessible name of the checkbox of a row that has a label. {0} is the label of the row (`RowLabel` of the schema). |
 | `SelectRowAt` (init) | `string` | Accessible name of the checkbox of a row that has no label. {0} is the position of the row on the page, from 1. |
 | `Sort` (init) | `string` | Label of the sort menu trigger button when no sort is active, and heading of the sort popover. |
+| `SortAddHeading` (init) | `string` | Heading of the list of the fields that can still be added to the sort in the sort menu. |
+| `SortAppendHint` (init) | `string` | Tooltip of a sort button: how to add a column to the sort instead of replacing it. |
 | `SortAscending` (init) | `string` | Accessible name of a sort button that sorts a column from the smallest to the largest. {0} is the title of the column. |
 | `SortBy` (init) | `string` | Label of the sort menu trigger button when sorted by {0}, and accessible name of a sort field option. |
 | `SortClear` (init) | `string` | Accessible name of a sort button that removes the sort of a column. {0} is the title of the column. |
@@ -1555,6 +1733,13 @@ Every text the components of Klyroo.Table render: accessible names, labels, hint
 | `SortDescending` (init) | `string` | Accessible name of a sort button that sorts a column from the largest to the smallest. {0} is the title of the column. |
 | `SortDirectionAscending` (init) | `string` | Ascending direction option in the sort menu. |
 | `SortDirectionDescending` (init) | `string` | Descending direction option in the sort menu. |
+| `SortMoveEarlier` (init) | `string` | Accessible name of the button that makes a sort apply earlier. {0} is the label of the field. |
+| `SortMoveLater` (init) | `string` | Accessible name of the button that makes a sort apply later. {0} is the label of the field. |
+| `SortMultiple` (init) | `string` | Text of the sort menu trigger when the list sorts by several fields. {0} is how many. |
+| `SortOrderHeading` (init) | `string` | Heading of the list of the active sorts in the sort menu, in the order they apply. |
+| `SortPriority` (init) | `string` | Added to the accessible name of a sort button when the list sorts by several columns. {0} is the place of the column in the sort, from 1. |
+| `SortRemove` (init) | `string` | Accessible name of the button that takes a field out of the sort. {0} is the label of the field. |
+| `SortReverse` (init) | `string` | Accessible name of the button that reverses the direction of one sort. {0} is the label of the field. |
 | `SummaryFiltered` (init) | `string` | Label of a summary footer row scoped to all filtered rows. |
 | `SummaryPage` (init) | `string` | Label of a summary footer row scoped to the current page. |
 | `SummaryRowOne` (init) | `string` | Formatted count of a single row in a summary footer cell. {0} is 1. |
