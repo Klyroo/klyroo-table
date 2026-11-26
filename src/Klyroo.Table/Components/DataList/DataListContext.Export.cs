@@ -63,13 +63,12 @@ public sealed partial class DataListContext<TItem>
             // A column exports what it reads: its Property or Field, or for a column that only has a template the schema field its key names. The Format of the column applies in every case.
             return [.. _owner.TableColumns()
                 .Where(c => c.CanExport(schema))
-                .Select(c => new ExportColumn(c.ResolvedTitle, (item, culture) =>
-                    new DataListCsvCell(c.ReadText(item, schema, culture), c.HasStructuredValue(schema))))];
+                .Select(c => new ExportColumn(c.ResolvedTitle, (item, culture) => c.ReadCell(item, schema, culture)))];
         }
         if (schema is null) return [];
         return [.. schema.FieldInfos.Where(f => !f.IsCollection).Select(f => new ExportColumn(DataListText.Humanize(f.Key), (item, culture) =>
         {
-            return new DataListCsvCell(schema.FormatField(item, f.Key, null, culture), f.HasStructuredValue);
+            return new DataListCsvCell(schema.FormatField(item, f.Key, null, culture), schema.HasStructuredValueFor(item, f.Key));
         }))];
     }
 }

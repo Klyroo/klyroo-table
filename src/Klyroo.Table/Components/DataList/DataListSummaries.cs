@@ -297,7 +297,7 @@ internal static class DataListSummaryCalculator
             if (max ? order > 0 : order < 0) bestRow = row;
         }
         if (numeric) return bestNumber;
-        return found ? DataListSummaryValue.FromText(schema.FormatField(bestRow!, key, format, culture)) : default;
+        return found ? DataListSummaryValue.FromText(FormatFieldText(schema, bestRow!, key, format, culture)) : default;
     }
 
     /// <summary>A custom aggregation result as a summary value: a number stays a number, anything else becomes text with the format.</summary>
@@ -309,12 +309,48 @@ internal static class DataListSummaryCalculator
 
     private static bool IsBlank<TValue>(TValue value) => value is null or string { Length: 0 } || (value is string s && string.IsNullOrWhiteSpace(s));
 
-    private static string? FormatText<TValue>(TValue value, string? format, CultureInfo culture) => value switch
+    // A summary never throws for its format: a format the type rejects gives the default text in the invariant culture.
+    private static string? FormatText<TValue>(TValue value, string? format, CultureInfo culture)
     {
-        null => null,
-        IFormattable formattable => formattable.ToString(string.IsNullOrEmpty(format) ? null : format, culture),
-        _ => value.ToString(),
-    };
+        if (value is null) return null;
+        if (value is not IFormattable formattable) return value.ToString();
+        try
+        {
+            return formattable.ToString(string.IsNullOrEmpty(format) ? null : format, culture);
+        }
+        catch (FormatException)
+        {
+            return formattable.ToString(null, CultureInfo.InvariantCulture);
+        }
+    }
+
+    private static string? FormatFieldText<TItem>(DataListSchema<TItem> schema, TItem row, string key, string? format, CultureInfo culture)
+    {
+        try
+        {
+            return schema.FormatField(row, key, format, culture);
+        }
+        catch (FormatException)
+        {
+            return schema.FormatField(row, key, null, CultureInfo.InvariantCulture);
+        }
+    }
+
+    /// <summary>A number as text with the format; a number that is whole is formatted as an integer so that "D6" and "X" work, and a format the number rejects gives the default text in the invariant culture.</summary>
+    public static string FormatNumber(decimal number, string? format, CultureInfo culture)
+    {
+        if (string.IsNullOrEmpty(format)) return number.ToString(null, culture);
+        try
+        {
+            return number == Math.Truncate(number) && number >= long.MinValue && number <= long.MaxValue
+                ? ((long)number).ToString(format, culture)
+                : number.ToString(format, culture);
+        }
+        catch (FormatException)
+        {
+            return number.ToString(null, CultureInfo.InvariantCulture);
+        }
+    }
 }
 
 /// <summary>Reads a number of any numeric type as a decimal, without asking the caller to box it into an <see cref="object"/>.</summary>
@@ -342,14 +378,19 @@ internal static class DataListNumbers
     }
 
     /// <summary>Whether the values of type <typeparamref name="T"/> are numbers, dates, times, GUIDs or booleans: the type writes their text, a person does not.</summary>
-    public static bool IsStructured<T>() => Structured<T>.Value;
-
     private static class Structured<T>
     {
-        public static readonly bool Value = Check(Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T));
+        public static readonly bool Value = IsStructuredType(typeof(T));
+    }
 
-        private static bool Check(Type type) =>
-            type == typeof(sbyte) || type == typeof(byte) || type == typeof(short) || type == typeof(ushort) || type == typeof(int) || type == typeof(uint)
+    /// <summary>Whether a value of type <typeparamref name="T"/> is structured; for <see cref="object"/> the runtime type of <paramref name="value"/> decides.</summary>
+    public static bool IsStructured<T>(T value) =>
+        Structured<T>.Value || (typeof(T) == typeof(object) && value is not null && IsStructuredType(value.GetType()));
+
+    internal static bool IsStructuredType(Type type)
+    {
+        type = Nullable.GetUnderlyingType(type) ?? type;
+        return type == typeof(sbyte) || type == typeof(byte) || type == typeof(short) || type == typeof(ushort) || type == typeof(int) || type == typeof(uint)
             || type == typeof(long) || type == typeof(ulong) || type == typeof(nint) || type == typeof(nuint) || type == typeof(float) || type == typeof(double)
             || type == typeof(decimal) || type == typeof(Int128) || type == typeof(UInt128) || type == typeof(DateTime) || type == typeof(DateTimeOffset)
             || type == typeof(DateOnly) || type == typeof(TimeOnly) || type == typeof(TimeSpan) || type == typeof(Guid) || type == typeof(bool);

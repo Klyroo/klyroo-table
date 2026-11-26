@@ -46,7 +46,8 @@ public sealed class KlyDataListColumn<TItem, TValue> : KlyDataListColumnBase<TIt
 
     internal override bool CanExport(DataListSchema<TItem>? schema) => true;
 
-    internal override bool HasStructuredValue(DataListSchema<TItem>? schema) => DataListNumbers.IsStructured<TValue>();
+    internal override DataListCsvCell ReadCell(TItem item, DataListSchema<TItem>? schema, CultureInfo culture) =>
+        TryRead(item, out var value) ? new DataListCsvCell(FormatValue(value, culture), DataListNumbers.IsStructured(value)) : new DataListCsvCell(null, DataListNumbers.IsStructured<TValue>(default!));
 
     internal override DataListSummaryValue ComputeSummary(IReadOnlyList<TItem> rows, DataListSchema<TItem>? schema, CultureInfo culture)
     {

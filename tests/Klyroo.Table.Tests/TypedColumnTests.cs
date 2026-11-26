@@ -1,5 +1,6 @@
 using Xunit;
 using System.Globalization;
+using System.Linq.Expressions;
 using Bunit;
 using Klyroo.Query;
 using Microsoft.AspNetCore.Components;
@@ -47,7 +48,72 @@ public sealed class TypedColumnTests : TableHarness
         // Sum of the salaries (N0), the latest hire year (a DateOnly returned by SummaryValue, formatted yyyy) and the row count of the team field.
         Assert.Contains("413001", new string(footer.Where(char.IsDigit).ToArray()));
         Assert.Contains("2025", footer);
-        Assert.Contains("4", footer);
+        var messages = new KlyToolsMessages();
+        var cells = cut.FindAll("tfoot td").Select(c => c.TextContent.Trim()).ToArray();
+        Assert.Single(cells, c => c == string.Format(CultureInfo.CurrentCulture, messages.SummaryRowOther, 4));
+    }
+
+    [Fact]
+    public void A_count_summary_ignores_a_date_format_and_never_throws()
+    {
+        var messages = new KlyToolsMessages();
+        var column = With(new KlyDataListFieldColumn<Person>(), ("Field", "hired"), ("Format", "d"), ("Summary", DataListSummaryKind.Count));
+        var value = column.ComputeSummary(People(), PersonSchema, CultureInfo.InvariantCulture);
+        Assert.Equal(string.Format(CultureInfo.InvariantCulture, messages.SummaryRowOther, 4), column.FormatSummaryValue(value, CultureInfo.InvariantCulture, messages));
+        // With a SummaryFormat of its own the count uses it.
+        var formatted = With(new KlyDataListFieldColumn<Person>(), ("Field", "hired"), ("Format", "d"), ("Summary", DataListSummaryKind.Count), ("SummaryFormat", "D3"));
+        Assert.Equal("004", formatted.FormatSummaryValue(value, CultureInfo.InvariantCulture, messages));
+    }
+
+    [Fact]
+    public void Integer_only_formats_apply_to_whole_summaries_and_a_bad_format_falls_back_to_the_default_text()
+    {
+        var messages = new KlyToolsMessages();
+        var inv = CultureInfo.InvariantCulture;
+        var min = With(new KlyDataListColumn<Person, int>(), ("Property", (Expression<Func<Person, int>>)(p => p.Id)), ("Format", "D6"), ("Summary", DataListSummaryKind.Min));
+        Assert.Equal("000001", min.FormatSummaryValue(min.ComputeSummary(People(), PersonSchema, inv), inv, messages));
+        var hex = With(new KlyDataListColumn<Person, int>(), ("Property", (Expression<Func<Person, int>>)(p => p.Id)), ("Format", "X"), ("Summary", DataListSummaryKind.Max));
+        Assert.Equal("4", hex.FormatSummaryValue(hex.ComputeSummary(People(), PersonSchema, inv), inv, messages));
+        var custom = With(new KlyDataListColumn<Person, int>(), ("Property", (Expression<Func<Person, int>>)(p => p.Id)), ("Format", "D6"), ("SummaryValue", (Func<IReadOnlyList<Person>, int>)(rows => rows.Count * 10)));
+        Assert.Equal("000040", custom.FormatSummaryValue(custom.ComputeSummary(People(), PersonSchema, inv), inv, messages));
+        var bad = With(new KlyDataListColumn<Person, int>(), ("Property", (Expression<Func<Person, int>>)(p => p.Id)), ("Format", "F1000000000"), ("Summary", DataListSummaryKind.Max));
+        Assert.Equal("4", bad.FormatSummaryValue(bad.ComputeSummary(People(), PersonSchema, inv), inv, messages));
+        // A text min or max of a type that rejects the format falls back too.
+        var date = With(new KlyDataListColumn<Person, DateOnly>(), ("Property", (Expression<Func<Person, DateOnly>>)(p => p.Hired)), ("Format", "HH"), ("Summary", DataListSummaryKind.Max));
+        Assert.Equal("04/20/2025", date.FormatSummaryValue(date.ComputeSummary(People(), PersonSchema, inv), inv, messages));
+    }
+
+    [Fact]
+    public void An_empty_summary_format_is_unset_for_every_kind_of_column()
+    {
+        var inv = CultureInfo.InvariantCulture;
+        var column = With(new KlyDataListTemplateColumn<Person>(), ("Key", "hired"), ("Format", "yyyy"), ("SummaryFormat", ""), ("Summary", DataListSummaryKind.Max));
+        Assert.Equal("2025", column.ComputeSummary(People(), PersonSchema, inv).Text);
+    }
+
+    private static T With<T>(T column, params (string Name, object? Value)[] values)
+    {
+        foreach (var (name, value) in values) typeof(T).GetProperty(name)!.SetValue(column, value);
+        return column;
+    }
+
+    private sealed class Dept(string name)
+    {
+        public string Name { get; } = name;
+    }
+
+    [Fact]
+    public void Two_distinct_values_that_print_the_same_get_distinct_stable_group_keys()
+    {
+        var a = new Dept("x");
+        var b = new Dept("y");
+        var rows = new[] { (a, 1), (b, 2), (a, 3) };
+        var groupBy = DataListGroupBy<(Dept, int)>.By(r => r.Item1);
+        var first = groupBy.BuildGroups(rows, null, new KlyToolsMessages(), CultureInfo.InvariantCulture);
+        var second = groupBy.BuildGroups(rows, null, new KlyToolsMessages(), CultureInfo.InvariantCulture);
+        Assert.Equal(2, first.Count);
+        Assert.Equal(2, first.Select(g => g.Key).Distinct().Count());
+        Assert.Equal(first.Select(g => g.Key).ToArray(), second.Select(g => g.Key).ToArray());
     }
 
     [Fact]

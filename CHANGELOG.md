@@ -6,6 +6,12 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+### Fixed
+
+- A summary footer cell no longer throws for a format the number or type rejects: whole numbers are formatted as integers (so `Format="D6"` and `"X"` work on a minimum, a maximum or a custom `SummaryValue`), and a format that still fails gives the default text in the invariant culture. A `Count` summary is a number of rows, so the column `Format` (a date format, say) no longer applies to it; only `SummaryFormat` does. An empty `SummaryFormat` counts as unset on every kind of column.
+- Two group values that print the same (entities without `ToString`, or a custom comparer) no longer share a `DataListGroup.Key`: the later one gets an ordinal (`~2`), which keeps the Blazor `@key` unique and the collapsed state apart.
+- CSV export: a field or column declared `object` is checked by the type of each value again (a number is not escaped, a string is); typed fields keep the declared-type rule.
+
 ### Changed
 
 - **Breaking:** the column component is split by what the cell shows, so no value is typed as `object`. `KlyDataListColumn<TItem>` is replaced by `KlyDataListColumn<TItem, TValue>` (a typed `Property` expression, `SummaryValue` returning `TValue`; the row type comes from the list and the value type from the expression, so markup writes `<KlyDataListColumn Property="@(o => o.Total)" />`), `KlyDataListFieldColumn<TItem>` (`Field`, a key of the schema) and `KlyDataListTemplateColumn<TItem>` (`Template`, with a `Key` to sort, export and summarize). All derive from `KlyDataListColumnBase<TItem>`, which keeps the shared parameters (pinning, widths, format, alignment, visibility, header menu, summaries); `DataListContext<TItem>.Columns` is a list of it.

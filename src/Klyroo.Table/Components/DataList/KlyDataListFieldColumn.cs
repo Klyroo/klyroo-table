@@ -23,8 +23,8 @@ public sealed class KlyDataListFieldColumn<TItem> : KlyDataListColumnBase<TItem>
 
     internal override bool CanExport(DataListSchema<TItem>? schema) => true;
 
-    internal override bool HasStructuredValue(DataListSchema<TItem>? schema) =>
-        schema?.FieldInfos.FirstOrDefault(f => f.Key == Field)?.HasStructuredValue == true;
+    internal override DataListCsvCell ReadCell(TItem item, DataListSchema<TItem>? schema, CultureInfo culture) =>
+        new(ReadText(item, schema, culture), schema?.HasStructuredValueFor(item, Field) == true);
 
     internal override DataListSummaryValue ComputeSummary(IReadOnlyList<TItem> rows, DataListSchema<TItem>? schema, CultureInfo culture)
     {

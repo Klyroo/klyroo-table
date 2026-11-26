@@ -199,6 +199,7 @@ public sealed class DataListGroupBy<TItem, TKey> : DataListGroupBy<TItem>
         var buckets = new Dictionary<Boxed, Bucket>(new BoxedComparer(Comparer));
         Bucket? emptyBucket = null;
         var discoveryOrder = 0;
+        var usedKeys = new HashSet<string>(StringComparer.Ordinal) { EmptyGroupKey };
 
         foreach (var row in rows)
         {
@@ -210,7 +211,7 @@ public sealed class DataListGroupBy<TItem, TKey> : DataListGroupBy<TItem>
             }
             else if (!buckets.TryGetValue(new Boxed(value), out bucket))
             {
-                bucket = new Bucket(GroupKeyOf(value), value, row, false, discoveryOrder++);
+                bucket = new Bucket(UniqueKey(GroupKeyOf(value), usedKeys), value, row, false, discoveryOrder++);
                 buckets[new Boxed(value)] = bucket;
             }
             bucket.Items.Add(row);
@@ -284,6 +285,14 @@ public sealed class DataListGroupBy<TItem, TKey> : DataListGroupBy<TItem>
     {
         var token = InvariantText(value);
         return token == EmptyGroupKey ? "~val:" + token : token;
+    }
+
+    // Two distinct values can print the same (an entity without ToString, a custom comparer): the later one gets an ordinal, so keys stay unique and, for the same rows, stable across renders.
+    private static string UniqueKey(string key, HashSet<string> used)
+    {
+        var candidate = key;
+        for (var n = 2; !used.Add(candidate); n++) candidate = $"{key}~{n}";
+        return candidate;
     }
 
     private string FormatLabel(Bucket bucket, DataListSchema<TItem>? schema, CultureInfo culture) =>

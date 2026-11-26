@@ -195,7 +195,7 @@ A column comes in three kinds, and the list supplies the row type, so none of th
 - `KlyDataListFieldColumn` names a field of the schema by `Field`. It needs a schema and reads the text of the field through the schema, so the sort, the filter and the cell agree.
 - `KlyDataListTemplateColumn` renders a `Template`. Give it a `Key` that names a schema field and its header sorts by that field, and a CSV export and a summary read the field as well.
 
-All three share the parameters for the title, alignment, widths, pinning, visibility, the header menu, summaries and the CSS class. A custom `SummaryValue` that returns a number stays a number for the footer to format; any other type is shown as text with `SummaryFormat` or `Format`. A `Sum` or `Average` over text or dates is 0 or empty, because only numeric values add up.
+All three share the parameters for the title, alignment, widths, pinning, visibility, the header menu, summaries and the CSS class. A custom `SummaryValue` that returns a number stays a number for the footer to format; any other type is shown as text with `SummaryFormat` or `Format`. A `Sum` or `Average` over text or dates is 0 or empty, because only numeric values add up. A `Count` is a number of rows and ignores the column `Format`; give `SummaryFormat` to format it.
 
 ## Filter rows and show counts
 

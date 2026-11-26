@@ -377,6 +377,53 @@ public sealed class ExportTests : TableHarness
         Assert.Equal(["Number,Level,Odd,Id,Text,Money,Moment", "-5,High,'=odd,00000000-0000-0000-0000-000000000000,'-x,-1.5,01/02/2024 00:00:00"], lines);
     }
 
+    [Fact]
+    public void A_field_declared_object_is_guarded_by_the_type_of_each_value_next_to_typed_fields()
+    {
+        var schema = Klyroo.Query.DataListSchema.For<Mixed>(s => s
+            .Field(h => h.Typed, f => f.Key("typed"))
+            .Field(h => h.Text, f => f.Key("text"))
+            .Field(h => h.Value, f => f.Key("value")));
+        Prepare();
+        Render<KlyDataList<Mixed>>(p => p
+            .Add(x => x.Schema, schema)
+            .Add(x => x.Items, new[]
+            {
+                new Mixed(-1, "-t", -5), new Mixed(-2, "-t", Level.High), new Mixed(-3, "-t", new Odd()), new Mixed(-4, "-t", Guid.Empty),
+                new Mixed(-5, "-t", "-x"), new Mixed(-6, "-t", -1.5m), new Mixed(-7, "-t", new DateTime(2024, 1, 2)),
+            })
+            .Add(x => x.UrlSync, false)
+            .AddChildContent(b =>
+            {
+                b.OpenComponent<CaptureMixed>(0);
+                b.AddComponentParameter(1, nameof(CaptureMixed.OnContext), (Action<DataListContext<Mixed>>)(c => _mixed = c));
+                b.CloseComponent();
+                b.OpenComponent<KlyDataListTable<Mixed>>(2);
+                b.CloseComponent();
+            }));
+
+        var lines = Lines(_mixed!.ExportCsv(DataListExportScope.Page, new DataListCsvOptions { Utf8Bom = false, Culture = CultureInfo.InvariantCulture }));
+        // A number or date held by the object field is not escaped, a string or a custom type is; the typed field never is, the string field always is.
+        Assert.Equal(
+            ["Typed,Text,Value", "-1,'-t,-5", "-2,'-t,High", "-3,'-t,'=odd", "-4,'-t,00000000-0000-0000-0000-000000000000", "-5,'-t,'-x", "-6,'-t,-1.5", "-7,'-t,01/02/2024 00:00:00"],
+            lines);
+    }
+
+    private DataListContext<Mixed>? _mixed;
+
+    private sealed record Mixed(int Typed, string Text, object? Value);
+
+    private sealed class CaptureMixed : DataListPartBase<Mixed>
+    {
+        [Parameter] public Action<DataListContext<Mixed>>? OnContext { get; set; }
+
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+            OnContext?.Invoke(Context);
+        }
+    }
+
     private DataListContext<Holder>? _holder;
 
     private sealed record Holder(int Number, Level Level, Odd Odd, Guid Id, string Text, decimal Money, DateTime Moment);

@@ -132,14 +132,14 @@ public abstract class KlyDataListColumnBase<TItem> : ComponentBase, IDisposable
     /// <summary>Whether the column has a value to export.</summary>
     internal abstract bool CanExport(DataListSchema<TItem>? schema);
 
-    /// <summary>Whether the values are numbers, dates, times, GUIDs or booleans: their text cannot be a typed formula, so a CSV export does not guard them.</summary>
-    internal abstract bool HasStructuredValue(DataListSchema<TItem>? schema);
+    /// <summary>The CSV cell of a row: the text, and whether the value is a number, date, time, GUID or boolean (the type writes its text, so a CSV export does not guard it against a formula). For a column declared <see cref="object"/> the runtime value decides.</summary>
+    internal abstract DataListCsvCell ReadCell(TItem item, DataListSchema<TItem>? schema, CultureInfo culture);
 
     /// <summary>The summary of the column over <paramref name="rows"/>: the custom aggregation, or the <see cref="Summary"/> kind. Empty when there is none.</summary>
     internal virtual DataListSummaryValue ComputeSummary(IReadOnlyList<TItem> rows, DataListSchema<TItem>? schema, CultureInfo culture)
     {
         if (Summary == DataListSummaryKind.None || ResolvedKey is not { } key || schema is null) return default;
-        return DataListSummaryCalculator.ComputeField(Summary, rows, schema, key, SummaryFormat ?? Format, culture);
+        return DataListSummaryCalculator.ComputeField(Summary, rows, schema, key, !string.IsNullOrEmpty(SummaryFormat) ? SummaryFormat : Format, culture);
     }
 
     /// <inheritdoc />
@@ -181,13 +181,17 @@ public abstract class KlyDataListColumnBase<TItem> : ComponentBase, IDisposable
         if (value.IsEmpty) return null;
         if (value.Text is { } text) return text;
         var number = value.Number!.Value;
-        var fmt = !string.IsNullOrEmpty(SummaryFormat) ? SummaryFormat : Format;
-        if (Summary == DataListSummaryKind.Count && string.IsNullOrEmpty(fmt) && number == Math.Truncate(number) && number is >= 0 and <= int.MaxValue)
+        if (Summary == DataListSummaryKind.Count)
         {
-            var count = (int)number;
-            return string.Format(culture, count == 1 ? messages.SummaryRowOne : messages.SummaryRowOther, count);
+            // A count is a number of rows, not a value of the column: the Format of the column (a date format, say) does not apply, only a SummaryFormat does.
+            if (string.IsNullOrEmpty(SummaryFormat) && number == Math.Truncate(number) && number is >= 0 and <= int.MaxValue)
+            {
+                var count = (int)number;
+                return string.Format(culture, count == 1 ? messages.SummaryRowOne : messages.SummaryRowOther, count);
+            }
+            return DataListSummaryCalculator.FormatNumber(number, SummaryFormat, culture);
         }
-        return number.ToString(string.IsNullOrEmpty(fmt) ? null : fmt, culture);
+        return DataListSummaryCalculator.FormatNumber(number, !string.IsNullOrEmpty(SummaryFormat) ? SummaryFormat : Format, culture);
     }
 
     /// <summary>Takes the column out of its table.</summary>

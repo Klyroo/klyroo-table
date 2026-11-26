@@ -24,8 +24,8 @@ public sealed class KlyDataListTemplateColumn<TItem> : KlyDataListColumnBase<TIt
     internal override bool CanExport(DataListSchema<TItem>? schema) =>
         ResolvedKey is { } key && schema?.FieldInfos.Any(f => f.Key == key && !f.IsCollection) == true;
 
-    internal override bool HasStructuredValue(DataListSchema<TItem>? schema) =>
-        ResolvedKey is { } key && schema?.FieldInfos.FirstOrDefault(f => f.Key == key)?.HasStructuredValue == true;
+    internal override DataListCsvCell ReadCell(TItem item, DataListSchema<TItem>? schema, CultureInfo culture) =>
+        new(ReadText(item, schema, culture), ResolvedKey is { } key && schema?.HasStructuredValueFor(item, key) == true);
 
     private protected override void Validate()
     {
