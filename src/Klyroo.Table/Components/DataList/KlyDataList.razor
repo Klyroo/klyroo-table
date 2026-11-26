@@ -67,8 +67,9 @@
     private string? _timeZone;
     private bool _writeInitialState;
     private bool _stateFromUrl;
-    // The state the list last wrote to the address itself. An address that reads back as it came from the list (a filter the user cleared); any other came from a navigation.
-    private DataListState? _ownUrlState;
+    // True while the list writes the address itself: QueryState notifies its subscribers inside SetMany, so a change that arrives meanwhile is the list's own (a filter the user cleared),
+    // and any other comes from a navigation (a menu link, Back).
+    private bool _writingUrl;
     // Counts the address changes applied, so one that waited for the browser storage does not overwrite a later one.
     private int _urlChange;
     private bool _disposed;
@@ -601,26 +602,35 @@
 
     private void WriteUrl(DataListState state, QueryHistory history)
     {
-        _ownUrlState = state;
-        Query.SetMany(Changes(state), history);
+        var outer = _writingUrl;
+        _writingUrl = true;
+        try
+        {
+            Query.SetMany(Changes(state), history);
+        }
+        finally
+        {
+            _writingUrl = outer;
+        }
     }
 
     private void OnUrlChanged(IReadOnlyList<string> keys)
     {
         if (_disposed || Controller is null || !keys.Any(IsOwned)) return;
-        _ = InvokeAsync(ApplyUrlAsync);
+        var own = _writingUrl;
+        _ = InvokeAsync(() => ApplyUrlAsync(own));
     }
 
-    private async Task ApplyUrlAsync()
+    private async Task ApplyUrlAsync(bool own)
     {
         var controller = Controller;
         if (_disposed || controller is null) return;
         var change = ++_urlChange;
         var next = controller.Normalize(ReadState());
         var restored = false;
-        if (!next.Equals(_ownUrlState))
+        if (!own)
         {
-            // A navigation to this page (a menu link, Back) that says nothing of a remembered filter takes the value the browser kept, as the first render does; the address then shows it.
+            // A navigation to this page (a menu link, Back) that says nothing of a remembered filter takes the value the browser kept, as the first render does.
             var remembered = await RestoreRememberedFiltersAsync(next, fromUrl: true);
             if (_disposed || change != _urlChange) return;
             if (!ReferenceEquals(remembered, next))
@@ -629,9 +639,11 @@
                 restored = true;
             }
         }
-        if (next.Equals(_state)) return;
+        var unchanged = next.Equals(_state);
         _state = next;
+        // The address shows the restored value, even when the list already showed it. The write notifies this method again, which finds nothing new.
         if (restored && Query.Interactive == true) WriteUrl(next, QueryHistory.Replace);
+        if (unchanged) return;
         await StateChanged.InvokeAsync(next);
         if (controller.TryAdoptLayout(next))
         {

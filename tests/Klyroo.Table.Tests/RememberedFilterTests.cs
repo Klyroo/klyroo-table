@@ -152,6 +152,38 @@ public sealed class RememberedFilterTests : BunitContext
     }
 
     [Fact]
+    public void A_navigation_writes_the_restored_value_to_the_address_even_when_the_list_already_shows_it()
+    {
+        Stored("f.team=Backend");
+        var navigation = Services.GetRequiredService<NavigationManager>();
+        var cut = RenderList();
+        cut.WaitForAssertion(() => Assert.Contains("tasks.f.team=Backend", Uri.UnescapeDataString(navigation.Uri)));
+
+        cut.InvokeAsync(() => navigation.NavigateTo("/"));
+
+        cut.WaitForAssertion(() => Assert.Contains("tasks.f.team=Backend", Uri.UnescapeDataString(navigation.Uri)));
+        Assert.Equal(["Alpha API", "Delta Tests"], Titles(cut));
+    }
+
+    [Fact]
+    public void Clearing_the_filter_while_reordering_the_others_does_not_bring_the_stored_value_back()
+    {
+        Stored("f.team=Backend");
+        var navigation = Services.GetRequiredService<NavigationManager>();
+        navigation.NavigateTo("/?tasks.f.hours.gte=1&tasks.f.title=e&tasks.f.team=Infra");
+        var cut = RenderList();
+        cut.WaitForAssertion(() => Assert.Equal(["Epsilon Deploy"], Titles(cut)));
+
+        // The address reads its filters back in another order than the list wrote them: the change is still the list's own.
+        var title = new FilterRule("title", FilterOperator.Contains, new FilterValue.Text("e"));
+        cut.InvokeAsync(() => cut.Instance.SetState(s => s with { Filters = [title, .. s.Filters.Where(r => r.Key == "hours")] }, QueryHistory.Push));
+
+        cut.WaitForAssertion(() => Assert.Equal(3, Titles(cut).Count));
+        Assert.DoesNotContain("f.team", navigation.Uri);
+        Assert.DoesNotContain(_storage.Invocations, i => i.Identifier == "readAll");
+    }
+
+    [Fact]
     public void A_stored_value_is_read_like_the_address_and_keeps_only_its_own_filter()
     {
         var rules = KlyDataList<TaskRow>.DecodeRememberedFilter(Schema, "team", "q=x&f.hours.gt=3&f.team=Backend%2CInfra&f.team.bogus=1", null);
