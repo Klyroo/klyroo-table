@@ -294,8 +294,7 @@ public sealed partial class DataListContext<TItem>
     internal string FilterFieldName(string key, FilterOperator op)
     {
         var filter = FilterOf(key);
-        var name = filter is null || op == filter.DefaultOperator ? "f." + key : "f." + key + "." + FilterRuleText.OperatorName(op);
-        return FieldName(name);
+        return FieldName(filter is null ? "f." + key : DataListStateQuery.FilterParameterName(key, op, filter));
     }
 
     /// <summary>The names, relative to <see cref="UrlKey"/>, of every URL key a rule of <paramref name="key"/> can use: a GET form that edits the filter leaves them out of its hidden fields.</summary>
@@ -303,8 +302,8 @@ public sealed partial class DataListContext<TItem>
     {
         var filter = FilterOf(key);
         var names = new List<string> { "f." + key };
-        if (filter is not null) names.AddRange(filter.AllowedOperators.Select(op => "f." + key + "." + FilterRuleText.OperatorName(op)));
-        names.AddRange(Enum.GetValues<FilterOperator>().Select(op => "f." + key + "." + FilterRuleText.OperatorName(op)));
+        if (filter is not null) names.AddRange(filter.AllowedOperators.Select(op => DataListStateQuery.FilterParameterName(key, op)));
+        names.AddRange(Enum.GetValues<FilterOperator>().Select(op => DataListStateQuery.FilterParameterName(key, op)));
         return [.. names.Distinct()];
     }
 

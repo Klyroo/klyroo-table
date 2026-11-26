@@ -258,7 +258,7 @@
     {
         foreach (var op in Operators)
         {
-            if (FilterRuleText.OperatorName(op) != e.Value as string) continue;
+            if (DataListStateQuery.OperatorName(op) != e.Value as string) continue;
             var wasRange = IsRange;
             _op = op;
             KeepValueAcross(wasRange);
@@ -451,7 +451,7 @@
                     <select class="@_slots["filterOperator"]" data-slot="filter-operator" aria-label="@string.Format(FormatCulture, ToolsMessages.FilterOperatorFor, _label)" @onchange="OnOperator">
                         @foreach (var op in Operators)
                         {
-                            <option value="@FilterRuleText.OperatorName(op)" selected="@(op == _op)">@ToolsMessages.OperatorLabel(op)</option>
+                            <option value="@DataListStateQuery.OperatorName(op)" selected="@(op == _op)">@ToolsMessages.OperatorLabel(op)</option>
                         }
                     </select>
                 </div>
@@ -748,7 +748,7 @@
     private RenderFragment StaticValueless =>
         @<text>
             <p class="@_slots["filterHint"]" data-slot="filter-valueless">@ToolsMessages.OperatorLabel(Rule!.Operator)</p>
-            <input type="hidden" name="@Context.FilterFieldName(Key, Rule.Operator)" value="@FilterRuleText.IncludeEmptyToken" />
+            <input type="hidden" name="@Context.FilterFieldName(Key, Rule.Operator)" value="@DataListStateQuery.IncludeEmptyToken" />
         </text>;
 
     private RenderFragment StaticFields =>
@@ -879,7 +879,7 @@
                 {
                     <li class="@_slots["filterOption"]" data-value="@choice.Value">
                         <label class="@_slots["filterNativeLabel"]">
-                            <input type="@type" name="@name" value="@FilterRuleText.Escape(choice.Value)" checked="@selected.Contains(choice.Value)" aria-describedby="@(choice.Count is null ? null : CountId(index))" class="@_slots["filterNativeInput"]" data-slot="filter-option-input" />
+                            <input type="@type" name="@name" value="@DataListStateQuery.EscapeValue(choice.Value)" checked="@selected.Contains(choice.Value)" aria-describedby="@(choice.Count is null ? null : CountId(index))" class="@_slots["filterNativeInput"]" data-slot="filter-option-input" />
                             <span class="truncate">@choice.Label</span>
                         </label>
                         @if (choice.Count is { } count)
@@ -898,7 +898,7 @@
                 }
                 <li class="@_slots["filterOption"]">
                     <label class="@_slots["filterNativeLabel"]">
-                        <input type="checkbox" name="@name" value="@FilterRuleText.IncludeEmptyToken" checked="@includeEmpty" aria-describedby="@(Context.MissingCountOf(Key) is null ? null : CountId(-1))" class="@_slots["filterNativeInput"]" data-slot="filter-include-empty" />
+                        <input type="checkbox" name="@name" value="@DataListStateQuery.IncludeEmptyToken" checked="@includeEmpty" aria-describedby="@(Context.MissingCountOf(Key) is null ? null : CountId(-1))" class="@_slots["filterNativeInput"]" data-slot="filter-include-empty" />
                         <span class="truncate">@ToolsMessages.FilterIncludeEmpty</span>
                     </label>
                     @if (Context.MissingCountOf(Key) is { } missing)
@@ -924,7 +924,7 @@
 
     // A tilde next to the field of a text, number or date rule that also matches empty rows (only an address can say so): the field holds the value, so the rule keeps its empty rows when the form is applied.
     private RenderFragment IncludeEmptyField(string name) =>
-        Embedded && Rule?.IncludeEmpty == true ? @<input type="hidden" name="@name" value="@FilterRuleText.IncludeEmptyToken" /> : @<text></text>;
+        Embedded && Rule?.IncludeEmpty == true ? @<input type="hidden" name="@name" value="@DataListStateQuery.IncludeEmptyToken" /> : @<text></text>;
 
     // The GET form around the fields of one editor: the other parameters of the address as hidden fields and an Apply button. Embedded in a form of its own, the fields are left bare.
     private RenderFragment Shell(RenderFragment fields)
