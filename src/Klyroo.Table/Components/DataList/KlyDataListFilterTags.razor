@@ -24,7 +24,7 @@
                     <li class="@_slots["filterTag"]" data-slot="filter-tag" data-filter="@key" @key="key">
                         @if (editable)
                         {
-                            <KlyPopover Open="@IsOpen(key)" OpenChanged="@(open => OnOpen(key, open))" Placement="bottom-start" AriaLabel="@string.Format(FormatCulture, ToolsMessages.EditFilter, label)"
+                            <KlyPopover Open="@IsOpen(key)" OpenChanged="@(open => OnOpen(key, open))" Placement="KlyPlacement.BottomStart" AriaLabel="@string.Format(FormatCulture, ToolsMessages.EditFilter, label)"
                                        Ui="@(IsDate(key) ? _popoverWideUi : _popoverUi)">
                                 <ChildContent>
                                     <button type="button" class="@_slots["filterTagButton"]" data-slot="filter-tag-button">

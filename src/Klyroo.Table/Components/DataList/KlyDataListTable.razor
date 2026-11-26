@@ -156,7 +156,7 @@
                                         <div class="@_slots["headerCell"]" data-slot="header-cell">
                                             @Header(col)
                                             <div class="@_slots["headerMenu"]" data-slot="header-menu" data-col-key="@col.Key">
-                                                <KlyDropdownMenu Items="menuItems" OnSelect="@(item => OnHeaderMenuSelect(col, item))" Placement="bottom-end">
+                                                <KlyDropdownMenu Items="menuItems" OnSelect="@(item => OnHeaderMenuSelect(col, item))" Placement="KlyPlacement.BottomEnd">
                                                     <button type="button" class="@_slots["headerMenuTrigger"]" data-slot="header-menu-trigger" data-col-key="@col.Key"
                                                             aria-label="@string.Format(FormatCulture, ToolsMessages.ColumnMenuOpen, col.Title)">
                                                         @RenderIcon("ellipsis", "size-3.5 shrink-0")

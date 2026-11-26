@@ -645,7 +645,7 @@
             @if (choices.Count > 8 || _search.Length > 0)
             {
                 <div class="@_slots["filterField"]">
-                    <KlyInput Value="@_search" ValueChanged="@OnSearch" Debounce="150" ClearOnEscape="true" Type="search" Placeholder="@ToolsMessages.FilterOptionsSearch"
+                    <KlyInput Value="@_search" ValueChanged="@OnSearch" Debounce="150" ClearOnEscape="true" Type="InputType.Search" Placeholder="@ToolsMessages.FilterOptionsSearch"
                              aria-label="@ToolsMessages.FilterOptionsSearch" autocomplete="off" LeadingIcon="@RenderIcon(Options.Icons.Search, "size-4")" data-slot="filter-options-search" />
                 </div>
             }
@@ -677,7 +677,7 @@
                 var choices = RemoteChoices();
             }
             <div class="@_slots["filterField"]">
-                <KlyInput Value="@_search" ValueChanged="@OnRemoteSearch" Debounce="@RemoteDebounce" ClearOnEscape="true" Type="search" Placeholder="@ToolsMessages.FilterOptionsSearch"
+                <KlyInput Value="@_search" ValueChanged="@OnRemoteSearch" Debounce="@RemoteDebounce" ClearOnEscape="true" Type="InputType.Search" Placeholder="@ToolsMessages.FilterOptionsSearch"
                          aria-label="@ToolsMessages.FilterOptionsSearch" autocomplete="off" LeadingIcon="@RenderIcon(Options.Icons.Search, "size-4")" data-slot="filter-options-search" />
             </div>
             <div role="group" aria-label="@string.Format(FormatCulture, ToolsMessages.FilterValueFor, _label)" aria-busy="@(remote.Busy ? "true" : null)" data-slot="filter-remote">
@@ -937,7 +937,7 @@
             }
             @fields
             <div class="@_slots["filterActions"]">
-                <KlyButton Type="submit" Label="@ToolsMessages.FilterApply" Size="KlySize.Sm" data-slot="filter-apply" />
+                <KlyButton Type="ButtonType.Submit" Label="@ToolsMessages.FilterApply" Size="KlySize.Sm" data-slot="filter-apply" />
             </div>
         </form>;
     }

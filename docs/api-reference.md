@@ -4,7 +4,7 @@
 
 ## Klyroo.Table.Core
 
-Static classes and extensions (1) · Classes (3) · Records (2) · Structs (1) · Enums (2)
+Static classes and extensions (1) · Classes (3) · Records (2) · Structs (1) · Enums (3)
 
 ### Static classes and extensions
 
@@ -91,7 +91,7 @@ How `DataListCsv.Write` writes a file.
 | `Culture` (init) | `CultureInfo?` | The culture of the numbers and dates, and of the choice of the delimiter. `null` uses the culture of the page, or the current culture where there is no page. |
 | `Delimiter` (init) | `char?` | The field delimiter. `null` (the default) follows `DataListCsvOptions.Culture`: `;` for a culture whose decimal separator is a comma (French, German), else `,`, so that a spreadsheet of that locale opens the file in columns. |
 | `IncludeHeader` (init) | `bool` | Writes the header line (true by default). |
-| `NewLine` (init) | `string` | The end of a line. `\r\n` by default, as RFC 4180 says. |
+| `NewLine` (init) | `DataListCsvNewLine` | The end of a line. `DataListCsvNewLine.CrLf` by default, as RFC 4180 says. |
 | `ProtectFormulas` (init) | `bool` | Keeps a spreadsheet from running a text as a formula (true by default): a text cell that starts with `=`, `+`, `-`, `@`, a tab or a carriage return gets an apostrophe in front. Cells that hold a number or a date (see `DataListCsvCell.Trusted`) are left alone, so that a negative number stays a number. |
 | `Utf8Bom` (init) | `bool` | Starts the text with a byte order mark (U+FEFF, written as EF BB BF in UTF-8), which makes Excel read accents correctly. On by default, because Excel is where most exports are opened; turn it off for a consumer that does not skip the mark. |
 
@@ -135,6 +135,18 @@ A cell of a CSV file: its text, and whether the text comes from a typed value th
 | `Trusted` (init) | `bool` | The text is the format of a number, a date or another typed value, not text somebody typed: it is never prefixed against formula injection. |
 
 ### Enums
+
+#### `DataListCsvNewLine`
+
+`Klyroo.Table` · enum
+
+The end of a line in a CSV file.
+
+| Value | Description |
+| :--- | :--- |
+| `CrLf` | Carriage return and line feed (`\r\n`), as RFC 4180 says. |
+| `Lf` | Line feed (`\n`), the Unix convention. |
+| `Cr` | Carriage return (`\r`), the convention of old Mac systems. |
 
 #### `DataListExportScope`
 

@@ -10,7 +10,7 @@
 *@
 @if (Context.Schema is not null && Context.EditableFilterKeys.Count > 0 && (Context.IsInteractive || Context.CanLink))
 {
-    <KlyPopover Open="@_open" OpenChanged="@OnOpen" Placement="bottom-start" AriaLabel="@ToolsMessages.AddFilter" Ui="@(Wide ? _popoverWideUi : _popoverUi)" data-slot="add-filter-popover" @attributes="AdditionalAttributes">
+    <KlyPopover Open="@_open" OpenChanged="@OnOpen" Placement="KlyPlacement.BottomStart" AriaLabel="@ToolsMessages.AddFilter" Ui="@(Wide ? _popoverWideUi : _popoverUi)" data-slot="add-filter-popover" @attributes="AdditionalAttributes">
         <ChildContent>
             <KlyButton Label="@ToolsMessages.AddFilter" Variant="ButtonVariant.Outline" Color="KlyColor.Neutral" Size="@(Size ?? KlySize.Sm)" Class="@_slots["addFilter"]"
                       LeadingIcon="@RenderIcon("plus", "size-4")" data-slot="add-filter" />
@@ -122,7 +122,7 @@
             @if (Context.EditableFilterKeys.Count >= SearchFrom)
             {
                 <div class="@_slots["filterMenuHeader"]">
-                    <KlyInput Value="@_search" ValueChanged="@OnSearch" Debounce="100" ClearOnEscape="true" Type="search" Placeholder="@ToolsMessages.AddFilterSearch" aria-label="@ToolsMessages.AddFilterSearch"
+                    <KlyInput Value="@_search" ValueChanged="@OnSearch" Debounce="100" ClearOnEscape="true" Type="InputType.Search" Placeholder="@ToolsMessages.AddFilterSearch" aria-label="@ToolsMessages.AddFilterSearch"
                              autocomplete="off" LeadingIcon="@RenderIcon(Options.Icons.Search, "size-4")" data-slot="add-filter-search" />
                 </div>
             }

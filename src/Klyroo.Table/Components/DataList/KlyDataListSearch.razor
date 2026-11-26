@@ -34,7 +34,7 @@ else if (Context.CanLink)
                 <a href="@href" class="@_slots["searchClear"]" data-slot="search-clear" aria-label="@ToolsMessages.ClearSearch">@RenderIcon(Options.Icons.Close, _slots["searchClearIcon"])</a>
             }
         </div>
-        <KlyButton Type="submit" Label="@ToolsMessages.Search" Variant="ButtonVariant.Outline" Color="KlyColor.Neutral" Size="@(Size ?? KlySize.Md)" Class="@_slots["searchSubmit"]" data-slot="search-submit" />
+        <KlyButton Type="ButtonType.Submit" Label="@ToolsMessages.Search" Variant="ButtonVariant.Outline" Color="KlyColor.Neutral" Size="@(Size ?? KlySize.Md)" Class="@_slots["searchSubmit"]" data-slot="search-submit" />
     </form>
 }
 else
@@ -109,7 +109,7 @@ else
     // A statically rendered field has nothing to report to: without a callback the script of Klyroo.UI does not guard its value, so an enhanced navigation (Back) can write the text of the address into it.
     private EventCallback<string?> TextChanged => EventCallback.Factory.Create<string?>(this, OnTextAsync);
 
-    private RenderFragment Field(bool form) => @<KlyInput @ref="_input" Id="@_id" Name="@(form ? Context.FieldName("q") : null)" Type="search" Value="@(form ? Context.State.Search : _text)"
+    private RenderFragment Field(bool form) => @<KlyInput @ref="_input" Id="@_id" Name="@(form ? Context.FieldName("q") : null)" Type="InputType.Search" Value="@(form ? Context.State.Search : _text)"
                                                        ValueChanged="@(form ? default : TextChanged)" Debounce="@(form ? null : EffectiveDebounce)" ClearOnEscape="true" Size="@(Size ?? KlySize.Md)"
                                                        Placeholder="@(Placeholder ?? ToolsMessages.SearchPlaceholder)" Disabled="@(!form && !Context.IsInteractive)"
                                                        LeadingIcon="@RenderIcon(Options.Icons.Search, "size-5")" Ui="_inputUi"

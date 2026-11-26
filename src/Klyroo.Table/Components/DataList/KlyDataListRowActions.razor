@@ -53,7 +53,7 @@
             @if (overflow.Count > 0)
             {
                 <div class="@_slots["rowActionsMenu"]" data-slot="row-actions-menu">
-                    <KlyDropdownMenu Items="MenuItems(overflow, context)" OnSelect="OnMenuSelect" Placement="bottom-end">
+                    <KlyDropdownMenu Items="MenuItems(overflow, context)" OnSelect="OnMenuSelect" Placement="KlyPlacement.BottomEnd">
                         <KlyButton Variant="ButtonVariant.Ghost" Color="KlyColor.Neutral" Size="Size" Square="true" aria-label="@label"
                                   LeadingIcon="@RenderIcon("ellipsis", "size-4")" data-slot="row-actions-trigger" data-row-action-anchor />
                     </KlyDropdownMenu>

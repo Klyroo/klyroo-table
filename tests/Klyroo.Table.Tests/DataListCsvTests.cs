@@ -77,7 +77,7 @@ public sealed class DataListCsvTests
     [Fact]
     public void The_byte_order_mark_and_the_new_line_are_options()
     {
-        var withBom = Write(["h"], [["é"]], new DataListCsvOptions { Culture = En, Utf8Bom = true, NewLine = "\n" });
+        var withBom = Write(["h"], [["é"]], new DataListCsvOptions { Culture = En, Utf8Bom = true, NewLine = DataListCsvNewLine.Lf });
         Assert.Equal("﻿h\né\n", withBom);
         var result = new DataListExportResult("x.csv", withBom, 1, DataListExportScope.Page);
         Assert.Equal([0xEF, 0xBB, 0xBF], result.ToBytes()[..3]);
@@ -85,6 +85,13 @@ public sealed class DataListCsvTests
         // No mark in the text, none in the bytes.
         Assert.NotEqual(0xEF, new DataListExportResult("x.csv", "h", 0, DataListExportScope.Page).ToBytes()[0]);
     }
+
+    [Theory]
+    [InlineData(DataListCsvNewLine.CrLf, "h\r\nx\r\n")]
+    [InlineData(DataListCsvNewLine.Lf, "h\nx\n")]
+    [InlineData(DataListCsvNewLine.Cr, "h\rx\r")]
+    public void Each_new_line_option_ends_the_lines_with_its_characters(DataListCsvNewLine newLine, string expected) =>
+        Assert.Equal(expected, Write(["h"], [["x"]], new DataListCsvOptions { Utf8Bom = false, Culture = En, NewLine = newLine }));
 
     [Theory]
     [InlineData("Orders", "Orders.csv")]

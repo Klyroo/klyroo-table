@@ -19,6 +19,19 @@ public enum DataListExportScope
     All,
 }
 
+/// <summary>The end of a line in a CSV file.</summary>
+public enum DataListCsvNewLine
+{
+    /// <summary>Carriage return and line feed (<c>\r\n</c>), as RFC 4180 says.</summary>
+    CrLf,
+
+    /// <summary>Line feed (<c>\n</c>), the Unix convention.</summary>
+    Lf,
+
+    /// <summary>Carriage return (<c>\r</c>), the convention of old Mac systems.</summary>
+    Cr,
+}
+
 /// <summary>How <see cref="DataListCsv.Write"/> writes a file.</summary>
 public sealed record DataListCsvOptions
 {
@@ -34,8 +47,8 @@ public sealed record DataListCsvOptions
     /// <summary>Writes the header line (true by default).</summary>
     public bool IncludeHeader { get; init; } = true;
 
-    /// <summary>The end of a line. <c>\r\n</c> by default, as RFC 4180 says.</summary>
-    public string NewLine { get; init; } = "\r\n";
+    /// <summary>The end of a line. <see cref="DataListCsvNewLine.CrLf"/> by default, as RFC 4180 says.</summary>
+    public DataListCsvNewLine NewLine { get; init; } = DataListCsvNewLine.CrLf;
 
     /// <summary>
     /// Keeps a spreadsheet from running a text as a formula (true by default): a text cell that starts with <c>=</c>, <c>+</c>, <c>-</c>, <c>@</c>, a tab or a carriage return
@@ -151,6 +164,6 @@ public static class DataListCsv
             first = false;
             builder.Append(Field(cell, delimiter, options.ProtectFormulas));
         }
-        builder.Append(options.NewLine);
+        builder.Append(options.NewLine switch { DataListCsvNewLine.Lf => "\n", DataListCsvNewLine.Cr => "\r", _ => "\r\n" });
     }
 }

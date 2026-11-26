@@ -11,7 +11,7 @@
     @if (visible.Count > 0)
     {
         <div class="@_slots["actionsDropdown"]" data-slot="actions-dropdown" @attributes="AdditionalAttributes">
-            <KlyDropdownMenu Items="Items(visible, describe)" OnSelect="OnSelect" Placement="bottom-end">
+            <KlyDropdownMenu Items="Items(visible, describe)" OnSelect="OnSelect" Placement="KlyPlacement.BottomEnd">
                 <KlyButton Label="@(Label ?? ToolsMessages.ActionsMenu)" Variant="ButtonVariant.Outline" Color="KlyColor.Neutral" Size="KlySize.Sm"
                           Loading="visible.Any(IsRunning)" LeadingIcon="@RenderIcon(Icon, "size-4")" data-slot="actions-trigger" />
             </KlyDropdownMenu>

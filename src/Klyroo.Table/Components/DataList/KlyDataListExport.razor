@@ -13,7 +13,7 @@
     <div class="@_slots["export"]" data-slot="export" @attributes="AdditionalAttributes">
         @if (scopes.Count > 1)
         {
-            <KlyDropdownMenu Items="MenuItems(scopes)" OnSelect="OnSelect" Placement="bottom-end">
+            <KlyDropdownMenu Items="MenuItems(scopes)" OnSelect="OnSelect" Placement="KlyPlacement.BottomEnd">
                 <KlyButton Label="@(Label ?? ToolsMessages.ExportLabel)" Variant="ButtonVariant.Outline" Color="KlyColor.Neutral" Size="KlySize.Sm"
                           Loading="_busy" LeadingIcon="@RenderIcon(Icon, "size-4")" data-slot="export-trigger" />
             </KlyDropdownMenu>

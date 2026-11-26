@@ -29,7 +29,7 @@
         var triggerIcon = active is null || (editor && sorts.Count > 1) ? "arrow-up-down" : descending ? Options.Icons.ArrowDown : Options.Icons.ArrowUp;
 
         <div class="@_slots["sortMenu"]" data-slot="sort-menu" @attributes="AdditionalAttributes">
-            <KlyPopover Placement="bottom-end" Ui="_popoverUi">
+            <KlyPopover Placement="KlyPlacement.BottomEnd" Ui="_popoverUi">
                 <ChildContent>
                     <KlyButton Variant="ButtonVariant.Outline" Color="KlyColor.Neutral" Size="Size"
                               Label="@triggerText" LeadingIcon="@RenderIcon(triggerIcon, "size-4")" data-slot="sort-trigger" />

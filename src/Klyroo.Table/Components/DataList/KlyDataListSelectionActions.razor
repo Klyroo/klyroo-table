@@ -41,7 +41,7 @@
                     }
                     @if (overflow.Count > 0)
                     {
-                        <KlyDropdownMenu Items="OverflowItems(overflow, describe)" OnSelect="OnOverflowSelect" Placement="top-end">
+                        <KlyDropdownMenu Items="OverflowItems(overflow, describe)" OnSelect="OnOverflowSelect" Placement="KlyPlacement.TopEnd">
                             <KlyButton Label="@ToolsMessages.ActionsMore" Variant="ButtonVariant.Soft" Color="KlyColor.Neutral" Size="KlySize.Sm"
                                       LeadingIcon="@RenderIcon("ellipsis", "size-4")" data-slot="actions-more" />
                         </KlyDropdownMenu>
