@@ -683,10 +683,13 @@
             var labelsText = _context.RemoteLabels.Any(p => p.Value.Count > 0)
                 ? JsonSerializer.Serialize(_context.RemoteLabels.ToDictionary(p => p.Key, p => p.Value), DataListJsonContext.Default.DictionaryStringDictionaryStringString)
                 : "";
-            var bytes = (long)System.Text.Encoding.UTF8.GetByteCount(stateText) + System.Text.Encoding.UTF8.GetByteCount(loadedText) + System.Text.Encoding.UTF8.GetByteCount(resultText)
-                + System.Text.Encoding.UTF8.GetByteCount(labelsText);
-            // The client sends the whole persisted state to the server when a circuit starts, and SignalR refuses a message past 32 KB: one list over its own limit, or lists that together pass the page budget, are not persisted.
-            var allowed = DataListPersistBudget.Reserve(Services, bytes, ToolsOptions.PersistMaxBytes, ToolsOptions.PersistPageMaxBytes);
+            var key = PersistedKey;
+            var bytes = KlyPersistedStateBudget.SentBytes(key + ":state", stateText) + KlyPersistedStateBudget.SentBytes(key + ":loaded", loadedText)
+                + KlyPersistedStateBudget.SentBytes(key + ":result", resultText) + KlyPersistedStateBudget.SentBytes(key + ":zone", _timeZone ?? "")
+                + (labelsText.Length > 0 ? KlyPersistedStateBudget.SentBytes(key + ":labels", labelsText) : 0);
+            // The client sends the whole persisted state to the server when a circuit starts, and SignalR refuses a message past 32 KB: a list over its own limit, or one that no longer fits in the
+            // budget the Klyroo libraries of the page share, is not persisted.
+            var allowed = ReservePersisted(bytes);
             if (!allowed)
             {
                 if (Services.GetService(typeof(ILoggerFactory)) is ILoggerFactory factory) Log(factory, PersistedKey, bytes);
@@ -706,8 +709,16 @@
     private void Log(ILoggerFactory factory, string key, long bytes)
     {
         factory.CreateLogger("Klyroo.Table.DataList").LogWarning(
-            "The data list '{Key}' did not hand its prerendered result to the interactive render: it is {Bytes} bytes, over the {List}-byte limit of one list or the {Page}-byte budget of the page (KlyrooTableOptions.PersistMaxBytes, PersistPageMaxBytes). The interactive render loads it again once. Use a smaller first page, or no ResultJson.",
-            key, bytes, ToolsOptions.PersistMaxBytes, ToolsOptions.PersistPageMaxBytes);
+            "The data list '{Key}' did not hand its prerendered result to the interactive render: it is about {Bytes} bytes once sent, over the {List}-byte limit of one list (KlyrooTableOptions.PersistMaxBytes) or what is left of the {Page}-byte budget the Klyroo libraries of the page share (KlyrooOptions.PersistedStateMaxBytes). The interactive render loads it again once. Use a smaller first page, or no ResultJson.",
+            key, bytes, ToolsOptions.PersistMaxBytes, Options.PersistedStateMaxBytes);
+    }
+
+    // One list within its own limit, and within what the Klyroo libraries of the page have left of their shared budget.
+    private bool ReservePersisted(long bytes)
+    {
+        if (bytes > ToolsOptions.PersistMaxBytes) return false;
+        var budget = Services.GetService(typeof(KlyPersistedStateBudget)) as KlyPersistedStateBudget ?? new KlyPersistedStateBudget(Options);
+        return budget.TryReserve(bytes);
     }
 
     // What the prerender handed over, with the state it was loaded for (it is used only when that is the state this render starts from); the keys are taken whether or not it is used.

@@ -6,6 +6,10 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+### Changed
+
+- The prerender persistence of a data list is counted as sent, with the escaping and the two base64 encodings Blazor adds, and draws on the budget every Klyroo library of the page shares (`KlyrooOptions.PersistedStateMaxBytes`, 28 KB). Before, the lists of a page counted raw JSON against their own 8 KB budget, so a page with a dashboard could pass SignalR's 32 KB message limit and fail to start its circuit. `PersistMaxBytes` now counts sent bytes (24 KB by default), and `PersistPageMaxBytes` is removed. Column preferences handed over by the prerender count in the same budget.
+
 ### Added
 
 - Remembered filters: `KlyDataList` now honors `DataListFilter.WithPersist()`. A change of such a filter is stored in `localStorage` (key scoped by row type, `PersistKey` or `UrlKey` and filter key, value in the URL form of `DataListStateQuery`) through the new `klyroo-table-storage.js` module; clearing the filter removes the entry, and the first interactive render, like any later navigation to the page whose address does not name a marked filter (a menu link, Back), restores its value, then writes it to the address. A filter cleared in the list stays cleared. Static renders and prerenders never touch storage, and every storage call is guarded.

@@ -344,7 +344,7 @@ public partial class KlyDataList<TItem>
         var encoded = PrunedPreferences().Encode();
         if (string.IsNullOrEmpty(encoded) || ColumnsPersistKey is not { } key || _columnsPersistent is null) return Task.CompletedTask;
         // The client sends the whole persisted state back when a circuit starts: the preferences count in the budget of the page like a result does, and a refused one is read from the browser instead.
-        if (!DataListPersistBudget.Reserve(Services, encoded.Length + key.Length + 16, ToolsOptions.PersistMaxBytes, ToolsOptions.PersistPageMaxBytes)) return Task.CompletedTask;
+        if (!ReservePersisted(KlyPersistedStateBudget.SentBytes(key, encoded))) return Task.CompletedTask;
         _columnsPersistent.PersistAsJson(key, encoded);
         return Task.CompletedTask;
     }

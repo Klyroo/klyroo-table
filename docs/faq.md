@@ -78,9 +78,9 @@ Troubleshooting first (symptom, cause, fix), then known limitations, then freque
 
 ### The interactive render loads the list a second time, or logs `did not hand its prerendered result`
 
-**Cause.** Without `ResultJson` nothing is persisted from the prerender. With it, a result over 16 KB for one list, or 8 KB for all the lists of a page, is not persisted either.
+**Cause.** Without `ResultJson` nothing is persisted from the prerender. With it, a result over `PersistMaxBytes` (24 KB as sent by default), or one that no longer fits in the 28 KB the Klyroo libraries of the page share (`KlyrooOptions.PersistedStateMaxBytes`), is not persisted either. Sizes count the escaping and the two base64 encodings Blazor adds, so the JSON itself is about a third of them.
 
-**Fix.** Pass `ResultJson` (see [Platforms](platforms.md#prerendering-and-the-auto-render-mode)), use a smaller first page, or raise `PersistMaxBytes` and `PersistPageMaxBytes` while keeping SignalR's 32 KB message limit in mind.
+**Fix.** Pass `ResultJson` (see [Platforms](platforms.md#prerendering-and-the-auto-render-mode)), use a smaller first page, or raise `PersistMaxBytes` and `PersistedStateMaxBytes` (in `AddKlyrooUi`) together with the `MaximumReceiveMessageSize` of the hub, since SignalR refuses the message past 32 KB by default and the circuit then fails to start.
 
 ### `Virtualize` has no effect
 
