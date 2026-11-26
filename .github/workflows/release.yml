@@ -38,7 +38,7 @@ jobs:
       run:
         working-directory: klyroo-table
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           path: klyroo-table
       - name: Wait for the release tag in the sibling repositories
@@ -53,49 +53,49 @@ jobs:
             done
           done
       - name: Check out klyroo-agent (referenced by relative path)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: klyroo/klyroo-agent
           path: klyroo-agent
           ref: ${{ env.SIBLING_REF }}
       - name: Check out klyroo-dashboard (referenced by relative path)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: klyroo/klyroo-dashboard
           path: klyroo-dashboard
           ref: ${{ env.SIBLING_REF }}
       - name: Check out klyroo-display (referenced by relative path)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: klyroo/klyroo-display
           path: klyroo-display
           ref: ${{ env.SIBLING_REF }}
       - name: Check out klyroo-form (referenced by relative path)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: klyroo/klyroo-form
           path: klyroo-form
           ref: ${{ env.SIBLING_REF }}
       - name: Check out klyroo-query (referenced by relative path)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: klyroo/klyroo-query
           path: klyroo-query
           ref: ${{ env.SIBLING_REF }}
       - name: Check out klyroo-spreadsheet (referenced by relative path)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: klyroo/klyroo-spreadsheet
           path: klyroo-spreadsheet
           ref: ${{ env.SIBLING_REF }}
       - name: Check out klyroo-stack (referenced by relative path)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: klyroo/klyroo-stack
           path: klyroo-stack
           ref: ${{ env.SIBLING_REF }}
       - name: Check out klyroo-ui (referenced by relative path)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: klyroo/klyroo-ui
           path: klyroo-ui
