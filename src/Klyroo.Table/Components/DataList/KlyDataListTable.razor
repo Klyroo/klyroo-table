@@ -475,8 +475,11 @@
 
     private static string SelectInset(bool detailing) => detailing ? "inset-inline-start:2.5rem" : "inset-inline-start:0";
 
-    // The key of the expansion state: the row key, else the place of the row on the page.
-    private static string DetailKey(RowEntry row) => row.Key as string ?? "#" + row.Position;
+    // The key of the expansion state: the row key, else (no RowKey in the schema, or keys that repeat) the place of the row on the page, which the list forgets when new rows arrive.
+    private static string DetailKey(RowEntry row) => row.Key as string ?? KlyDataList<TItem>.PositionKeyPrefix + row.Position;
+
+    // The key as shown in the markup (the prefix of a position key is a control character).
+    private static string DetailKeyText(RowEntry row) => row.Key as string ?? "#" + row.Position;
 
     private string DetailId(RowEntry row) => $"{_detailPrefix}-{row.Position}";
 
@@ -501,7 +504,7 @@
         builder.AddAttribute(1, "id", DetailId(row));
         builder.AddAttribute(2, "class", _slots["detailRow"]);
         builder.AddAttribute(3, "data-slot", "detail-row");
-        builder.AddAttribute(4, "data-key", DetailKey(row));
+        builder.AddAttribute(4, "data-key", DetailKeyText(row));
         builder.OpenElement(5, "td");
         builder.AddAttribute(6, "colspan", colSpan);
         builder.AddAttribute(7, "class", _slots["detailCell"]);
@@ -992,7 +995,7 @@
             {
                 var detailOpen = Context.IsRowExpanded(DetailKey(row));
                 <td class="@SelectClass("td", pinStart)" style="@(pinStart ? "inset-inline-start:0" : null)" data-pinned="@(pinStart ? "start" : null)" data-slot="detail-cell-toggle">
-                    <button type="button" class="@_slots["detailToggle"]" data-slot="detail-toggle" data-key="@DetailKey(row)"
+                    <button type="button" class="@_slots["detailToggle"]" data-slot="detail-toggle" data-key="@DetailKeyText(row)"
                             aria-expanded="@(detailOpen ? "true" : "false")" aria-controls="@(detailOpen ? DetailId(row) : null)" aria-label="@DetailToggleLabel(row, detailOpen)"
                             disabled="@(!Context.IsInteractive)"
                             @onclick="@(() => Context.SetRowExpanded(DetailKey(row), !detailOpen))"

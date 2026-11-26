@@ -104,6 +104,24 @@ public partial class KlyDataList<TItem>
 
     internal bool HasDetail => _tableDetail;
 
+    /// <summary>The prefix of the expansion key of a row that has no usable row key: the key is its place on the page, which means another row once the rows change.</summary>
+    internal const string PositionKeyPrefix = "\u0001pos:";
+
+    private int _detailResultVersion = -1;
+
+    // Called when the controller announced a change: a new result drops the open state kept for places on the page (keys of the rows stay).
+    internal void PrunePositionKeys()
+    {
+        var version = Controller?.ResultVersion ?? 0;
+        if (version == _detailResultVersion) return;
+        _detailResultVersion = version;
+        if (!_tableDetail) return;
+        var stale = _treeExpandedOverrides.Keys.Where(k => k.StartsWith(PositionKeyPrefix, StringComparison.Ordinal)).ToList();
+        if (stale.Count == 0) return;
+        foreach (var key in stale) _treeExpandedOverrides.Remove(key);
+        _columnsVersion++;
+    }
+
     // The expansion state serves the child rows of a tree and the detail row of a table with a DetailTemplate (the two never run together).
     private bool ExpansionEnabled => _tableTree is not null || _tableDetail;
 

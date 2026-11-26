@@ -373,6 +373,7 @@ public partial class KlyDataList<TItem>
 
     private void OnControllerChanged()
     {
+        PrunePositionKeys();
         ReconcileSelection();
         _context.NotifyChanged();
     }

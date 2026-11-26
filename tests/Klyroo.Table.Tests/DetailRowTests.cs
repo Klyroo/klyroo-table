@@ -146,4 +146,47 @@ public sealed class DetailRowTests : TableHarness
         Assert.Empty(cut.FindAll("button[data-slot=detail-toggle]"));
         Assert.DoesNotContain(cut.FindAll("thead th"), th => th.GetAttribute("data-key") == "detail");
     }
+
+    private static readonly Klyroo.Query.DataListSchema<Person> NoKeySchema = Klyroo.Query.DataListSchema.For<Person>(s => s
+        .Field(p => p.Name, f => f.Key("name").Sortable())
+        .DefaultSort(p => p.Name));
+
+    [Fact]
+    public async Task Without_a_row_key_the_open_state_of_a_position_is_forgotten_when_other_rows_arrive()
+    {
+        Prepare();
+        var cut = Render<KlyDataList<Person>>(p => p
+            .Add(x => x.Schema, NoKeySchema)
+            .Add(x => x.Items, People())
+            .Add(x => x.UrlSync, false)
+            .AddChildContent<KlyDataListTable<Person>>(t => t
+                .Add(x => x.DetailTemplate, Detail)
+                .AddChildContent(b =>
+                {
+                    var seq = 0;
+                    Column(b, ref seq, "name", "Name");
+                })));
+
+        // Open the first row (Alice, by position 1), then sort descending: David is now first.
+        cut.FindAll("tbody button[data-slot=detail-toggle]")[0].Click();
+        Assert.Contains("Alice", cut.Find("tr[data-slot=detail-row]").PreviousElementSibling!.TextContent);
+
+        await cut.Find("thead th[data-key=name] button").ClickAsync(new Microsoft.AspNetCore.Components.Web.MouseEventArgs());
+
+        Assert.Contains("David", cut.Find("tbody tr").TextContent);
+        Assert.Empty(cut.FindAll("tr[data-slot=detail-row]"));
+    }
+
+    [Fact]
+    public async Task With_a_row_key_the_row_stays_open_when_the_sort_changes()
+    {
+        Prepare();
+        var cut = MountDetail();
+        cut.FindAll("tbody button[data-slot=detail-toggle]")[0].Click();
+
+        await cut.Find("thead th[data-key=name] button").ClickAsync(new Microsoft.AspNetCore.Components.Web.MouseEventArgs());
+
+        var detail = Assert.Single(cut.FindAll("tr[data-slot=detail-row]"));
+        Assert.Contains("Alice", detail.PreviousElementSibling!.TextContent);
+    }
 }

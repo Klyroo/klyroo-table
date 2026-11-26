@@ -581,7 +581,7 @@ Goal: a master-detail table, where a button opens a full-width row of extra cont
 
 `DetailTemplate` adds a first column with one button per row. The button has `aria-expanded`, is named "Show details for {row label}" (or "Hide details for ..."), and gets `aria-controls` pointing to the detail row while it is open; ArrowRight opens and ArrowLeft closes from the button, like the tree toggle. The detail is a `<tr>` with one cell that spans every column, drawn right after its row.
 
-Which rows are open is the row expansion state of the list, the one a tree uses, so you can read and drive it from code with `DataListContext<T>`: `IsRowExpanded(key)`, `SetRowExpanded(key, true)`, `ExpandAll()`, `CollapseAll()` and `ExpandedKeys`. The key is the row key of the schema, so give the schema a `RowKey` if rows should stay open when the page reloads or the sort changes; without one the key is the place of the row on the page. `ResetAll` closes every row.
+Which rows are open is the row expansion state of the list, the one a tree uses, so you can read and drive it from code with `DataListContext<T>`: `IsRowExpanded(key)`, `SetRowExpanded(key, true)`, `ExpandAll()`, `CollapseAll()` and `ExpandedKeys`. The key is the row key of the schema, so give the schema a `RowKey` if rows should stay open when the page reloads or the sort changes; without one (or when its keys repeat) the key is the place of the row on the page, and the list forgets those rows' open state whenever new rows arrive, so that another row never shows a detail the user opened for a different one. `ResetAll` closes every row.
 
 Some combinations are not supported:
 

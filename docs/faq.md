@@ -92,7 +92,7 @@ Troubleshooting first (symptom, cause, fix), then known limitations, then freque
 
 **Cause.** The detail row is switched off while the table is `Virtualize` (even in a static render, so a prerender and the interactive page agree), has a `Tree` (which uses the same expansion state for child rows) or shows the phone summary rows. A static render draws the buttons disabled and no detail, because opening a row needs interactivity.
 
-**Fix.** Drop `Virtualize` or `Tree` on that table, or page the rows instead. Give the schema a `RowKey` if rows should stay open across reloads.
+**Fix.** Drop `Virtualize` or `Tree` on that table, or page the rows instead. Give the schema a `RowKey` (with unique values) if rows should stay open when the page, the sort or a filter changes. Without one the open state is kept by place on the page, and the list closes every such row when new rows arrive.
 
 ### A click on a row does nothing
 

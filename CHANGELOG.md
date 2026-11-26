@@ -12,6 +12,7 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Fixed
 
+- A detail row opened in a table whose schema has no `RowKey` (or whose keys repeat) no longer shows up open on another row after a page, sort or filter change: the open state kept by place on the page is dropped when new rows arrive, while the state kept by row key stays.
 - A plain click on a sort column that is in a multi-column sort but not first makes it the only sort, ascending. Before, its next step could leave a sort on neither column.
 
 ### Added
