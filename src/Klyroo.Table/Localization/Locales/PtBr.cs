@@ -184,5 +184,6 @@ public static partial class KlyToolsLocales
             ExportSelection = "Linhas selecionadas ({0})",
             ExportAll = "Todos os {0} resultados",
             ExportAllUnknown = "Todos os resultados",
+            ExportTooLarge = "Linhas demais para exportar: {0} resultados, o limite é {1}. Restrinja a busca ou os filtros.",
         };
 }

@@ -60,11 +60,12 @@ public sealed partial class DataListContext<TItem>
         var schema = Schema;
         if (Columns.Count > 0)
         {
+            // A column exports what it reads: its Property or Field, or for a column that only has a template the schema field its key names. The Format of the column applies in every case.
             return [.. _owner.TableColumns()
-                .Where(c => c.Property is not null || c.Field is not null)
+                .Where(c => c.Property is not null || c.Field is not null || (c.ResolvedKey is { } k && schema?.FieldInfos.Any(f => f.Key == k && !f.IsCollection) == true))
                 .Select(c => new ExportColumn(c.ResolvedTitle, (item, culture) =>
                 {
-                    var value = c.ReadValue(item, schema);
+                    var value = c.Property is not null || c.Field is not null ? c.ReadValue(item, schema) : schema!.ReadField(item, c.ResolvedKey!);
                     return new DataListCsvCell(c.FormatValue(value, culture), IsTyped(value));
                 }))];
         }
@@ -76,7 +77,7 @@ public sealed partial class DataListContext<TItem>
         }))];
     }
 
-    // Numbers, dates and the like cannot be a formula whatever their text: only a string somebody typed can.
-    private static bool IsTyped(object? value) => value is not null and not string and not char
-        && (value is IFormattable and not Enum || value is bool);
+    // Only the values of these types are exempt from the formula guard: their text cannot be one. Any other type (an enum, a custom IFormattable, a string) is text somebody could have typed.
+    private static bool IsTyped(object? value) => value is sbyte or byte or short or ushort or int or uint or long or ulong or nint or nuint or float or double or decimal or Int128 or UInt128
+        or DateTime or DateTimeOffset or DateOnly or TimeOnly or TimeSpan or Guid or bool;
 }

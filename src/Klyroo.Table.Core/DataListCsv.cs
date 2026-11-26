@@ -28,8 +28,8 @@ public sealed record DataListCsvOptions
     /// <summary>The culture of the numbers and dates, and of the choice of the delimiter. <see langword="null"/> uses the culture of the page, or the current culture where there is no page.</summary>
     public CultureInfo? Culture { get; init; }
 
-    /// <summary>Starts the text with a byte order mark (U+FEFF, written as EF BB BF in UTF-8), which makes Excel read accents correctly. Off by default.</summary>
-    public bool Utf8Bom { get; init; }
+    /// <summary>Starts the text with a byte order mark (U+FEFF, written as EF BB BF in UTF-8), which makes Excel read accents correctly. On by default, because Excel is where most exports are opened; turn it off for a consumer that does not skip the mark.</summary>
+    public bool Utf8Bom { get; init; } = true;
 
     /// <summary>Writes the header line (true by default).</summary>
     public bool IncludeHeader { get; init; } = true;
@@ -65,6 +65,26 @@ public sealed record DataListExportResult(string FileName, string Content, int R
 
     /// <summary>The bytes to write to a file: UTF-8 of <see cref="Content"/>, without adding a byte order mark that <see cref="Content"/> does not hold.</summary>
     public byte[] ToBytes() => new UTF8Encoding(false).GetBytes(Content);
+}
+
+/// <summary>An export refused because it holds more rows than the limit.</summary>
+public sealed class DataListExportTooLargeException : InvalidOperationException
+{
+    /// <summary>Creates the exception.</summary>
+    /// <param name="count">How many rows the export would hold.</param>
+    /// <param name="limit">The limit.</param>
+    public DataListExportTooLargeException(long count, int limit)
+        : base($"The export holds {count} rows, more than the limit of {limit}.")
+    {
+        Count = count;
+        Limit = limit;
+    }
+
+    /// <summary>How many rows the export would hold.</summary>
+    public long Count { get; }
+
+    /// <summary>The limit that applied.</summary>
+    public int Limit { get; }
 }
 
 /// <summary>A CSV writer: RFC 4180 quoting, a delimiter that fits the culture, and protection against formula injection.</summary>

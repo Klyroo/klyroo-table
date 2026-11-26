@@ -93,7 +93,7 @@ What the source says about the web view:
 
 - Column preferences (`PreferencesKey`) are stored in `localStorage` of the web view, because there is no server to read a cookie.
 - Remembered filters (`DataListFilter.WithPersist()`) are stored in `localStorage` too, in the web view as in a browser, through the `klyroo-table-storage.js` module of the package.
-- The CSV export (`KlyDataListExport`) downloads through a browser module (`klyroo-table-download.js`), which a web view may not turn into a saved file. In a MAUI app handle `OnExport`: it receives the finished file (`DataListExportResult` with `Content` and `ToBytes()`), and you save it with the platform's file picker or share sheet.
+- The CSV export (`KlyDataListExport`) downloads through a browser module (`klyroo-table-download.js`), which a web view may not turn into a saved file. In a MAUI app handle `OnExport`: it receives the finished file (`DataListExportResult` with `Content` and `ToBytes()`; the byte order mark is part of both unless you turned it off), and you save it with the platform's file picker or share sheet.
 - Nothing implements `IKlyRequestCookies` there, so the time zone for date filters comes from the browser engine once the list is interactive.
 
 The stylesheet setup of [Getting started](getting-started.md#4-style-the-list) applies to the project that holds the Razor pages; the build-time Tailwind of Klyroo.UI serves its output to any host that references that project, a MAUI Blazor Hybrid app included.

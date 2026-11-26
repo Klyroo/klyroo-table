@@ -596,7 +596,7 @@ Goal: a button that downloads the list as a CSV file, exactly as the user sees i
 
 ```razor
 <KlyDataList TItem="Order" Schema="Schema" Items="_orders" Label="Orders" Selectable="true">
-    <KlyDataListExport TItem="Order" FileName="orders" CsvOptions="@(new DataListCsvOptions { Utf8Bom = true })" />
+    <KlyDataListExport TItem="Order" FileName="orders" CsvOptions="@(new DataListCsvOptions { Delimiter = ';' })" />
     <KlyDataListTable TItem="Order">
         <KlyDataListColumn TItem="Order" Field="customer" Title="Customer" />
         <KlyDataListColumn TItem="Order" Field="total" Title="Total" Format="C2" />
@@ -622,10 +622,12 @@ What the writer does, which matters when the file reaches Excel or LibreOffice:
 
 - **Delimiter**: `;` when the decimal separator of the culture is a comma (French, German, Spanish, Italian), `,` otherwise, so the file opens in columns in that locale. Set `DataListCsvOptions.Delimiter` to override.
 - **Quoting** follows RFC 4180: a field is quoted when it holds the delimiter, a quote (doubled), a line break, or starts or ends with a space. Lines end with CRLF.
-- **Formula injection**: a text cell that starts with `=`, `+`, `-`, `@`, a tab or a carriage return gets an apostrophe in front, so a spreadsheet shows it instead of running it. Numbers and dates are not touched (a negative number stays a number), but a text column holding "-5" is prefixed. `ProtectFormulas = false` turns this off, which is only safe for data you wrote yourself.
-- **Byte order mark**: `Utf8Bom = true` starts the file with U+FEFF, which Excel needs to read accents as UTF-8. Off by default.
+- **Formula injection**: a text cell that starts with `=`, `+`, `-`, `@`, a tab or a carriage return gets an apostrophe in front, so a spreadsheet shows it instead of running it. Values of a known type (numbers, `DateTime`, `DateTimeOffset`, `DateOnly`, `TimeOnly`, `TimeSpan`, `Guid`, `bool`) are not touched, so a negative number stays a number; everything else, enums and custom `IFormattable` types included, is treated as text, and a text column holding "-5" is prefixed. `ProtectFormulas = false` turns this off, which is only safe for data you wrote yourself.
+- **Byte order mark**: the file starts with U+FEFF by default, which Excel needs to read accents as UTF-8. Set `Utf8Bom = false` for a consumer that does not skip it.
 
-The browser downloads the file by itself, through a small module of the package (`klyroo-table-download.js`). To do something else with it, handle `OnExport`: it receives a `DataListExportResult` (file name, text, row count, scope, `ToBytes()`) and the browser download is skipped. That is the way to save the file in a .NET MAUI app, or to upload it. `OnError` receives an exception thrown by `LoadAll` or by your handler. A static render draws no export button.
+The export holds at most `MaxRows` rows (100,000 by default, whatever the source). A bigger one is refused before the rows are loaded when the source knows the count, with a message under the button and a `DataListExportTooLargeException` to `OnError`, because the file is built in memory on the server. A column that has a template but also a `Property`, or a `Key` that names a schema field, exports that value with the `Format` of the column.
+
+The browser downloads the file by itself, through a small module of the package (`klyroo-table-download.js`), which receives the bytes as a stream (`DotNetStreamReference`), not as one big string in the interop message. To do something else with it, handle `OnExport`: it receives a `DataListExportResult` (file name, text, row count, scope, `ToBytes()`) and the browser download is skipped. That is the way to save the file in a .NET MAUI app, or to upload it. `OnError` receives an exception thrown by `LoadAll` or by your handler. A static render draws no export button.
 
 From code, `DataListContext<T>` has `ExportRows(scope)`, `ExportHeaders()`, `ToCsv(rows, options)` and `ExportCsv(scope, options)`, and the headless `DataListCsv` class (in Klyroo.Table.Core) writes any header and rows with the same rules.
 

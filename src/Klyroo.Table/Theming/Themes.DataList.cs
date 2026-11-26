@@ -22,7 +22,7 @@ internal static partial class ToolsThemes
                 "empty", "skeleton", "pagination", "pageSize", "pageSizeLabel", "pageSizeSelect", "pageSizeForm", "error",
                 "filters", "filterTags", "filterTag", "filterTagButton", "filterTagLabel", "filterTagOperator", "filterTagValue", "filterTagRemove", "filterTagRemoveIcon", "addFilter", "clearFilters", "filterPopover", "filterEditor", "filterEditorTitle", "filterField", "filterFieldLabel", "filterOperator", "filterInput", "filterOptions", "filterOption", "filterOptionLink", "filterOptionCount", "filterOptionCheck", "filterEmpty", "filterActions", "filterChoices", "filterMenu", "filterMenuItem", "filterMenuHeader", "filterBack", "filterSection", "filterRange", "filterRangeSlider", "filterPresets", "filterHint", "filterPopoverWide",
                 "filterPanel", "filterPanelHeader", "filterPanelTitle", "filterPanelCount", "filterPanelDescription", "filterPanelSection", "filterPanelTrigger", "filterPanelContent", "filterPanelEditor", "filterPanelFooter", "filterPanelEmpty", "filterPanelResults", "filterNativeLabel", "filterNativeInput",
-                "export", "selectCell", "rowSelected", "rowClickable", "rowLinked", "rowLink", "selectionActions", "selectionBar", "selectionCount", "selectionLive", "selectionScope", "selectionGroup", "actionsDropdown",
+                "export", "exportMessage", "selectCell", "rowSelected", "rowClickable", "rowLinked", "rowLink", "selectionActions", "selectionBar", "selectionCount", "selectionLive", "selectionScope", "selectionGroup", "actionsDropdown",
                 "rowActionsCell", "rowActions", "rowActionsInline", "rowActionsMenu", "rowActionsPhone", "sheetList", "sheetDivider", "sheetEntry", "sheetHeading", "sheetItem", "sheetReason", "sheetIcon",
                 "infiniteLoader", "loadMoreError", "loadMoreErrorText", "cursorReset", "infiniteEnd", "infiniteStatus",
                 "thPinnedStart", "thPinnedEnd", "tdPinnedStart", "tdPinnedEnd", "colResize", "colSized", "columnsAll", "columnsHint", "columnsGrip", "columnsLive", "columnsPinGroup", "columnsSearch",
@@ -126,7 +126,8 @@ internal static partial class ToolsThemes
             .Slot("filterNativeLabel", "inline-flex min-h-9 min-w-0 flex-1 cursor-pointer items-center gap-2 text-sm text-(--klyroo-text)")
             .Slot("filterNativeInput", "size-4 shrink-0 accent-(--klyroo-primary-text)")
             .Slot("filterPanelEmpty", "px-3 py-3 text-sm text-(--klyroo-text-muted)")
-            .Slot("export", "inline-flex")
+            .Slot("export", "inline-flex flex-col gap-1")
+            .Slot("exportMessage", "text-sm text-(--klyroo-error-text)")
             .Slot("selectCell", "w-10 pe-0")
             .Slot("rowClickable", "cursor-pointer hover:bg-(--klyroo-bg-muted) focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-(--klyroo-primary-text)")
             // The link covers the row (its ::after is stretched over the nearest positioned box, the row); what a person can click inside the row is lifted above it.

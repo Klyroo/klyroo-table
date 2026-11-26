@@ -184,5 +184,6 @@ public static partial class KlyToolsLocales
             ExportSelection = "Ausgewählte Zeilen ({0})",
             ExportAll = "Alle {0} Ergebnisse",
             ExportAllUnknown = "Alle Ergebnisse",
+            ExportTooLarge = "Zu viele Zeilen für den Export: {0} Ergebnisse, das Limit ist {1}. Schränken Sie die Suche oder die Filter ein.",
         };
 }

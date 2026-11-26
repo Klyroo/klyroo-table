@@ -184,5 +184,6 @@ public static partial class KlyToolsLocales
             ExportSelection = "選択した行（{0}）",
             ExportAll = "すべての結果（{0}件）",
             ExportAllUnknown = "すべての結果",
+            ExportTooLarge = "エクスポートする行が多すぎます（{0}件、上限は{1}件）。検索やフィルターを絞り込んでください。",
         };
 }

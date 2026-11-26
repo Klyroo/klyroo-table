@@ -24,6 +24,10 @@
                       Loading="_busy" Disabled="@(scopes.Count == 0)" LeadingIcon="@RenderIcon(Icon, "size-4")" data-slot="export-trigger"
                       OnClick="@(() => RunAsync(scopes[0]))" />
         }
+        @if (_refused is not null)
+        {
+            <p class="@_slots["exportMessage"]" role="alert" data-slot="export-message">@_refused</p>
+        }
     </div>
 }
 
@@ -32,6 +36,7 @@
 
     private SlotSet _slots = default!;
     private bool _busy;
+    private string? _refused;
     private bool _disposed;
     private Task<IJSObjectReference?>? _module;
 
@@ -48,6 +53,12 @@
     /// every result needs a list of rows in memory or <see cref="LoadAll"/>). With one source left the button exports at once.
     /// </summary>
     [Parameter] public IReadOnlyList<DataListExportScope>? Scopes { get; set; }
+
+    /// <summary>
+    /// The most rows one export may hold, whatever the scope (100,000 by default). A bigger export is refused before the rows are loaded when the source knows how many there are, with a message under the
+    /// button (and <see cref="OnError"/> receives a <see cref="DataListExportTooLargeException"/>): the file is built in memory on the server and sent to the browser, which a million rows would not survive.
+    /// </summary>
+    [Parameter] public int MaxRows { get; set; } = 100_000;
 
     /// <summary>The name of the file, with or without <c>.csv</c>. Without it the label of the list, else <c>export</c>.</summary>
     [Parameter] public string? FileName { get; set; }
@@ -108,16 +119,24 @@
     {
         if (_busy) return;
         _busy = true;
+        _refused = null;
         StateHasChanged();
         try
         {
+            if (Expected(scope) is { } expected && expected > MaxRows) throw new DataListExportTooLargeException(expected, MaxRows);
             var rows = await RowsAsync(scope);
+            if (rows.Count > MaxRows) throw new DataListExportTooLargeException(rows.Count, MaxRows);
             var options = (CsvOptions ?? new DataListCsvOptions()) with { Culture = CsvOptions?.Culture ?? FormatCulture };
             var content = Context.ToCsv(rows, options);
             var name = DataListCsv.FileName(FileName ?? Context.Label);
             var result = new DataListExportResult(name, content, rows.Count, scope);
             if (OnExport.HasDelegate) await OnExport.InvokeAsync(result);
             else await DownloadAsync(result);
+        }
+        catch (DataListExportTooLargeException tooLarge)
+        {
+            _refused = string.Format(FormatCulture, ToolsMessages.ExportTooLarge, tooLarge.Count.ToString("N0", FormatCulture), tooLarge.Limit.ToString("N0", FormatCulture));
+            if (OnError.HasDelegate) await OnError.InvokeAsync(tooLarge);
         }
         catch (Exception exception) when (!(exception is OperationCanceledException && Context.LifetimeToken.IsCancellationRequested))
         {
@@ -130,6 +149,14 @@
             if (!_disposed) await InvokeAsync(StateHasChanged);
         }
     }
+
+    // How many rows a scope holds when that is known without loading them.
+    private long? Expected(DataListExportScope scope) => scope switch
+    {
+        DataListExportScope.Page => Context.Rows.Count,
+        DataListExportScope.Selection => Context.SelectedCount,
+        _ => Context.MatchingCount,
+    };
 
     // A list of rows in memory resolves "every result" itself; any other needs the function of the app.
     private async Task<IReadOnlyList<TItem>> RowsAsync(DataListExportScope scope)
@@ -146,7 +173,9 @@
     {
         _module ??= ImportAsync();
         if (await _module is not { } module) throw new InvalidOperationException("The browser side of the export is not available here: handle OnExport to save the file.");
-        await module.InvokeVoidAsync("downloadText", result.FileName, result.Content, result.MimeType);
+        // The bytes go to the browser as a stream, not as one big string through the interop message.
+        using var reference = new DotNetStreamReference(new MemoryStream(result.ToBytes()), leaveOpen: false);
+        await module.InvokeVoidAsync("downloadStream", result.FileName, reference, result.MimeType);
     }
 
     private async Task<IJSObjectReference?> ImportAsync()

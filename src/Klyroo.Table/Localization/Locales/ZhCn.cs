@@ -184,5 +184,6 @@ public static partial class KlyToolsLocales
             ExportSelection = "所选行（{0}）",
             ExportAll = "全部 {0} 条结果",
             ExportAllUnknown = "全部结果",
+            ExportTooLarge = "要导出的行太多：{0} 条结果，上限为 {1}。请缩小搜索或筛选范围。",
         };
 }

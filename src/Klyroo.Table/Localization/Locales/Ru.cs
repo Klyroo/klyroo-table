@@ -184,5 +184,6 @@ public static partial class KlyToolsLocales
             ExportSelection = "Выбранные строки ({0})",
             ExportAll = "Все результаты ({0})",
             ExportAllUnknown = "Все результаты",
+            ExportTooLarge = "Слишком много строк для экспорта: {0} результатов, лимит {1}. Сузьте поиск или фильтры.",
         };
 }

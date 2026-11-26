@@ -16,4 +16,7 @@ public sealed partial record KlyToolsMessages
 
     /// <summary>Menu entry that exports every result when the source does not say how many there are.</summary>
     public string ExportAllUnknown { get; init; } = "All results";
+
+    /// <summary>Shown under the export button when the export holds more rows than <c>MaxRows</c> allows. {0} is how many rows it would hold, {1} the limit.</summary>
+    public string ExportTooLarge { get; init; } = "Too many rows to export: {0} results, the limit is {1}. Narrow the search or the filters.";
 }

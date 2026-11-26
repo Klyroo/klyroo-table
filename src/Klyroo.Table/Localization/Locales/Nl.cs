@@ -184,5 +184,6 @@ public static partial class KlyToolsLocales
             ExportSelection = "Geselecteerde rijen ({0})",
             ExportAll = "Alle {0} resultaten",
             ExportAllUnknown = "Alle resultaten",
+            ExportTooLarge = "Te veel rijen om te exporteren: {0} resultaten, de limiet is {1}. Beperk de zoekopdracht of de filters.",
         };
 }

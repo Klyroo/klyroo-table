@@ -184,5 +184,6 @@ public static partial class KlyToolsLocales
             ExportSelection = "الصفوف المحددة ({0})",
             ExportAll = "جميع النتائج ({0})",
             ExportAllUnknown = "جميع النتائج",
+            ExportTooLarge = "عدد الصفوف أكبر من أن يُصدَّر: {0} نتيجة والحد الأقصى {1}. ضيّق البحث أو عوامل التصفية.",
         };
 }

@@ -9,7 +9,7 @@ public sealed class DataListCsvTests
     private static readonly CultureInfo Fr = CultureInfo.GetCultureInfo("fr-FR");
 
     private static string Write(string[] header, string?[][] rows, DataListCsvOptions? options = null) =>
-        DataListCsv.Write(header, rows.Select(r => (IReadOnlyList<DataListCsvCell>)[.. r.Select(c => new DataListCsvCell(c))]), options ?? new DataListCsvOptions { Culture = En });
+        DataListCsv.Write(header, rows.Select(r => (IReadOnlyList<DataListCsvCell>)[.. r.Select(c => new DataListCsvCell(c))]), options ?? new DataListCsvOptions { Utf8Bom = false, Culture = En });
 
     [Fact]
     public void The_delimiter_follows_the_decimal_separator_of_the_culture_unless_it_is_given()
@@ -17,8 +17,8 @@ public sealed class DataListCsvTests
         Assert.Equal(',', DataListCsv.DelimiterFor(En));
         Assert.Equal(';', DataListCsv.DelimiterFor(Fr));
         Assert.Equal(';', DataListCsv.DelimiterFor(CultureInfo.GetCultureInfo("de-DE")));
-        Assert.Equal("a;b\r\n1;2\r\n", Write(["a", "b"], [["1", "2"]], new DataListCsvOptions { Culture = Fr }));
-        Assert.Equal("a\tb\r\n1\t2\r\n", Write(["a", "b"], [["1", "2"]], new DataListCsvOptions { Culture = Fr, Delimiter = '\t' }));
+        Assert.Equal("a;b\r\n1;2\r\n", Write(["a", "b"], [["1", "2"]], new DataListCsvOptions { Utf8Bom = false, Culture = Fr }));
+        Assert.Equal("a\tb\r\n1\t2\r\n", Write(["a", "b"], [["1", "2"]], new DataListCsvOptions { Utf8Bom = false, Culture = Fr, Delimiter = '\t' }));
     }
 
     [Theory]
@@ -64,14 +64,14 @@ public sealed class DataListCsvTests
     {
         Assert.Equal("-5.00", DataListCsv.Field(new DataListCsvCell("-5.00", Trusted: true), ','));
         Assert.Equal("=1+1", DataListCsv.Field(new DataListCsvCell("=1+1"), ',', protectFormulas: false));
-        Assert.Equal("=1+1", Write(["h"], [["=1+1"]], new DataListCsvOptions { Culture = En, ProtectFormulas = false }).Split("\r\n")[1]);
+        Assert.Equal("=1+1", Write(["h"], [["=1+1"]], new DataListCsvOptions { Utf8Bom = false, Culture = En, ProtectFormulas = false }).Split("\r\n")[1]);
     }
 
     [Fact]
     public void The_header_is_protected_like_any_text_and_can_be_left_out()
     {
         Assert.Equal("'=evil,ok\r\n", Write(["=evil", "ok"], []));
-        Assert.Equal("x\r\n", Write(["h"], [["x"]], new DataListCsvOptions { Culture = En, IncludeHeader = false }));
+        Assert.Equal("x\r\n", Write(["h"], [["x"]], new DataListCsvOptions { Utf8Bom = false, Culture = En, IncludeHeader = false }));
     }
 
     [Fact]
@@ -95,4 +95,22 @@ public sealed class DataListCsvTests
     [InlineData("..", "export.csv")]
     public void The_file_name_is_safe_and_ends_with_csv(string? name, string expected) =>
         Assert.Equal(expected, DataListCsv.FileName(name));
+
+    [Fact]
+    public void The_byte_order_mark_is_on_by_default_and_can_be_turned_off()
+    {
+        Assert.True(new DataListCsvOptions().Utf8Bom);
+        Assert.StartsWith("\uFEFF", DataListCsv.Write(["h"], [], new DataListCsvOptions { Culture = En }));
+        Assert.False(DataListCsv.Write(["h"], [], new DataListCsvOptions { Culture = En, Utf8Bom = false }).StartsWith('\uFEFF'));
+    }
+
+    [Fact]
+    public void An_export_over_the_limit_says_how_many_rows_and_what_the_limit_is()
+    {
+        var error = new DataListExportTooLargeException(250_000, 100_000);
+        Assert.Equal(250_000, error.Count);
+        Assert.Equal(100_000, error.Limit);
+        Assert.Contains("250000", error.Message);
+        Assert.Contains("100000", error.Message);
+    }
 }

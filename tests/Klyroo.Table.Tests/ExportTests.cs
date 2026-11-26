@@ -5,6 +5,7 @@ using Klyroo.Query;
 using Klyroo.Table;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
+using Microsoft.JSInterop;
 using Xunit;
 
 namespace Klyroo.Table.Tests;
@@ -69,7 +70,7 @@ public sealed class ExportTests : TableHarness
             b.CloseComponent();
         });
 
-        var lines = Lines(_context!.ExportCsv(DataListExportScope.Page, new DataListCsvOptions { Culture = Fr }));
+        var lines = Lines(_context!.ExportCsv(DataListExportScope.Page, new DataListCsvOptions { Utf8Bom = false, Culture = Fr }));
         Assert.Equal(["Name", "Salary", "Hired"], _context.ExportHeaders());
         Assert.Equal("Name;Salary;Hired", lines[0]);
         // Page size 2, sorted by name: Alice, Bob. The salary has the decimal comma of the culture, the date its short format.
@@ -79,7 +80,7 @@ public sealed class ExportTests : TableHarness
         Assert.StartsWith("Bob Chen;95", lines[2]);
         Assert.EndsWith(",50;10/01/2025", lines[2]);
 
-        Assert.StartsWith("Name,Salary,Hired\r\nAlice Martin,\"120,000.00\",3/15/2024\r\n", _context.ExportCsv(DataListExportScope.Page, new DataListCsvOptions { Culture = En }));
+        Assert.StartsWith("Name,Salary,Hired\r\nAlice Martin,\"120,000.00\",3/15/2024\r\n", _context.ExportCsv(DataListExportScope.Page, new DataListCsvOptions { Utf8Bom = false, Culture = En }));
     }
 
     [Fact]
@@ -116,7 +117,7 @@ public sealed class ExportTests : TableHarness
         // A box ticked on the page is the selection; rows ticked on another page of a list in memory stay in it.
         cut.Find("tbody tr:first-child input[data-select=row]").Change(true);
         Assert.Equal(["Alice Martin"], _context.ExportRows(DataListExportScope.Selection).Select(p => p.Name));
-        var csv = _context.ExportCsv(DataListExportScope.Selection, new DataListCsvOptions { Culture = En });
+        var csv = _context.ExportCsv(DataListExportScope.Selection, new DataListCsvOptions { Utf8Bom = false, Culture = En });
         Assert.Equal(2, Lines(csv).Count);
     }
 
@@ -146,7 +147,7 @@ public sealed class ExportTests : TableHarness
             Column(b, ref seq, "note", "Note");
         });
 
-        var lines = Lines(_context!.ExportCsv(DataListExportScope.Page, new DataListCsvOptions { Culture = CultureInfo.InvariantCulture }));
+        var lines = Lines(_context!.ExportCsv(DataListExportScope.Page, new DataListCsvOptions { Utf8Bom = false, Culture = CultureInfo.InvariantCulture }));
         Assert.Equal("'=cmd|' /C calc'!A0,'-Backend,-12.5,'@x", lines[1]);
         Assert.Equal("\"Plain, with comma\",Infra,3,\"say \"\"hi\"\"\"", lines[2]);
     }
@@ -156,7 +157,7 @@ public sealed class ExportTests : TableHarness
     {
         Prepare();
         var module = JSInterop.SetupModule(DownloadModule);
-        module.SetupVoid("downloadText", _ => true);
+        module.SetupVoid("downloadStream", _ => true);
         var cut = MountWith(
             ExportPart((b, s) =>
             {
@@ -172,9 +173,9 @@ public sealed class ExportTests : TableHarness
 
         await cut.Find("[data-slot=export-trigger]").ClickAsync();
 
-        var call = Assert.Single(module.Invocations["downloadText"]);
+        var call = Assert.Single(module.Invocations["downloadStream"]);
         Assert.Equal("People 2026Q1.csv", call.Arguments[0]);
-        Assert.Equal("﻿Name\r\nAlice Martin\r\nBob Chen\r\n", call.Arguments[1]);
+        Assert.IsType<DotNetStreamReference>(call.Arguments[1]);
         Assert.Equal("text/csv;charset=utf-8", call.Arguments[2]);
     }
 
@@ -183,7 +184,7 @@ public sealed class ExportTests : TableHarness
     {
         Prepare();
         var module = JSInterop.SetupModule(DownloadModule);
-        module.SetupVoid("downloadText", _ => true);
+        module.SetupVoid("downloadStream", _ => true);
         DataListExportResult? received = null;
         var cut = MountWith(
             ExportPart((b, s) =>
@@ -203,7 +204,7 @@ public sealed class ExportTests : TableHarness
         Assert.Equal(4, received!.RowCount);
         Assert.Equal(DataListExportScope.All, received.Scope);
         Assert.Equal("export.csv", received.FileName);
-        Assert.Empty(module.Invocations["downloadText"]);
+        Assert.Empty(module.Invocations["downloadStream"]);
     }
 
     [Fact]
@@ -237,7 +238,7 @@ public sealed class ExportTests : TableHarness
     {
         Prepare();
         var module = JSInterop.SetupModule(DownloadModule);
-        module.SetupVoid("downloadText", _ => true);
+        module.SetupVoid("downloadStream", _ => true);
         DataListRequest? asked = null;
         Func<DataListRequest, CancellationToken, Task<IReadOnlyList<Person>>> loadAll = (request, _) =>
         {
@@ -261,8 +262,8 @@ public sealed class ExportTests : TableHarness
 
         Assert.NotNull(asked);
         Assert.IsType<DataListPaging.None>(asked!.Paging);
-        var call = Assert.Single(module.Invocations["downloadText"]);
-        Assert.Equal(5, Lines((string)call.Arguments[1]!).Count);
+        var call = Assert.Single(module.Invocations["downloadStream"]);
+        Assert.IsType<DotNetStreamReference>(call.Arguments[1]);
     }
 
     [Fact]
@@ -291,5 +292,129 @@ public sealed class ExportTests : TableHarness
         Prepare(interactive: false);
         var cut = MountWith(ExportPart());
         Assert.Empty(cut.FindAll("[data-slot=export]"));
+    }
+
+    [Fact]
+    public async Task The_download_streams_the_utf8_bytes_with_the_byte_order_mark_by_default()
+    {
+        Prepare();
+        var module = JSInterop.SetupModule(DownloadModule);
+        module.Setup<object?>("downloadStream", _ => true).SetResult(null);
+        var cut = MountWith(
+            ExportPart((b, s) => b.AddComponentParameter(s, nameof(KlyDataListExport<Person>.Scopes), (IReadOnlyList<DataListExportScope>)[DataListExportScope.Page])),
+            columns: b =>
+            {
+                var seq = 100;
+                Column(b, ref seq, "name", "Né");
+            });
+
+        await cut.Find("[data-slot=export-trigger]").ClickAsync();
+
+        var call = Assert.Single(module.Invocations["downloadStream"]);
+        var reference = Assert.IsType<DotNetStreamReference>(call.Arguments[1]);
+        Assert.NotNull(reference);
+        Assert.Equal("export.csv", call.Arguments[0]);
+    }
+
+    [Fact]
+    public async Task An_export_over_MaxRows_is_refused_with_a_message_and_nothing_is_loaded_or_downloaded()
+    {
+        Prepare();
+        var module = JSInterop.SetupModule(DownloadModule);
+        module.SetupVoid("downloadStream", _ => true);
+        Exception? failure = null;
+        var cut = MountWith(ExportPart((b, s) =>
+        {
+            b.AddComponentParameter(s, nameof(KlyDataListExport<Person>.Scopes), (IReadOnlyList<DataListExportScope>)[DataListExportScope.All]);
+            b.AddComponentParameter(s + 1, nameof(KlyDataListExport<Person>.MaxRows), 3);
+            b.AddComponentParameter(s + 2, nameof(KlyDataListExport<Person>.OnError), EventCallback.Factory.Create<Exception>(this, e => failure = e));
+        }));
+
+        await cut.Find("[data-slot=export-trigger]").ClickAsync();
+
+        var tooLarge = Assert.IsType<DataListExportTooLargeException>(failure);
+        Assert.Equal(4, tooLarge.Count);
+        Assert.Equal(3, tooLarge.Limit);
+        Assert.Contains("Too many rows to export: 4 results, the limit is 3", cut.Find("[data-slot=export-message]").TextContent);
+        Assert.Empty(module.Invocations["downloadStream"]);
+        Assert.False(cut.Find("[data-slot=export-trigger]").HasAttribute("disabled"));
+    }
+
+    private enum Level { High }
+
+    private sealed class Odd : IFormattable
+    {
+        public string ToString(string? format, IFormatProvider? provider) => "=odd";
+    }
+
+    [Fact]
+    public void Only_known_value_types_skip_the_formula_guard()
+    {
+        // Typed as object so that the column reads a value of the type under test.
+        var schema = Klyroo.Query.DataListSchema.For<Holder>(s => s
+            .Field(h => h.Value, f => f.Key("value")));
+        Prepare();
+        Render<KlyDataList<Holder>>(p => p
+            .Add(x => x.Schema, schema)
+            .Add(x => x.Items, new[] { new Holder(-5), new Holder(Level.High), new Holder(new Odd()), new Holder(Guid.Empty), new Holder("-x"), new Holder(-1.5m), new Holder(new DateTime(2024, 1, 2)) })
+            .Add(x => x.UrlSync, false)
+            .AddChildContent(b =>
+            {
+                b.OpenComponent<CaptureHolder>(0);
+                b.AddComponentParameter(1, nameof(CaptureHolder.OnContext), (Action<DataListContext<Holder>>)(c => _holder = c));
+                b.CloseComponent();
+                b.OpenComponent<KlyDataListTable<Holder>>(2);
+                b.CloseComponent();
+            }));
+
+        var lines = Lines(_holder!.ExportCsv(DataListExportScope.Page, new DataListCsvOptions { Utf8Bom = false, Culture = CultureInfo.InvariantCulture }));
+        // The default sort of this schema is none, so rows keep their order.
+        Assert.Equal(["Value", "-5", "High", "'=odd", "00000000-0000-0000-0000-000000000000", "'-x", "-1.5", "01/02/2024 00:00:00"], lines);
+    }
+
+    private DataListContext<Holder>? _holder;
+
+    private sealed record Holder(object? Value);
+
+    private sealed class CaptureHolder : DataListPartBase<Holder>
+    {
+        [Parameter] public Action<DataListContext<Holder>>? OnContext { get; set; }
+
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+            OnContext?.Invoke(Context);
+        }
+    }
+
+    [Fact]
+    public void A_column_with_a_template_exports_its_formatted_value_from_a_property_or_from_the_schema_field_of_its_key()
+    {
+        Prepare();
+        MountWith(columns: b =>
+        {
+            var seq = 100;
+            RenderFragment<Person> template = p => x => x.AddContent(0, "x");
+            b.OpenComponent<KlyDataListColumn<Person>>(seq);
+            b.AddComponentParameter(seq + 1, nameof(KlyDataListColumn<Person>.Title), "Pay");
+            b.AddComponentParameter(seq + 2, nameof(KlyDataListColumn<Person>.Template), template);
+            b.AddComponentParameter(seq + 3, nameof(KlyDataListColumn<Person>.Property), (System.Linq.Expressions.Expression<Func<Person, object?>>)(p => p.Salary));
+            b.AddComponentParameter(seq + 4, nameof(KlyDataListColumn<Person>.Format), "N0");
+            b.CloseComponent();
+            b.OpenComponent<KlyDataListColumn<Person>>(seq + 10);
+            b.AddComponentParameter(seq + 11, nameof(KlyDataListColumn<Person>.Title), "Since");
+            b.AddComponentParameter(seq + 12, nameof(KlyDataListColumn<Person>.Template), template);
+            b.AddComponentParameter(seq + 13, nameof(KlyDataListColumn<Person>.Key), "hired");
+            b.AddComponentParameter(seq + 14, nameof(KlyDataListColumn<Person>.Format), "yyyy");
+            b.CloseComponent();
+            b.OpenComponent<KlyDataListColumn<Person>>(seq + 20);
+            b.AddComponentParameter(seq + 21, nameof(KlyDataListColumn<Person>.Title), "Nothing");
+            b.AddComponentParameter(seq + 22, nameof(KlyDataListColumn<Person>.Template), template);
+            b.CloseComponent();
+        });
+
+        var lines = Lines(_context!.ExportCsv(DataListExportScope.Page, new DataListCsvOptions { Utf8Bom = false, Culture = En }));
+        Assert.Equal("Pay,Since", lines[0]);
+        Assert.Equal("\"120,000\",2024", lines[1]);
     }
 }
