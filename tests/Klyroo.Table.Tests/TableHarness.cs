@@ -50,12 +50,15 @@ public abstract class TableHarness : BunitContext
         seq += 20;
     }
 
-    /// <summary>Renders a list of <see cref="People"/> with a table of the columns Name, Team and Salary, plus whatever the caller adds.</summary>
+    /// <summary>
+    /// Renders a list of <see cref="People"/> with a table of the columns Name, Team and Salary (or <paramref name="columns"/>), the parameters of <paramref name="table"/>, and
+    /// <paramref name="before"/> rendered inside the list ahead of the table (a part that is not the table).
+    /// </summary>
     protected IRenderedComponent<KlyDataList<Person>> Mount(
         Action<ComponentParameterCollectionBuilder<KlyDataListTable<Person>>>? table = null,
         Action<RenderTreeBuilder>? columns = null,
         Action<ComponentParameterCollectionBuilder<KlyDataList<Person>>>? list = null,
-        RenderFragment? parts = null,
+        Action<RenderTreeBuilder>? before = null,
         IEnumerable<Person>? items = null)
     {
         return Render<KlyDataList<Person>>(p =>
@@ -64,22 +67,34 @@ public abstract class TableHarness : BunitContext
              .Add(x => x.Items, items ?? People())
              .Add(x => x.UrlSync, false);
             list?.Invoke(p);
-            if (parts is not null) p.Add(x => x.ChildContent, parts);
-            else
+            p.AddChildContent<KlyDataListTable<Person>>(t =>
             {
-                p.AddChildContent<KlyDataListTable<Person>>(t =>
+                table?.Invoke(t);
+                // Parts that are not columns render inside the table's content too, still inside the list.
+                t.AddChildContent(cb =>
                 {
-                    table?.Invoke(t);
-                    t.AddChildContent(b =>
-                    {
-                        if (columns is not null) { columns(b); return; }
-                        var seq = 0;
-                        Column(b, ref seq, "name", "Name");
-                        Column(b, ref seq, "team", "Team");
-                        Column(b, ref seq, "salary", "Salary", format: "N2");
-                    });
+                    before?.Invoke(cb);
+                    if (columns is not null) { columns(cb); return; }
+                    var c = 100;
+                    Column(cb, ref c, "name", "Name");
+                    Column(cb, ref c, "team", "Team");
+                    Column(cb, ref c, "salary", "Salary", format: "N2");
                 });
-            }
+            });
         });
+    }
+}
+
+/// <summary>A part that hands the <see cref="DataListContext{TItem}"/> of its list to a test.</summary>
+public sealed class CaptureContext : DataListPartBase<Person>
+{
+    /// <summary>Called with the context once the part initialized.</summary>
+    [Parameter] public Action<DataListContext<Person>>? OnContext { get; set; }
+
+    /// <inheritdoc />
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        OnContext?.Invoke(Context);
     }
 }

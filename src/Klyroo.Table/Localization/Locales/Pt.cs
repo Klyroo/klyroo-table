@@ -176,5 +176,8 @@ public static partial class KlyToolsLocales
             SortMoveEarlier = "Subir {0} na ordenação",
             SortMoveLater = "Descer {0} na ordenação",
             SortReverse = "Inverter o sentido de {0}",
+            DetailExpand = "Mostrar os detalhes de {0}",
+            DetailCollapse = "Ocultar os detalhes de {0}",
+            DetailColumn = "Detalhes",
         };
 }

@@ -16,6 +16,7 @@
             var columns = Columns();
             var selecting = Context.SelectionVisible;
             var acting = RowActions is { Count: > 0 };
+            var detailing = DetailsOn && !Context.SummaryViewActive;
             var label = Caption ?? AriaLabel ?? Context.Label ?? ToolsMessages.Results;
             var empty = Context.Result is not null && Context.Rows.Count == 0 && !Context.HasError;
             var treeActive = Tree is not null && !Context.IsInitial && !empty;
@@ -115,6 +116,10 @@
                     @if (showColgroup)
                     {
                         <colgroup>
+                            @if (detailing)
+                            {
+                                <col />
+                            }
                             @if (selecting)
                             {
                                 <col />
@@ -131,10 +136,15 @@
                     }
                     <thead class="@_slots["thead"]">
                         <tr class="@_slots["tr"]" aria-rowindex="@(virtualizing ? 1 : null)">
+                            @if (detailing)
+                            {
+                                @* Read by assistive technology only: the cells hold a button that names itself. *@
+                                <th scope="col" class="@SelectClass("th", pinStart)" style="@(pinStart ? "inset-inline-start:0" : null)" data-pinned="@(pinStart ? "start" : null)" data-key="detail"><span class="sr-only">@ToolsMessages.DetailColumn</span></th>
+                            }
                             @if (selecting)
                             {
                                 @* The box of the header is named by itself: the cell has no text. *@
-                                <th scope="col" class="@SelectClass("th", pinStart)" style="@(pinStart ? "inset-inline-start:0" : null)" data-pinned="@(pinStart ? "start" : null)" data-key="select"><DataListSelectAll TItem="TItem" /></th>
+                                <th scope="col" class="@SelectClass("th", pinStart)" style="@(pinStart ? SelectInset(detailing) : null)" data-pinned="@(pinStart ? "start" : null)" data-key="select"><DataListSelectAll TItem="TItem" /></th>
                             }
                             @foreach (var column in columns)
                             {
@@ -185,9 +195,13 @@
                             @for (var row = 0; row < Math.Clamp(Context.State.PageSize, 3, 10); row++)
                             {
                                 <tr class="@_slots["tr"]" data-slot="skeleton-row">
-                                    @if (selecting)
+                                    @if (detailing)
                                     {
                                         <td class="@SelectClass("td", pinStart)" style="@(pinStart ? "inset-inline-start:0" : null)" data-pinned="@(pinStart ? "start" : null)"></td>
+                                    }
+                                    @if (selecting)
+                                    {
+                                        <td class="@SelectClass("td", pinStart)" style="@(pinStart ? SelectInset(detailing) : null)" data-pinned="@(pinStart ? "start" : null)"></td>
                                     }
                                     @foreach (var column in columns)
                                     {
@@ -203,7 +217,7 @@
                         else if (empty)
                         {
                             <tr class="@_slots["tr"]" data-slot="empty-row">
-                                <td colspan="@Math.Max(1, columns.Count + (selecting ? 1 : 0) + (acting ? 1 : 0))" class="@_slots["empty"]">
+                                <td colspan="@Math.Max(1, columns.Count + (detailing ? 1 : 0) + (selecting ? 1 : 0) + (acting ? 1 : 0))" class="@_slots["empty"]">
                                     @RenderEmptyState()
                                 </td>
                             </tr>
@@ -212,13 +226,13 @@
                         {
                             <Virtualize TItem="RowEntry" Items="entries" ItemSize="EffectiveItemSize" OverscanCount="OverscanCount" SpacerElement="tr" Context="row">
                                 <DataListRowView TItem="TItem" @key="row.Key" Item="row.Item" Revision="Revision" RowIndex="row.Position + 1" Class="@RowClasses(row, selecting)" Attributes="@RowAttributes?.Invoke(row.Item)" Clickable="@IsRowActivatable(row)" OnActivate="@RowActivation(row)">
-                                    @Cells(row, selecting, acting, columns, pinStart, pinEnd)
+                                    @Cells(row, selecting, acting, detailing, columns, pinStart, pinEnd)
                                 </DataListRowView>
                             </Virtualize>
                         }
                         else if (grouping)
                         {
-                            var colSpan = Math.Max(1, columns.Count + (selecting ? 1 : 0) + (acting ? 1 : 0));
+                            var colSpan = Math.Max(1, columns.Count + (detailing ? 1 : 0) + (selecting ? 1 : 0) + (acting ? 1 : 0));
                             @foreach (var grp in groups!)
                             {
                                 var collapsed = Context.IsGroupCollapsed(grp.Group);
@@ -232,8 +246,12 @@
                                     @foreach (var row in grp.Entries)
                                     {
                                         <DataListRowView TItem="TItem" @key="row.Key" Item="row.Item" Revision="Revision" RowIndex="null" Class="@RowClasses(row, selecting)" Attributes="@RowAttributes?.Invoke(row.Item)" Clickable="@IsRowActivatable(row)" OnActivate="@RowActivation(row)">
-                                            @Cells(row, selecting, acting, columns, pinStart, pinEnd)
+                                            @Cells(row, selecting, acting, detailing, columns, pinStart, pinEnd)
                                         </DataListRowView>
+                                        @if (detailing && Context.IsRowExpanded(DetailKey(row)))
+                                        {
+                                            @DetailRow(row, columns.Count + 1 + (selecting ? 1 : 0) + (acting ? 1 : 0))
+                                        }
                                     }
                                 }
                             }
@@ -244,8 +262,12 @@
                             @foreach (var row in entries!)
                             {
                                 <DataListRowView TItem="TItem" @key="row.Key" Item="row.Item" Revision="Revision" RowIndex="null" Class="@RowClasses(row, selecting)" Attributes="@RowAttributes?.Invoke(row.Item)" Clickable="@IsRowActivatable(row)" OnActivate="@RowActivation(row)">
-                                    @Cells(row, selecting, acting, columns, pinStart, pinEnd)
+                                    @Cells(row, selecting, acting, detailing, columns, pinStart, pinEnd)
                                 </DataListRowView>
+                                @if (detailing && Context.IsRowExpanded(DetailKey(row)))
+                                {
+                                    @DetailRow(row, columns.Count + 1 + (selecting ? 1 : 0) + (acting ? 1 : 0))
+                                }
                             }
                         }
                     </tbody>
@@ -258,9 +280,13 @@
                                 var scopeRows = RowsForSummaryScope(scope);
                                 var scopeLabel = SummaryScopeLabel(scope, scopes.Count > 1);
                                 <tr @key="@("tfoot:" + scope)" class="@_slots["tfootRow"]" data-slot="summary-footer-row" data-scope="@SummaryScopeKey(scope)">
-                                    @if (selecting)
+                                    @if (detailing)
                                     {
                                         <td class="@SelectFooterClass(pinStart)" style="@(pinStart ? "inset-inline-start:0" : null)" data-pinned="@(pinStart ? "start" : null)"></td>
+                                    }
+                                    @if (selecting)
+                                    {
+                                        <td class="@SelectFooterClass(pinStart)" style="@(pinStart ? SelectInset(detailing) : null)" data-pinned="@(pinStart ? "start" : null)"></td>
                                     }
                                     @for (var i = 0; i < columns.Count; i++)
                                     {
@@ -362,6 +388,15 @@
     /// </summary>
     [Parameter] public Func<TItem, IReadOnlyDictionary<string, object>?>? RowAttributes { get; set; }
 
+    /// <summary>
+    /// What to show under a row when it is expanded: a full-width row (master-detail) with this content. Each row gets a first column with a button
+    /// (<c>aria-expanded</c>, named "Show details for {row label}") that opens and closes it; the state is the row expansion state of the list
+    /// (<see cref="DataListContext{TItem}.IsRowExpanded"/> and <see cref="DataListContext{TItem}.SetRowExpanded"/>, by row key, so give the schema a <c>RowKey</c> to keep a row open across reloads).
+    /// Interactive only (a static render draws the button disabled and no detail). Not supported with <see cref="Virtualize"/> (its rows need one fixed height, a detail row has none: the detail is switched off),
+    /// with <see cref="Tree"/> (which uses the same expansion state for child rows), and not drawn in the compact summary view.
+    /// </summary>
+    [Parameter] public RenderFragment<TItem>? DetailTemplate { get; set; }
+
     /// <summary>The accessible name of the table when there is no <see cref="Caption"/>.</summary>
     [Parameter] public string? AriaLabel { get; set; }
 
@@ -433,6 +468,48 @@
     [Parameter] public DataListSummaries<TItem>? Summaries { get; set; }
 
     private bool IsVirtualized => Virtualize && Context.IsInteractive;
+
+    private bool DetailsOn => DetailTemplate is not null && Tree is null && !Virtualize;
+
+    private readonly string _detailPrefix = NewId("detail");
+
+    private static string SelectInset(bool detailing) => detailing ? "inset-inline-start:2.5rem" : "inset-inline-start:0";
+
+    // The key of the expansion state: the row key, else the place of the row on the page.
+    private static string DetailKey(RowEntry row) => row.Key as string ?? "#" + row.Position;
+
+    private string DetailId(RowEntry row) => $"{_detailPrefix}-{row.Position}";
+
+    private string DetailToggleLabel(RowEntry row, bool expanded)
+    {
+        var label = Context.Schema?.GetRowLabel(row.Item);
+        var name = !string.IsNullOrWhiteSpace(label) ? label : "#" + row.Position;
+        return string.Format(FormatCulture, expanded ? ToolsMessages.DetailCollapse : ToolsMessages.DetailExpand, name);
+    }
+
+    private void OnDetailKeyDown(KeyboardEventArgs e, RowEntry row, bool expanded)
+    {
+        if (!Context.IsInteractive) return;
+        if (e.Key == "ArrowRight" && !expanded) Context.SetRowExpanded(DetailKey(row), true);
+        else if (e.Key == "ArrowLeft" && expanded) Context.SetRowExpanded(DetailKey(row), false);
+    }
+
+    private RenderFragment DetailRow(RowEntry row, int colSpan) => builder =>
+    {
+        builder.OpenElement(0, "tr");
+        builder.SetKey("detail:" + DetailKey(row));
+        builder.AddAttribute(1, "id", DetailId(row));
+        builder.AddAttribute(2, "class", _slots["detailRow"]);
+        builder.AddAttribute(3, "data-slot", "detail-row");
+        builder.AddAttribute(4, "data-key", DetailKey(row));
+        builder.OpenElement(5, "td");
+        builder.AddAttribute(6, "colspan", colSpan);
+        builder.AddAttribute(7, "class", _slots["detailCell"]);
+        builder.AddAttribute(8, "data-slot", "detail-cell");
+        builder.AddContent(9, DetailTemplate!(row.Item));
+        builder.CloseElement();
+        builder.CloseElement();
+    };
 
     private float EffectiveItemSize => ItemSize is > 0 ? ItemSize.Value : Context.Density switch
     {
@@ -529,6 +606,7 @@
             },
         };
         Context.SetTableTree(Tree);
+        Context.SetTableDetail(DetailsOn);
         Context.SetRowSummary(RowSummary is not null, RowSummary?.DefaultActive ?? false, RowSummary?.AutoPhone ?? true);
         Context.SetTableGroupBy(GroupBy);
         var activeVirtualized = IsVirtualized && Context.EffectiveLayout == DataListLayout.Table && !Context.SummaryViewActive && GroupBy is null && Tree is null;
@@ -562,6 +640,7 @@
         _summaryCts?.Cancel();
         _summaryCts?.Dispose();
         Context.SetTableTree(null);
+        Context.SetTableDetail(false);
         Context.SetTableGroupBy(null);
         Context.SetRowSummary(false, false, false);
         Context.RemoveTable();
@@ -907,12 +986,25 @@
             }
         </text>;
 
-    private RenderFragment Cells(RowEntry row, bool selecting, bool acting, List<View> columns, bool pinStart, bool pinEnd) =>
+    private RenderFragment Cells(RowEntry row, bool selecting, bool acting, bool detailing, List<View> columns, bool pinStart, bool pinEnd) =>
         @<text>
+            @if (detailing)
+            {
+                var detailOpen = Context.IsRowExpanded(DetailKey(row));
+                <td class="@SelectClass("td", pinStart)" style="@(pinStart ? "inset-inline-start:0" : null)" data-pinned="@(pinStart ? "start" : null)" data-slot="detail-cell-toggle">
+                    <button type="button" class="@_slots["detailToggle"]" data-slot="detail-toggle" data-key="@DetailKey(row)"
+                            aria-expanded="@(detailOpen ? "true" : "false")" aria-controls="@(detailOpen ? DetailId(row) : null)" aria-label="@DetailToggleLabel(row, detailOpen)"
+                            disabled="@(!Context.IsInteractive)"
+                            @onclick="@(() => Context.SetRowExpanded(DetailKey(row), !detailOpen))"
+                            @onkeydown="@(e => OnDetailKeyDown(e, row, detailOpen))">
+                        @RenderIcon(Options.Icons.ChevronRight, detailOpen ? _slots["treeChevronExpanded"] : _slots["treeChevron"])
+                    </button>
+                </td>
+            }
             @if (selecting)
             {
                 var showCheckbox = row.TreeNode is null || Tree is not { Selectable: DataListTreeSelectionMode.Roots } || row.TreeNode.Depth == 0;
-                <td class="@SelectClass("td", pinStart)" style="@(pinStart ? "inset-inline-start:0" : null)" data-pinned="@(pinStart ? "start" : null)">
+                <td class="@SelectClass("td", pinStart)" style="@(pinStart ? SelectInset(detailing) : null)" data-pinned="@(pinStart ? "start" : null)">
                     @if (showCheckbox)
                     {
                         <DataListRowSelect TItem="TItem" Item="row.Item" Position="row.Position" />
@@ -1077,8 +1169,7 @@
         bool Resizable,
         string? PinOffset);
 
-    // The room the selection column takes at the start edge (the w-10 of its slot): a column pinned to the start sticks after it.
-    private const string SelectionWidth = "2.5rem";
+    // The leading columns (the detail toggle and the selection box) are 2.5rem wide each (the w-10 of their slot): a column pinned to the start sticks after them.
 
     // The columns as declared (filtered, ordered and grouped by pin edge), or one per field of the schema when none was.
     private List<View> Columns()
@@ -1088,6 +1179,7 @@
         {
             var raw = Context.TableColumns();
             var selecting = Context.SelectionVisible;
+            var leading = (selecting ? 1 : 0) + (DetailsOn && !Context.SummaryViewActive ? 1 : 0);
             var acting = RowActions is { Count: > 0 };
             // A pinned column needs a width of its own: the offset of the next one is the sum of the widths before it. Without one it gets KlyDataList<TItem>.DefaultPinnedWidth.
             int? WidthOf(KlyDataListColumn<TItem> c, DataListPin pin)
@@ -1105,7 +1197,7 @@
             for (var i = 0; i < raw.Count; i++)
             {
                 if (pins[i] != DataListPin.Start) continue;
-                offsets[i] = selecting ? $"calc({SelectionWidth} + {sum}px)" : $"{sum}px";
+                offsets[i] = leading > 0 ? $"calc({(leading == 1 ? "2.5rem" : "5rem")} + {sum}px)" : $"{sum}px";
                 sum += widths[i] ?? 0;
             }
             sum = 0;

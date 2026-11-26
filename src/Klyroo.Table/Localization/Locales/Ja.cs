@@ -176,5 +176,8 @@ public static partial class KlyToolsLocales
             SortMoveEarlier = "{0}を並べ替えの前に移動",
             SortMoveLater = "{0}を並べ替えの後ろに移動",
             SortReverse = "{0}の並べ替え方向を反転",
+            DetailExpand = "{0}の詳細を表示",
+            DetailCollapse = "{0}の詳細を非表示",
+            DetailColumn = "詳細",
         };
 }

@@ -176,5 +176,8 @@ public static partial class KlyToolsLocales
             SortMoveEarlier = "将 {0} 在排序中前移",
             SortMoveLater = "将 {0} 在排序中后移",
             SortReverse = "反转 {0} 的排序方向",
+            DetailExpand = "显示 {0} 的详情",
+            DetailCollapse = "隐藏 {0} 的详情",
+            DetailColumn = "详情",
         };
 }

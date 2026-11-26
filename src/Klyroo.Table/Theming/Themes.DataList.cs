@@ -33,7 +33,7 @@ internal static partial class ToolsThemes
                 "gridRoot", "gridHeader", "grid", "gridCard", "gridCardTop", "gridCardBody", "gridCardFields", "gridCardField", "gridCardFieldLabel", "gridCardFieldValue", "gridEmpty",
                 "viewToggle", "summaryHeader", "summaryList", "summaryRow", "summaryLeading", "summaryBody", "summaryTitle", "summaryTitleLink", "summaryTitleButton", "summaryMeta", "summaryStatus", "summaryDetails", "summaryActions",
                 "groupRow", "groupCell", "summaryGroupRow", "gridGroup", "gridGroupHeader", "groupHeader", "groupToggle", "groupChevron", "groupChevronExpanded", "groupLabel", "groupSummary",
-                "treeCell", "treeRailBlank", "treeRailPass", "treeRailBranch", "treeRailLast", "treeToggle", "treeChevron", "treeChevronExpanded", "treeSpacer", "treeContent",
+                "detailRow", "detailCell", "detailToggle", "treeCell", "treeRailBlank", "treeRailPass", "treeRailBranch", "treeRailLast", "treeToggle", "treeChevron", "treeChevronExpanded", "treeSpacer", "treeContent",
                 "tfoot", "tfootRow", "tfootCell", "tfootCellPinnedStart", "tfootCellPinnedEnd", "tfootLabel",
                 "progressLine", "progressLineBar", "headerCell", "headerMenu", "headerMenuTrigger")
             .Slot("root", "flex w-full min-w-0 flex-col gap-3")
@@ -238,6 +238,9 @@ internal static partial class ToolsThemes
             .Slot("groupChevronExpanded", "size-4 shrink-0 rotate-90 text-(--klyroo-text-muted) transition-transform motion-reduce:transition-none")
             .Slot("groupLabel", "min-w-0 truncate")
             .Slot("groupSummary", "inline-flex min-w-5 shrink-0 items-center justify-center rounded-full border border-(--klyroo-border-accented) bg-(--klyroo-bg) px-1.5 py-0.5 text-xs font-medium tabular-nums text-(--klyroo-text-muted)")
+            .Slot("detailRow", "bg-(--klyroo-bg-muted)/70")
+            .Slot("detailCell", "p-4 text-sm whitespace-normal text-(--klyroo-text)")
+            .Slot("detailToggle", "inline-flex size-6 shrink-0 items-center justify-center rounded-(--klyroo-radius) text-(--klyroo-text-muted) hover:bg-(--klyroo-bg-muted) hover:text-(--klyroo-text) disabled:cursor-default focus-visible:outline-2 focus-visible:outline-(--klyroo-primary-text) max-sm:size-9")
             .Slot("treeCell", "inline-flex min-w-0 items-center gap-1")
             .Slot("treeRailBlank", "inline-block h-5 w-4 shrink-0")
             .Slot("treeRailPass", "relative inline-block h-5 w-4 shrink-0 before:absolute before:inset-y-0 before:start-2 before:w-px before:bg-(--klyroo-border-accented)")

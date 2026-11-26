@@ -32,6 +32,7 @@ public partial class KlyDataList<TItem>
     private DataListGroupBy<TItem>? _tableGroupBy;
     private DataListGroupBy<TItem>? _gridGroupBy;
     private DataListTree<TItem>? _tableTree;
+    private bool _tableDetail;
     private bool? _treeBaselineOverride;
     private readonly Dictionary<string, bool> _treeExpandedOverrides = new(StringComparer.Ordinal);
 
@@ -101,11 +102,28 @@ public partial class KlyDataList<TItem>
 
     internal bool HasTree => _tableTree is not null;
 
+    internal bool HasDetail => _tableDetail;
+
+    // The expansion state serves the child rows of a tree and the detail row of a table with a DetailTemplate (the two never run together).
+    private bool ExpansionEnabled => _tableTree is not null || _tableDetail;
+
+    internal void SetTableDetail(bool active)
+    {
+        if (_tableDetail == active) return;
+        _tableDetail = active;
+        if (!active && _tableTree is null)
+        {
+            _treeBaselineOverride = null;
+            _treeExpandedOverrides.Clear();
+        }
+        _context.NotifyChanged();
+    }
+
     internal void SetTableTree(DataListTree<TItem>? tree)
     {
         if (ReferenceEquals(_tableTree, tree)) return;
         _tableTree = tree;
-        if (tree is null)
+        if (tree is null && !_tableDetail)
         {
             _treeBaselineOverride = null;
             _treeExpandedOverrides.Clear();
@@ -115,15 +133,15 @@ public partial class KlyDataList<TItem>
 
     internal bool IsTreeNodeExpanded(string key, int depth)
     {
-        if (_tableTree is null || string.IsNullOrEmpty(key)) return false;
+        if (!ExpansionEnabled || string.IsNullOrEmpty(key)) return false;
         if (_treeExpandedOverrides.TryGetValue(key, out var overridden)) return overridden;
         if (_treeBaselineOverride is { } baseline) return baseline;
-        return _tableTree.IsDefaultExpanded(depth);
+        return _tableTree?.IsDefaultExpanded(depth) ?? false;
     }
 
     internal void ToggleTreeNodeExpanded(string key, int depth)
     {
-        if (_tableTree is null || string.IsNullOrEmpty(key)) return;
+        if (!ExpansionEnabled || string.IsNullOrEmpty(key)) return;
         var current = IsTreeNodeExpanded(key, depth);
         _treeExpandedOverrides[key] = !current;
         _columnsVersion++;
@@ -132,7 +150,7 @@ public partial class KlyDataList<TItem>
 
     internal void SetTreeNodeExpanded(string key, int depth, bool expanded)
     {
-        if (_tableTree is null || string.IsNullOrEmpty(key)) return;
+        if (!ExpansionEnabled || string.IsNullOrEmpty(key)) return;
         if (IsTreeNodeExpanded(key, depth) == expanded && _treeExpandedOverrides.TryGetValue(key, out var existing) && existing == expanded) return;
         _treeExpandedOverrides[key] = expanded;
         _columnsVersion++;
@@ -141,7 +159,7 @@ public partial class KlyDataList<TItem>
 
     internal void ExpandAllTreeNodes()
     {
-        if (_tableTree is null) return;
+        if (!ExpansionEnabled) return;
         _treeBaselineOverride = true;
         _treeExpandedOverrides.Clear();
         _columnsVersion++;
@@ -150,7 +168,7 @@ public partial class KlyDataList<TItem>
 
     internal void CollapseAllTreeNodes()
     {
-        if (_tableTree is null) return;
+        if (!ExpansionEnabled) return;
         _treeBaselineOverride = false;
         _treeExpandedOverrides.Clear();
         _columnsVersion++;
@@ -159,7 +177,7 @@ public partial class KlyDataList<TItem>
 
     internal void ResetTreeExpansion()
     {
-        if (_tableTree is null) return;
+        if (!ExpansionEnabled) return;
         _treeBaselineOverride = null;
         _treeExpandedOverrides.Clear();
         _columnsVersion++;
@@ -191,7 +209,19 @@ public partial class KlyDataList<TItem>
 
     internal IReadOnlySet<string> ExpandedTreeKeys()
     {
-        if (_tableTree is null) return new HashSet<string>(StringComparer.Ordinal);
+        if (_tableTree is null)
+        {
+            // A table with a detail row: the rows the user opened (a baseline of "all open" cannot be listed without the rows' keys).
+            var open = new HashSet<string>(StringComparer.Ordinal);
+            if (_tableDetail)
+            {
+                foreach (var (key, expanded) in _treeExpandedOverrides)
+                {
+                    if (expanded) open.Add(key);
+                }
+            }
+            return open;
+        }
         var (_, allNodes) = BuildTableTree();
         var set = new HashSet<string>(StringComparer.Ordinal);
         foreach (var node in allNodes)

@@ -176,5 +176,8 @@ public static partial class KlyToolsLocales
             SortMoveEarlier = "تقديم {0} في الفرز",
             SortMoveLater = "تأخير {0} في الفرز",
             SortReverse = "عكس اتجاه {0}",
+            DetailExpand = "إظهار تفاصيل {0}",
+            DetailCollapse = "إخفاء تفاصيل {0}",
+            DetailColumn = "التفاصيل",
         };
 }

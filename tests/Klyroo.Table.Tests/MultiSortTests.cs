@@ -17,27 +17,23 @@ public sealed class MultiSortTests : TableHarness
 
     private IRenderedComponent<KlyDataList<Person>> MountSorted(IReadOnlyList<DataListSort>? sort = null, bool menu = false, bool? multiple = null, Person[]? items = null) =>
         Mount(
+            columns: cb =>
+            {
+                var seq = 100;
+                Column(cb, ref seq, "name", "Name");
+                Column(cb, ref seq, "team", "Team");
+                Column(cb, ref seq, "salary", "Salary");
+            },
             list: l =>
             {
                 l.Add(x => x.StateChanged, EventCallback.Factory.Create<DataListState>(this, s => _state = s));
                 if (sort is not null) l.Add(x => x.State, PersonSchema.DefaultState with { Sort = sort });
             },
-            parts: b =>
+            before: b =>
             {
-                if (menu)
-                {
-                    b.OpenComponent<KlyDataListSortMenu<Person>>(0);
-                    if (multiple is not null) b.AddComponentParameter(1, nameof(KlyDataListSortMenu<Person>.Multiple), multiple);
-                    b.CloseComponent();
-                }
-                b.OpenComponent<KlyDataListTable<Person>>(2);
-                b.AddComponentParameter(3, nameof(KlyDataListTable<Person>.ChildContent), (RenderFragment)(cb =>
-                {
-                    var seq = 0;
-                    Column(cb, ref seq, "name", "Name");
-                    Column(cb, ref seq, "team", "Team");
-                    Column(cb, ref seq, "salary", "Salary");
-                }));
+                if (!menu) return;
+                b.OpenComponent<KlyDataListSortMenu<Person>>(0);
+                if (multiple is not null) b.AddComponentParameter(1, nameof(KlyDataListSortMenu<Person>.Multiple), multiple);
                 b.CloseComponent();
             },
             items: items);
@@ -163,7 +159,7 @@ public sealed class MultiSortTests : TableHarness
     {
         Prepare();
         DataListContext<Person>? context = null;
-        Mount(parts: b =>
+        Mount(before: b =>
         {
             b.OpenComponent<CaptureContext>(0);
             b.AddComponentParameter(1, nameof(CaptureContext.OnContext), (Action<DataListContext<Person>>)(c => context = c));
@@ -186,16 +182,5 @@ public sealed class MultiSortTests : TableHarness
         var cleared = context.RemoveSort(PersonSchema.DefaultState with { Sort = [new("team")] }, "team");
         Assert.Empty(cleared.Sort);
         Assert.Equal(["name"], context.EffectiveSort.Select(s => s.Key).ToArray());
-    }
-
-    private sealed class CaptureContext : DataListPartBase<Person>
-    {
-        [Parameter] public Action<DataListContext<Person>>? OnContext { get; set; }
-
-        protected override void OnInitialized()
-        {
-            base.OnInitialized();
-            OnContext?.Invoke(Context);
-        }
     }
 }

@@ -422,6 +422,38 @@ While more than one sort is active, each sorted header shows its place in the li
 
 From code, `DataListContext<T>` has `NextSort(state, key, append)`, `AddSort`, `RemoveSort`, `ReverseSort` and `MoveSort`, each returning the new state on the first page, and `SortIndex(key)` and `SortDescending(key)` read any position of `EffectiveSort`.
 
+## Show a detail row under a row
+
+Goal: a master-detail table, where a button opens a full-width row of extra content under its row.
+
+```razor
+<KlyDataList TItem="Order" Schema="Schema" Items="_orders">
+    <KlyDataListTable TItem="Order">
+        <DetailTemplate Context="order">
+            <dl class="grid grid-cols-2 gap-2">
+                <dt>Ship to</dt><dd>@order.Address</dd>
+                <dt>Lines</dt><dd>@order.LineCount</dd>
+            </dl>
+        </DetailTemplate>
+        <ChildContent>
+            <KlyDataListColumn TItem="Order" Field="customer" Title="Customer" />
+            <KlyDataListColumn TItem="Order" Field="total" Title="Total" Format="C0" />
+        </ChildContent>
+    </KlyDataListTable>
+</KlyDataList>
+```
+
+`DetailTemplate` adds a first column with one button per row. The button has `aria-expanded`, is named "Show details for {row label}" (or "Hide details for ..."), and gets `aria-controls` pointing to the detail row while it is open; ArrowRight opens and ArrowLeft closes from the button, like the tree toggle. The detail is a `<tr>` with one cell that spans every column, drawn right after its row.
+
+Which rows are open is the row expansion state of the list, the one a tree uses, so you can read and drive it from code with `DataListContext<T>`: `IsRowExpanded(key)`, `SetRowExpanded(key, true)`, `ExpandAll()`, `CollapseAll()` and `ExpandedKeys`. The key is the row key of the schema, so give the schema a `RowKey` if rows should stay open when the page reloads or the sort changes; without one the key is the place of the row on the page. `ResetAll` closes every row.
+
+Some combinations are not supported:
+
+- `Virtualize`: virtualized rows need one fixed height and a detail row has none, so the detail template is ignored (no button, no detail) while `Virtualize` is true, in every render mode so that a prerender and the interactive page agree.
+- `Tree`: a tree uses the expansion state for its child rows, so the detail template is ignored with a `Tree`.
+- The compact summary view (`RowSummary`) draws no detail rows.
+- A static render draws the buttons disabled and no detail: opening a row needs interactivity.
+
 ## Group rows, total columns and show a tree
 
 Goal: collapsible groups, footer totals, and hierarchical rows.

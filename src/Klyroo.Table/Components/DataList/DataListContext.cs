@@ -127,10 +127,16 @@ public sealed partial class DataListContext<TItem>
     /// <summary>The visible (unfolded) tree nodes in display order when <see cref="Tree"/> is configured; empty otherwise.</summary>
     public IReadOnlyList<DataListTreeNode<TItem>> VisibleTreeNodes() => _owner.VisibleTreeNodes();
 
+    /// <summary>Whether the table shows a detail row under each row (<see cref="KlyDataListTable{TItem}.DetailTemplate"/>). Its rows are opened and closed with <see cref="SetRowExpanded"/>.</summary>
+    public bool HasDetail => _owner.HasDetail;
+
     /// <summary>Whether <paramref name="node"/> is currently expanded.</summary>
     public bool IsNodeExpanded(DataListTreeNode<TItem> node) => _owner.IsTreeNodeExpanded(node.Key, node.Depth);
 
-    /// <summary>Whether the tree row with <paramref name="key"/> at <paramref name="depth"/> is currently expanded.</summary>
+    /// <summary>
+    /// Whether the row with <paramref name="key"/> is currently expanded: for a tree the row at <paramref name="depth"/> shows its children, for a table with a
+    /// <see cref="KlyDataListTable{TItem}.DetailTemplate"/> (<paramref name="depth"/> stays 0) it shows its detail row. Always <see langword="false"/> when the table has neither.
+    /// </summary>
     public bool IsRowExpanded(string key, int depth = 0) => _owner.IsTreeNodeExpanded(key, depth);
 
     /// <summary>Expands or collapses <paramref name="node"/>.</summary>
@@ -139,7 +145,7 @@ public sealed partial class DataListContext<TItem>
     /// <summary>Sets whether <paramref name="node"/> is expanded.</summary>
     public void SetNodeExpanded(DataListTreeNode<TItem> node, bool expanded) => _owner.SetTreeNodeExpanded(node.Key, node.Depth, expanded);
 
-    /// <summary>Sets whether the tree row with <paramref name="key"/> is expanded.</summary>
+    /// <summary>Sets whether the row with <paramref name="key"/> is expanded: its children in a tree, its detail row in a table with a <see cref="KlyDataListTable{TItem}.DetailTemplate"/>. Nothing happens when the table has neither.</summary>
     public void SetRowExpanded(string key, bool expanded, int depth = 0) => _owner.SetTreeNodeExpanded(key, depth, expanded);
 
     /// <summary>Expands every branch node in the tree.</summary>
@@ -151,7 +157,7 @@ public sealed partial class DataListContext<TItem>
     /// <summary>Resets tree expansion back to the <see cref="DataListTree{TItem}"/> defaults.</summary>
     public void ResetExpansion() => _owner.ResetTreeExpansion();
 
-    /// <summary>Keys of all currently expanded branch nodes in the loaded tree.</summary>
+    /// <summary>Keys of all currently expanded branch nodes in the loaded tree; with a detail row, the keys of the rows the user opened.</summary>
     public IReadOnlySet<string> ExpandedKeys => _owner.ExpandedTreeKeys();
 
     /// <summary>Total number of branch nodes (nodes with children) in the loaded tree.</summary>
@@ -161,6 +167,8 @@ public sealed partial class DataListContext<TItem>
     public bool AllExpanded => _owner.AllTreeNodesExpanded();
 
     internal void SetTableTree(DataListTree<TItem>? tree) => _owner.SetTableTree(tree);
+
+    internal void SetTableDetail(bool active) => _owner.SetTableDetail(active);
 
     internal void AddTable()
     {
