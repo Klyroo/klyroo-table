@@ -4,7 +4,7 @@
 
 ## Klyroo.Table.Core
 
-Static classes and extensions (1) · Classes (2) · Records (2) · Structs (1) · Enums (2)
+Static classes and extensions (1) · Classes (3) · Records (2) · Structs (1) · Enums (2)
 
 ### Static classes and extensions
 
@@ -22,6 +22,21 @@ A CSV writer: RFC 4180 quoting, a delimiter that fits the culture, and protectio
 | `static Write(IReadOnlyList<string> header, IEnumerable<IReadOnlyList<DataListCsvCell>> rows, DataListCsvOptions? options = null)` | `string` | Writes a header line and rows as CSV text. |
 
 ### Classes
+
+#### `DataListExportTooLargeException`
+
+`Klyroo.Table` · class · inherits `InvalidOperationException`
+
+An export refused because it holds more rows than the limit.
+
+| Constructor | Description |
+| :--- | :--- |
+| `DataListExportTooLargeException(long count, int limit)` | Creates the exception. |
+
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `Count` | `long` | How many rows the export would hold. |
+| `Limit` | `int` | The limit that applied. |
 
 #### `DataListTree<TItem>`
 
@@ -78,7 +93,7 @@ How `DataListCsv.Write` writes a file.
 | `IncludeHeader` (init) | `bool` | Writes the header line (true by default). |
 | `NewLine` (init) | `string` | The end of a line. `\r\n` by default, as RFC 4180 says. |
 | `ProtectFormulas` (init) | `bool` | Keeps a spreadsheet from running a text as a formula (true by default): a text cell that starts with `=`, `+`, `-`, `@`, a tab or a carriage return gets an apostrophe in front. Cells that hold a number or a date (see `DataListCsvCell.Trusted`) are left alone, so that a negative number stays a number. |
-| `Utf8Bom` (init) | `bool` | Starts the text with a byte order mark (U+FEFF, written as EF BB BF in UTF-8), which makes Excel read accents correctly. Off by default. |
+| `Utf8Bom` (init) | `bool` | Starts the text with a byte order mark (U+FEFF, written as EF BB BF in UTF-8), which makes Excel read accents correctly. On by default, because Excel is where most exports are opened; turn it off for a consumer that does not skip the mark. |
 
 #### `DataListExportResult`
 
@@ -223,9 +238,9 @@ A row of the table. It renders its cells again only when its row, or the `Revisi
 | `Attributes` | `IReadOnlyDictionary<string, object>?` | Attributes of the row from `KlyDataListTable.RowAttributes`. `class` and `data-slot` are ignored: the row sets them itself. |
 | `ChildContent` | `RenderFragment?` | The cells. |
 | `Class` | `string?` | The classes of the row. |
-| `Clickable` | `bool` | Makes the row reachable with the keyboard and listen to clicks and to Enter and Space on itself. |
+| `Clickable` | `bool` | Makes the row reachable with the keyboard and listen to activations: a click on it that is not on a control inside it, and Enter or Space on the row itself. |
 | `Item` | `TItem` | The row. |
-| `OnActivate` | `EventCallback<KlyRowEventArgs>` | Raised for a click on the row that did not land on a control inside it, or for Enter or Space on the row. |
+| `OnActivate` | `EventCallback<KlyRowEventArgs>` | Raised for an activation of the row, as the browser side decided it. |
 | `Revision` | `int` | Changes when the cells must be built again. |
 | `RowIndex` | `int?` | 1-based row index in a virtualized table (2 for the first data row, after the header); `null` otherwise. |
 
@@ -415,6 +430,7 @@ A button that exports the list as a CSV file: the visible columns in the order t
 | `Icon` | `string` | The name of the icon of the button (`download` by default). |
 | `Label` | `string?` | The label of the button. Without it the localized "Export". |
 | `LoadAll` | `Func<DataListRequest, CancellationToken, Task<IReadOnlyList<TItem>>>?` | Loads every row a request matches, for `DataListExportScope.All` on a list over a provider or a queryable (the list never holds those rows). It receives the request without paging and facets, as the list sent it: send it to your server and apply it there with `schema.Apply(query, request)`. A list of rows in memory does not need it. |
+| `MaxRows` | `int` | The most rows one export may hold, whatever the scope (100,000 by default). A bigger export is refused before the rows are loaded when the source knows how many there are, with a message under the button (and `KlyDataListExport.OnError` receives a `DataListExportTooLargeException`): the file is built in memory on the server and sent to the browser, which a million rows would not survive. |
 | `OnError` | `EventCallback<Exception>` | Raised when loading the rows or saving the file threw. Without a handler the failure is logged. |
 | `OnExport` | `EventCallback<DataListExportResult>` | Raised with the finished file instead of the browser's download: save it yourself (a file picker in a MAUI app, an upload, a copy to the clipboard). Without a handler the browser downloads the file. |
 | `Scopes` | `IReadOnlyList<DataListExportScope>?` | The sources of rows the user can pick from, in the order of the menu. By default this page, the selection and every result; each is offered only while it applies (the selection needs a ticked row, every result needs a list of rows in memory or `KlyDataListExport.LoadAll`). With one source left the button exports at once. |
@@ -652,14 +668,14 @@ The table of the list: `KlyDataListColumn` children define the columns, and the 
 | `HeaderMenu` | `bool` | Adds a dropdown menu button to each column header in interactive mode with quick actions to sort ascending/descending, stop sorting, pin/unpin, or hide the column. Individual columns can override this via `KlyDataListColumn.HeaderMenu`. |
 | `ItemSize` | `float?` | Height in pixels of one row when `KlyDataListTable.Virtualize` is on. Without it, follows `DataListDensity` (36, 44 or 60 px). |
 | `OnRowActionError` | `EventCallback<DataListRowActionFailure<TItem>>` | Raised when a row action threw or reported a failure. |
-| `OnRowClick` | `EventCallback<DataListRowClickArgs<TItem>>` | Raised when the user activates a row: a click anywhere on it that did not land on a link, button, box, field or other control inside the row (and that does not end a text selection), or Enter or Space while the row itself has the focus. The row is then reachable with Tab. The event carries the row and the modifier keys (for Ctrl or Shift to open in another way). Interactive only: a static render has no row click; use `KlyDataListTable.RowHref`. |
+| `OnRowClick` | `EventCallback<DataListRowClickArgs<TItem>>` | Raised when the user activates a row: a click anywhere on it that did not land on a link, button, box, field or other control inside the row (the padding of the selection, detail and actions cells counts as inside, and so does anything marked `data-row-ignore`; a click that ends a text selection is ignored too), or Enter or Space while the row itself has the focus. The browser decides this, so an ignored click costs no round trip. The row is then reachable with Tab, but it has no role: a screen reader announces its cells, not an action. `KlyDataListTable.RowHref` is the accessible way to open a row, and the click is best kept as a shortcut for it. The event carries the row and the modifier keys (for Ctrl or Shift to open in another way). Interactive only: a static render has no row click; use `KlyDataListTable.RowHref`. |
 | `OverscanCount` | `int` | Extra rows rendered above and below the viewport when `KlyDataListTable.Virtualize` is on (3 by default). |
 | `Resizable` | `bool` | Puts a resize handle (a vertical separator) on the end edge of the header of each `KlyDataListColumn.Resizable` column (false by default): drag it, or focus it and press ArrowLeft and ArrowRight (16 px, 64 with Shift; in right-to-left text the arrow that points away from the start edge grows the column), Home and End for the limits, Delete or a double click for the declared width. The browser changes the width while the gesture runs and reports it once; the list keeps it in its column preferences (`KlyDataList.PreferencesKey`). Interactive only: a static render has no handle but still applies a saved width. |
 | `RowActions` | `IReadOnlyList<DataListRowAction<TItem>>?` | The actions of each row: a last column with buttons up to `KlyDataListTable.RowActionsMaxVisible`, then a menu, and below the `md` breakpoint one button that opens a sheet (`KlyDataListRowActions`). Interactive only, except the actions that are links. |
 | `RowActionsMaxVisible` | `int` | How many row actions show as buttons on a wide screen (3 by default); 0 keeps a single "Actions for ..." button per row. |
 | `RowAttributes` | `Func<TItem, IReadOnlyDictionary<string, object>?>?` | Attributes added to the `<tr>` of each item (`data-id`, `title`, `aria-*`). `class` and `data-slot` are ignored (use `KlyDataListTable.RowClass`), and so are the row's own event attributes. It runs on every render of the row: keep it cheap. |
 | `RowClass` | `Func<TItem, string?>?` | Classes added to the row for each item (a muted style for an archived row). It runs on every render of the row: keep it cheap. `KlyDataListColumn.CellClass` does the same for one cell. |
-| `RowHref` | `Func<TItem, string?>?` | The address a row leads to. A row whose address is not empty gets a link that covers the row (an empty link named "Open {row label}", stretched over the row with CSS), so the whole row opens the page, the link is reachable with Tab and activated with Enter, and it works in a static render. Links, buttons, boxes and fields inside the row stay on top and keep their own clicks. Rows with an address are not activated through `KlyDataListTable.OnRowClick` (the link is), except that `KlyDataListTable.OnRowClick` is also raised when the link is clicked with the pointer or Enter. The address is written as given: do not pass text a user typed without checking its scheme. The link goes in the first column that is not pinned, and a pinned cell that floats above it (from `sm` up, after the link) does not take the row click. |
+| `RowHref` | `Func<TItem, string?>?` | The address a row leads to. A row whose address is not empty gets a link that covers the row (an empty link named "Open {row label}", stretched over the row with CSS), so the whole row opens the page, the link is reachable with Tab and activated with Enter, and it works in a static render. Links, buttons, boxes and fields inside the row stay on top and keep their own clicks. A row with a link covers its text: the text of such a row cannot be selected with the mouse. Rows with an address are not activated through `KlyDataListTable.OnRowClick` (the link is), except that `KlyDataListTable.OnRowClick` is also raised when the link is clicked with the pointer or Enter. The address is written as given: do not pass text a user typed without checking its scheme. The link goes in the first column that is not pinned, and a pinned cell that floats above it (from `sm` up, after the link) does not take the row click. |
 | `RowSummary` | `DataListRowSummary<TItem>?` | Optional compact summary-row presentation (leading tile, title, status, details joined with ` · `, selection checkbox and row actions), active automatically below the `md` breakpoint when `DataListRowSummary.AutoPhone` is `true`, when `DataListRowSummary.DefaultActive` is `true`, or when toggled with `KlyDataListViewToggle`. |
 | `ShowProgressLine` | `bool` | Draws a subtle top progress indicator while the rows on screen are being refreshed or replaced (`true` by default). |
 | `Summaries` | `DataListSummaries<TItem>?` | Optional footer summary (`<tfoot>`) configuration: target `DataListSummaryScope`(s) (`Filtered`, `Page`, `Selection`), custom row label, and optional `DataListSummaries.ResolveAsync` delegate for remote or asynchronous totals. When `null`, a single `DataListSummaryScope.Filtered` summary row is still rendered automatically whenever any column declares a summary. |
@@ -878,7 +894,7 @@ What the parts of a `KlyDataList` (the table, the pagination, the result count..
 | `MoveColumn(string key, int delta)` | `void` | Moves a column earlier (`-1`) or later (`+1`) in the column order. |
 | `MoveColumnNextTo(string key, string targetKey, bool after)` | `void` | Puts a column right before or right after another one in the column order: what dropping a dragged column on another does. |
 | `MoveSort(DataListState state, string key, int offset)` | `DataListState` | The state with `key` moved `offset` places in the sort (negative is earlier), kept inside the list. First page. |
-| `NextSort(DataListState state, string key)` | `DataListState` | The state after a plain click on the sort control of `key`: ascending, then descending, then back to the default sort, whatever the sort was before (a click that does not hold Shift keeps one sort). The page goes back to the first. |
+| `NextSort(DataListState state, string key)` | `DataListState` | The state after a plain click on the sort control of `key`, which keeps one sort: ascending, then descending, then back to the default sort. A key that is in the sort but not first becomes the only sort, ascending. The page goes back to the first. |
 | `NextSort(DataListState state, string key, bool append)` | `DataListState` | The state after a click on the sort control of `key`. Without `append` it keeps one sort: ascending, then descending, then the default sort. With `append` (Shift held) the other sorts stay: a key that is not sorted yet joins the end of the list ascending, then turns descending in place, then leaves the list. The page goes back to the first. |
 | `RefreshAsync()` | `Task` | Loads the rows on screen again, or the failed request again after an error. |
 | `RemoveSort(DataListState state, string key)` | `DataListState` | The state without `key` in its sort (the default sort when nothing else is left). First page. |
@@ -1152,14 +1168,13 @@ Configuration of Klyroo.Table: its component themes and its message tables. It i
 
 `Klyroo.Table` · class · inherits `EventArgs`
 
-Payload of the `klyrowclick` and `klyrowkey` browser events that a clickable row listens to. The browser side works out whether the event is for the row at all (`KlyRowEventArgs.Ignore`), because .NET cannot see which element a click landed on.
+Payload of the `klyrowactivate` browser event of a clickable row. The browser side works out whether a click or a key is an activation of the row at all, because .NET cannot see which element a click landed on, and only sends the ones that are: a click on a control inside the row, or a key typed in a field, never reaches .NET.
 
 | Property | Type | Description |
 | :--- | :--- | :--- |
 | `AltKey` (get, set) | `bool` | Alt was held. |
 | `CtrlKey` (get, set) | `bool` | Ctrl was held. |
-| `Ignore` (get, set) | `bool` | The event is not an activation of the row: a click on a control inside it (a link, a button, a box, a field), a key other than Enter and Space, or a key pressed inside a control. |
-| `Key` (get, set) | `string?` | The key of a keyboard event; `null` for a click. |
+| `Key` (get, set) | `string?` | `Enter` or a space for an activation with the keyboard; `null` for a click. |
 | `MetaKey` (get, set) | `bool` | Meta was held. |
 | `ShiftKey` (get, set) | `bool` | Shift was held. |
 
@@ -1637,6 +1652,7 @@ Every text the components of Klyroo.Table render: accessible names, labels, hint
 | `ExportLabel` (init) | `string` | Label of the button that exports a data list as a CSV file. |
 | `ExportPage` (init) | `string` | Menu entry that exports the rows of the current page. |
 | `ExportSelection` (init) | `string` | Menu entry that exports the selected rows. {0} is how many are selected. |
+| `ExportTooLarge` (init) | `string` | Shown under the export button when the export holds more rows than `MaxRows` allows. {0} is how many rows it would hold, {1} the limit. |
 | `FilterAny` (init) | `string` | The choice of a boolean filter that takes the filter off. |
 | `FilterApply` (init) | `string` | Button of a filter editor that applies the changes (the Submit apply mode). |
 | `FilterCalendarFor` (init) | `string` | Accessible name of the calendar of a date filter editor. {0} is the name of the filter. |
