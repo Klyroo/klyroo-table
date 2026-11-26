@@ -6,7 +6,7 @@
 
 ## How-to guides
 
-- [Guides](guides.md): load rows from an API or a database, add filters, keep state in the URL, select rows and run actions, open and style rows, sort by several columns, show a detail row, export to CSV, group and total rows, page by cursor, choose columns, change texts and test.
+- [Guides](guides.md): load rows from an API or a database, add filters, keep state in the URL, select rows and run actions, open and style rows, sort by several columns, show a detail row, export to CSV, edit a row from an action, group and total rows, page by cursor, choose columns, change texts and test.
 
 ## Reference
 

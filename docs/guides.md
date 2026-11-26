@@ -371,6 +371,142 @@ Three details are easy to miss. The list here reads its rows through a provider,
 
 A row action with a `Href` is a link and works in a statically rendered list; every other action needs interactivity. Each row action button group shows up to `RowActionsMaxVisible` buttons (3), puts the rest in a menu, and below the `md` breakpoint collapses into one button that opens a sheet.
 
+## Edit a row in a drawer or a modal
+
+Goal: let users change a row, with Klyroo.Table staying read-only.
+
+The table has no editable cells, and that is on purpose: it shows rows and reports what the user asks for. Editing is a row action that opens a form, waits for the answer, saves it where your data lives, and tells the list what changed. Two ways to ask for the values:
+
+**A Klyroo.Form drawer.** `FormService.CreateFormAsync` opens a `FormSchema` in a drawer (or a modal, or fullscreen) and returns a task, so the row action reads like a function. It needs `<KlyFormProvider>` in the layout and `AddKlyrooForm()` next to `AddKlyrooTable()`.
+
+```razor
+@page "/employees"
+@rendermode InteractiveServer
+@inject FormService Forms
+@inject EmployeeStore Store
+
+<KlyDataList TItem="Employee" Schema="Schema" Provider="LoadAsync" Label="Employees">
+    <KlyDataListTable TItem="Employee" RowActions="_rowActions">
+        <KlyDataListColumn TItem="Employee" Field="name" Title="Name" />
+        <KlyDataListColumn TItem="Employee" Field="email" Title="Email" />
+    </KlyDataListTable>
+    <KlyDataListPagination TItem="Employee" />
+</KlyDataList>
+
+@code {
+    private sealed record Employee(int Id, string Name, string Email, int Version);
+
+    private static readonly DataListSchema<Employee> Schema = DataListSchema.For<Employee>(s => s
+        .RowKey(e => e.Id)
+        .RowLabel(e => e.Name)
+        .Field(e => e.Name, f => f.Key("name").Sortable())
+        .Field(e => e.Email, f => f.Key("email")));
+
+    private static readonly FormSchema EditSchema = new()
+    {
+        FormKey = "edit-employee",
+        Title = "Edit employee",
+        Fields =
+        [
+            new FormFieldSchema { Key = "name", Label = "Name", Required = true },
+            new FormFieldSchema { Key = "email", Label = "Email", Required = true },
+        ],
+    };
+
+    private IReadOnlyList<DataListRowAction<Employee>> _rowActions = [];
+
+    private ValueTask<DataListResult<Employee>> LoadAsync(DataListRequest request, CancellationToken ct) =>
+        Store.QueryAsync(request, ct);
+
+    protected override void OnInitialized() =>
+        _rowActions =
+        [
+            new DataListRowAction<Employee>
+            {
+                Key = "edit",
+                Label = "Edit",
+                Icon = "pencil",
+                OnExecute = async c =>
+                {
+                    var outcome = await Forms.CreateFormAsync(
+                        EditSchema,
+                        new Dictionary<string, object?> { ["name"] = c.Item.Name, ["email"] = c.Item.Email },
+                        FormShellMode.Drawer);
+                    if (!outcome.IsCompleted) return; // the user closed the drawer
+
+                    var saved = await Store.SaveAsync(
+                        c.Item with { Name = (string)outcome.FormData["name"]!, Email = (string)outcome.FormData["email"]! },
+                        c.CancellationToken);
+                    if (saved is null)
+                    {
+                        c.Fail("Someone else changed this employee. Reload and try again.");
+                        return;
+                    }
+                    c.List.UpdateRow(saved);
+                },
+            },
+        ];
+}
+```
+
+While the drawer is open the action counts as running: its button shows a spinner and cannot start twice, and a thrown exception or `c.Fail` keeps the list as it is and raises `OnRowActionError` of the table.
+
+**A Klyroo.UI modal.** For a form of your own, keep the open state and the edited copy in the page and bind a `KlyModal` to it. The row action only fills them in (`Employee`, `Schema`, `LoadAsync` and `Store` are the ones of the first page):
+
+```razor
+<KlyDataList TItem="Employee" Schema="Schema" Provider="LoadAsync" Label="Employees">
+    <KlyDataListTable TItem="Employee" RowActions="_rowActions">
+        <KlyDataListColumn TItem="Employee" Field="name" Title="Name" />
+    </KlyDataListTable>
+    <KlyDataListPagination TItem="Employee" />
+</KlyDataList>
+
+<KlyModal @bind-Open="_open" Title="Edit employee">
+    <Body>
+        <KlyFormField Label="Name">
+            <KlyInput @bind-Value="_name" />
+        </KlyFormField>
+    </Body>
+    <Footer>
+        <KlyButton Label="Cancel" Variant="ButtonVariant.Ghost" data-kly-close />
+        <KlyButton Label="Save" OnClick="SaveAsync" />
+    </Footer>
+</KlyModal>
+
+@code {
+    private DataListContext<Employee>? _list;
+    private Employee? _editing;
+    private string? _name;
+    private bool _open;
+
+    private IReadOnlyList<DataListRowAction<Employee>> _rowActions => [
+        new DataListRowAction<Employee>
+        {
+            Key = "edit",
+            Label = "Edit",
+            OnExecute = c =>
+            {
+                _list = c.List;
+                _editing = c.Item;
+                _name = c.Item.Name;
+                _open = true;
+                return Task.CompletedTask;
+            },
+        },
+    ];
+
+    private async Task SaveAsync()
+    {
+        if (_editing is null || _list is null || string.IsNullOrWhiteSpace(_name)) return;
+        var saved = await Store.SaveAsync(_editing with { Name = _name.Trim() }, CancellationToken.None);
+        if (saved is not null) _list.UpdateRow(saved);
+        _open = false;
+    }
+}
+```
+
+In both, `DataListContext<T>.UpdateRow` replaces the row in the loaded result by its row key, without asking the source again, which is right after a save that returns the stored row. Use `await c.List.RefreshAsync()` (or `RefreshOnSuccess = true` on the action) instead when the change can move the row, for example when it is sorted or filtered by the field that was edited, or when other rows depend on it. The schema needs a `RowKey` for `UpdateRow` to find the row. Validation belongs in the form (`FormSchema` rules, or an `EditForm` with Klyroo.UI fields), and a server-side refusal belongs in `c.Fail(...)` so the table reports it.
+
 ## Open, style and annotate rows
 
 Goal: make a row lead somewhere, react to a click on it, and style or tag rows and cells from the data.
