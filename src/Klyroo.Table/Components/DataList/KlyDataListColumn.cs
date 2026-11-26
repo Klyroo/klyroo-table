@@ -125,7 +125,7 @@ public sealed class KlyDataListColumn<TItem> : ComponentBase, IDisposable
         {
             if (!string.IsNullOrEmpty(Key)) return Key;
             if (!string.IsNullOrEmpty(Field)) return Field;
-            return Property is null ? null : FieldAccessor.Create(Property).DefaultKey;
+            return Property is null ? null : DataListSchema.DefaultFieldKey(Property);
         }
     }
 
@@ -236,18 +236,5 @@ internal static class DataListText
             words.Append(i == 0 ? char.ToUpperInvariant(c) : char.ToLowerInvariant(c));
         }
         return words.ToString();
-    }
-}
-
-/// <summary>Reading a field of the schema for a row.</summary>
-internal static class DataListSchemaReader
-{
-    /// <summary>The value of a field of the schema for a row, null-safe along its path; the elements of a collection field joined by commas; <see langword="null"/> for an unknown key.</summary>
-    public static object? ReadField<T>(this DataListSchema<T> schema, T item, string key)
-    {
-        if (!schema.TryGetField(key, out var field)) return null;
-        return field.IsCollection
-            ? string.Join(", ", field.Values(item).Where(v => v is not null))
-            : field.Getter(item);
     }
 }

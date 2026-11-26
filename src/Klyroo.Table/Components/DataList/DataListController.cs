@@ -193,7 +193,7 @@ public sealed class DataListController<TItem> : IDisposable
     private IReadOnlyList<DataListFacetResult>? ReusableFacets(DataListRequest request, bool refresh)
     {
         if (refresh || _dropFacets || request.Facets.Count == 0 || Result?.Facets is not { } facets || LoadedRequest is not { } loaded) return null;
-        return loaded.Filter == request.Filter && loaded.Search == request.Search && loaded.TimeZone == request.TimeZone && SequenceEquality.Equal(loaded.Facets, request.Facets)
+        return loaded.Filter == request.Filter && loaded.Search == request.Search && loaded.TimeZone == request.TimeZone && loaded.Facets.SequenceEqual(request.Facets)
             ? facets
             : null;
     }

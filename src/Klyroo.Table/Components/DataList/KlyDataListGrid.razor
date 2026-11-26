@@ -360,7 +360,7 @@
             }
             else if (Context.Schema is { } schema)
             {
-                @foreach (var field in schema.Fields.Where(f => !f.IsCollection))
+                @foreach (var field in schema.FieldInfos.Where(f => !f.IsCollection))
                 {
                     var val = schema.ReadField(item, field.Key);
                     var text = val is IFormattable formattable ? formattable.ToString(null, FormatCulture) : val?.ToString();

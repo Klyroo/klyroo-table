@@ -1042,7 +1042,7 @@
             return views;
         }
         if (schema is null) return [];
-        return [.. schema.Fields.Where(f => !f.IsCollection)
+        return [.. schema.FieldInfos.Where(f => !f.IsCollection)
             .Select(f => new View(null, f.Key, DataListText.Humanize(f.Key), DataListAlign.Start, f.Sortable, null, DataListPin.None, null, null, DataListColumnPreferences.MinAllowedWidth, DataListColumnPreferences.MaxAllowedWidth, false, null))];
     }
 
