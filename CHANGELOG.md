@@ -8,6 +8,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Changed
 
+- The Tailwind integration now reaches apps: `buildTransitive/Klyroo.Table.targets` was not packed (and its old name, `Klyroo.UI.Tools.targets`, is not one NuGet imports), and it copied the class list under a name the Klyroo.UI Tailwind entry does not import. With `KlyrooTailwind` on, the table classes are now generated with no manual step, and `KLYTOOLS001` warns a project that references the package without Tailwind.
+
 - The prerender persistence of a data list is counted as sent, with the escaping and the two base64 encodings Blazor adds, and draws on the budget every Klyroo library of the page shares (`KlyrooOptions.PersistedStateMaxBytes`, 28 KB). Before, the lists of a page counted raw JSON against their own 8 KB budget, so a page with a dashboard could pass SignalR's 32 KB message limit and fail to start its circuit. `PersistMaxBytes` now counts sent bytes (24 KB by default), and `PersistPageMaxBytes` is removed. Column preferences handed over by the prerender count in the same budget.
 
 ### Fixed

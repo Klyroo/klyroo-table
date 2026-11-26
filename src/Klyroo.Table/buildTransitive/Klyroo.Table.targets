@@ -4,22 +4,23 @@
     override the responsive and dark variants of Klyroo.UI. It needs Tailwind compiled by the app.
 
     With <KlyrooTailwind>true</KlyrooTailwind> nothing else is needed: this file copies the classes the Tools components use (one @source inline(...))
-    to obj/klyroo/klyroo-table.theme.css and sets KlyrooToolsPresent, and the generated Tailwind entry of Klyroo.UI imports that theme.
+    to obj/klyroo/klyroo-tools.theme.css and sets KlyrooToolsPresent, and the generated Tailwind entry of Klyroo.UI imports that theme.
 
     With the app's own Tailwind (Node or another pipeline), import the theme after the Klyroo one and say so with KlyrooToolsOwnTailwind=true in the project
     that references this package (KLYTOOLS001 warns there, and in a project with Node Tailwind; a project that merely reaches the package through another one is left alone):
 
       @import "tailwindcss";
       @import "../obj/klyroo/klyroo.theme.css";
-      @import "../obj/klyroo/klyroo-table.theme.css";
+      @import "../obj/klyroo/klyroo-tools.theme.css";
   -->
   <PropertyGroup>
     <KlyrooToolsPresent>true</KlyrooToolsPresent>
   </PropertyGroup>
 
   <Target Name="KlyrooToolsCopyTailwindTheme" BeforeTargets="BeforeBuild">
+    <!-- Klyroo.UI's generated Tailwind entry imports obj/klyroo/klyroo-tools.theme.css when KlyrooToolsPresent is set. -->
     <Copy SourceFiles="$(MSBuildThisFileDirectory)../staticwebassets/klyroo-table.theme.css"
-          DestinationFolder="$([MSBuild]::NormalizeDirectory($(MSBuildProjectDirectory), $(BaseIntermediateOutputPath), klyroo))"
+          DestinationFiles="$([MSBuild]::NormalizeDirectory($(MSBuildProjectDirectory), $(BaseIntermediateOutputPath), klyroo))klyroo-tools.theme.css"
           SkipUnchangedFiles="true" />
   </Target>
 
@@ -39,6 +40,6 @@
     </PropertyGroup>
     <Warning Condition="'$(_KlyrooToolsReferenced)' == 'true' Or '$(_KlyrooToolsNodeTailwind)' == 'true'"
              Code="KLYTOOLS001"
-             Text="$(MSBuildProjectName) uses Klyroo.Table, which has no precompiled stylesheet and needs Tailwind compiled by the app. Set &lt;KlyrooTailwind&gt;true&lt;/KlyrooTailwind&gt; (Node-free build, nothing else to do), or, if the app compiles Tailwind itself, import obj/klyroo/klyroo-table.theme.css after obj/klyroo/klyroo.theme.css in your stylesheet and set &lt;KlyrooToolsOwnTailwind&gt;true&lt;/KlyrooToolsOwnTailwind&gt; to silence this warning." />
+             Text="$(MSBuildProjectName) uses Klyroo.Table, which has no precompiled stylesheet and needs Tailwind compiled by the app. Set &lt;KlyrooTailwind&gt;true&lt;/KlyrooTailwind&gt; (Node-free build, nothing else to do), or, if the app compiles Tailwind itself, import obj/klyroo/klyroo-tools.theme.css after obj/klyroo/klyroo.theme.css in your stylesheet and set &lt;KlyrooToolsOwnTailwind&gt;true&lt;/KlyrooToolsOwnTailwind&gt; to silence this warning." />
   </Target>
 </Project>

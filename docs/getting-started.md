@@ -42,33 +42,30 @@ In `_Imports.razor`:
 
 Klyroo.Table has no stylesheet that you can load next to the Klyroo.UI one. A second precompiled Tailwind file loaded after `klyroo.css` would repeat the base utilities in the same layer and override the responsive and dark variants of Klyroo.UI. The app compiles Tailwind itself, with the classes of the table components included.
 
-With the build-time Tailwind of Klyroo.UI:
+With the build-time Tailwind of Klyroo.UI, turn it on in the project file of the web app and import the Klyroo theme in your stylesheet, as the [Klyroo.UI installation](https://github.com/klyroo/klyroo-ui#installation) describes:
 
-1. Turn it on in the project file of the web app:
+```xml
+<PropertyGroup>
+  <KlyrooTailwind>true</KlyrooTailwind>
+</PropertyGroup>
+```
 
-   ```xml
-   <PropertyGroup>
-     <KlyrooTailwind>true</KlyrooTailwind>
-   </PropertyGroup>
-   ```
+```css
+@import "tailwindcss";
+@import "../obj/klyroo/klyroo.theme.css";
+```
 
-2. Copy `klyroo-table.theme.css` from the package into `Styles/`. It is in the folder `staticwebassets` of the package, for example `~/.nuget/packages/klyroo.table/<version>/staticwebassets/klyroo-table.theme.css`. It is a Tailwind file that lists the classes the table components use, so Tailwind generates them. Copy it again when you update the package.
+Nothing else is needed for the table: the package copies the list of classes its components use to `obj/klyroo/klyroo-tools.theme.css` on every build, and the Tailwind entry that Klyroo.UI generates imports it, so Tailwind generates them. Load the compiled file in the `<head>` of `App.razor` (`<link rel="stylesheet" href="@Assets["app.css"]" />`).
 
-3. Create `Styles/app.css` and import the Tailwind entry, the Klyroo theme and the table theme, in that order:
+If your app compiles Tailwind with Node or another pipeline, import the table classes yourself after the Klyroo theme, and set `<KlyrooToolsOwnTailwind>true</KlyrooToolsOwnTailwind>` so the build does not warn (`KLYTOOLS001`):
 
-   ```css
-   @import "tailwindcss";
-   @import "../obj/klyroo/klyroo.theme.css";
-   @import "./klyroo-table.theme.css";
-   ```
+```css
+@import "tailwindcss";
+@import "../obj/klyroo/klyroo.theme.css";
+@import "../obj/klyroo/klyroo-tools.theme.css";
+```
 
-4. Load the compiled file in the `<head>` of `App.razor`:
-
-   ```razor
-   <link rel="stylesheet" href="@Assets["app.css"]" />
-   ```
-
-If your app compiles Tailwind with Node or another pipeline, the same two theme imports apply: the Klyroo theme first, then `klyroo-table.theme.css`. Load only your compiled stylesheet, not `klyroo.css`.
+Load only your compiled stylesheet, not `klyroo.css`.
 
 ## 5. Build a tree without UI
 

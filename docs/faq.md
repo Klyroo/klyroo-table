@@ -8,7 +8,7 @@ Troubleshooting first (symptom, cause, fix), then known limitations, then freque
 
 **Cause.** The classes of the table components are not in your compiled Tailwind stylesheet. Klyroo.Table ships no stylesheet to load next to the Klyroo.UI one, so your Tailwind build must generate the classes.
 
-**Fix.** Compile Tailwind in your app and import `klyroo-table.theme.css` after the Klyroo theme, as in [Getting started](getting-started.md#4-style-the-list). Rebuild after you copy the file.
+**Fix.** Turn on `<KlyrooTailwind>true</KlyrooTailwind>`: the build then generates the table classes with no other step. If your app compiles Tailwind another way, import `obj/klyroo/klyroo-tools.theme.css` after the Klyroo theme, as in [Getting started](getting-started.md#4-style-the-list). With `Klyroo.Stack`, the precompiled `klyroo-stack.css` already holds them.
 
 ### `InvalidOperationException: KlyDataList takes one source` or `needs a source`
 

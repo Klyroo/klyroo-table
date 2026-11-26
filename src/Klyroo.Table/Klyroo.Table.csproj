@@ -31,4 +31,8 @@
   <ItemGroup>
     <Using Include="Klyroo.UI" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- NuGet imports buildTransitive/<PackageId>.targets in every project that references the package, directly or not. -->
+    <None Include="buildTransitive/Klyroo.Table.targets" Pack="true" PackagePath="buildTransitive/" />
+  </ItemGroup>
 </Project>
