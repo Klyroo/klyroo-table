@@ -59,13 +59,18 @@ public abstract class TableHarness : BunitContext
         Action<RenderTreeBuilder>? columns = null,
         Action<ComponentParameterCollectionBuilder<KlyDataList<Person>>>? list = null,
         Action<RenderTreeBuilder>? before = null,
-        IEnumerable<Person>? items = null)
+        IEnumerable<Person>? items = null,
+        bool provider = false)
     {
         return Render<KlyDataList<Person>>(p =>
         {
-            p.Add(x => x.Schema, PersonSchema)
-             .Add(x => x.Items, items ?? People())
-             .Add(x => x.UrlSync, false);
+            p.Add(x => x.Schema, PersonSchema).Add(x => x.UrlSync, false);
+            if (provider)
+            {
+                var rows = (items ?? People()).ToList();
+                p.Add(x => x.Provider, (DataListRequest request, CancellationToken _) => ValueTask.FromResult(PersonSchema.ExecuteInMemory(rows, request)));
+            }
+            else p.Add(x => x.Items, items ?? People());
             list?.Invoke(p);
             p.AddChildContent<KlyDataListTable<Person>>(t =>
             {

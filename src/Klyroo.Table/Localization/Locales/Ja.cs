@@ -179,5 +179,10 @@ public static partial class KlyToolsLocales
             DetailExpand = "{0}の詳細を表示",
             DetailCollapse = "{0}の詳細を非表示",
             DetailColumn = "詳細",
+            ExportLabel = "エクスポート",
+            ExportPage = "このページ",
+            ExportSelection = "選択した行（{0}）",
+            ExportAll = "すべての結果（{0}件）",
+            ExportAllUnknown = "すべての結果",
         };
 }

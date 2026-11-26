@@ -39,6 +39,13 @@ public partial class KlyDataListClearFilters<TItem>;
 /// <typeparam name="TItem">The row type.</typeparam>
 public partial class KlyDataListColumnPanel<TItem>;
 
+/// <summary>
+/// A button that exports the list as a CSV file: the visible columns in the order the user sees them, formatted like the table, with the culture of the page and a delimiter that fits it.
+/// With several sources of rows (this page, the selection, every result) it opens a menu. The file is downloaded by the browser, or handed to <see cref="OnExport"/> when the app saves it itself.
+/// </summary>
+/// <typeparam name="TItem">The row type.</typeparam>
+public partial class KlyDataListExport<TItem>;
+
 /// <summary>The empty state of a data list: an icon, a title, a description and optional actions. The table and the grid draw it when there are no rows.</summary>
 public partial class KlyDataListEmpty;
 

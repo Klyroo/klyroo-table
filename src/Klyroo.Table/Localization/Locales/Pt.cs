@@ -179,5 +179,10 @@ public static partial class KlyToolsLocales
             DetailExpand = "Mostrar os detalhes de {0}",
             DetailCollapse = "Ocultar os detalhes de {0}",
             DetailColumn = "Detalhes",
+            ExportLabel = "Exportar",
+            ExportPage = "Esta página",
+            ExportSelection = "Linhas selecionadas ({0})",
+            ExportAll = "Todos os {0} resultados",
+            ExportAllUnknown = "Todos os resultados",
         };
 }

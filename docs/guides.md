@@ -454,6 +454,45 @@ Some combinations are not supported:
 - The compact summary view (`RowSummary`) draws no detail rows.
 - A static render draws the buttons disabled and no detail: opening a row needs interactivity.
 
+## Export rows as CSV
+
+Goal: a button that downloads the list as a CSV file, exactly as the user sees it.
+
+```razor
+<KlyDataList TItem="Order" Schema="Schema" Items="_orders" Label="Orders" Selectable="true">
+    <KlyDataListExport TItem="Order" FileName="orders" CsvOptions="@(new DataListCsvOptions { Utf8Bom = true })" />
+    <KlyDataListTable TItem="Order">
+        <KlyDataListColumn TItem="Order" Field="customer" Title="Customer" />
+        <KlyDataListColumn TItem="Order" Field="total" Title="Total" Format="C2" />
+        <KlyDataListColumn TItem="Order" Field="placed" Title="Placed" Format="d" />
+    </KlyDataListTable>
+</KlyDataList>
+```
+
+The file has one column per visible column of the table, in the order the user sees them (pinned columns first and last, hidden ones left out, a column that only has a template skipped because it has no value), with the header of each. Values are formatted like the cells: the `Format` of the column and the culture of the page. A list with no declared columns exports the fields of its schema.
+
+The button offers the rows it can reach, in a menu when there are several: **this page**, the **selection** (offered while a row is ticked, and it includes rows ticked on other pages of a list in memory) and **all results** (every row the search and filters match, the same "all" that bulk actions get). A list over a provider or a queryable never holds those rows, so "all results" is offered only when you give `LoadAll`, a function that receives the request without paging and facets and returns the rows, usually by calling your server:
+
+```razor
+<KlyDataListExport TItem="Order" LoadAll="LoadEveryOrderAsync" />
+
+@code {
+    private async Task<IReadOnlyList<Order>> LoadEveryOrderAsync(DataListRequest request, CancellationToken ct) =>
+        await Http.GetFromJsonAsync<List<Order>>("/api/orders/export?" + ToQuery(request), ct) ?? [];
+}
+```
+
+What the writer does, which matters when the file reaches Excel or LibreOffice:
+
+- **Delimiter**: `;` when the decimal separator of the culture is a comma (French, German, Spanish, Italian), `,` otherwise, so the file opens in columns in that locale. Set `DataListCsvOptions.Delimiter` to override.
+- **Quoting** follows RFC 4180: a field is quoted when it holds the delimiter, a quote (doubled), a line break, or starts or ends with a space. Lines end with CRLF.
+- **Formula injection**: a text cell that starts with `=`, `+`, `-`, `@`, a tab or a carriage return gets an apostrophe in front, so a spreadsheet shows it instead of running it. Numbers and dates are not touched (a negative number stays a number), but a text column holding "-5" is prefixed. `ProtectFormulas = false` turns this off, which is only safe for data you wrote yourself.
+- **Byte order mark**: `Utf8Bom = true` starts the file with U+FEFF, which Excel needs to read accents as UTF-8. Off by default.
+
+The browser downloads the file by itself, through a small module of the package (`klyroo-table-download.js`). To do something else with it, handle `OnExport`: it receives a `DataListExportResult` (file name, text, row count, scope, `ToBytes()`) and the browser download is skipped. That is the way to save the file in a .NET MAUI app, or to upload it. `OnError` receives an exception thrown by `LoadAll` or by your handler. A static render draws no export button.
+
+From code, `DataListContext<T>` has `ExportRows(scope)`, `ExportHeaders()`, `ToCsv(rows, options)` and `ExportCsv(scope, options)`, and the headless `DataListCsv` class (in Klyroo.Table.Core) writes any header and rows with the same rules.
+
 ## Group rows, total columns and show a tree
 
 Goal: collapsible groups, footer totals, and hierarchical rows.

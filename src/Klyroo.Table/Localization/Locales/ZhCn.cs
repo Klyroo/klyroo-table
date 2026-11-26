@@ -179,5 +179,10 @@ public static partial class KlyToolsLocales
             DetailExpand = "显示 {0} 的详情",
             DetailCollapse = "隐藏 {0} 的详情",
             DetailColumn = "详情",
+            ExportLabel = "导出",
+            ExportPage = "本页",
+            ExportSelection = "所选行（{0}）",
+            ExportAll = "全部 {0} 条结果",
+            ExportAllUnknown = "全部结果",
         };
 }

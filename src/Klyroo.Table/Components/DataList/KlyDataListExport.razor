@@ -1,0 +1,183 @@
+@namespace Klyroo.Table
+@typeparam TItem
+@inherits DataListPartBase<TItem>
+@using Microsoft.JSInterop
+@using Klyroo.Query
+@using Microsoft.Extensions.Logging
+
+@* A button that exports the list as a CSV file: the visible columns in the order the user sees them, formatted like the table. With more than one source of rows (this page, the selection, every result) it
+   opens a menu; with one it exports at once. The file goes to the browser's downloads, or to OnExport when the app saves it itself (a MAUI app). Interactive only: a static render draws nothing. *@
+@if (Context.IsInteractive)
+{
+    var scopes = AvailableScopes();
+    <div class="@_slots["export"]" data-slot="export" @attributes="AdditionalAttributes">
+        @if (scopes.Count > 1)
+        {
+            <KlyDropdownMenu Items="MenuItems(scopes)" OnSelect="OnSelect" Placement="bottom-end">
+                <KlyButton Label="@(Label ?? ToolsMessages.ExportLabel)" Variant="ButtonVariant.Outline" Color="KlyColor.Neutral" Size="KlySize.Sm"
+                          Loading="_busy" LeadingIcon="@RenderIcon(Icon, "size-4")" data-slot="export-trigger" />
+            </KlyDropdownMenu>
+        }
+        else
+        {
+            <KlyButton Label="@(Label ?? ToolsMessages.ExportLabel)" Variant="ButtonVariant.Outline" Color="KlyColor.Neutral" Size="KlySize.Sm"
+                      Loading="_busy" Disabled="@(scopes.Count == 0)" LeadingIcon="@RenderIcon(Icon, "size-4")" data-slot="export-trigger"
+                      OnClick="@(() => RunAsync(scopes[0]))" />
+        }
+    </div>
+}
+
+@code {
+    internal const string DownloadModulePath = "./_content/Klyroo.Table/klyroo-table-download.js";
+
+    private SlotSet _slots = default!;
+    private bool _busy;
+    private bool _disposed;
+    private Task<IJSObjectReference?>? _module;
+
+    [Inject] private IJSRuntime JS { get; set; } = default!;
+
+    /// <summary>The label of the button. Without it the localized "Export".</summary>
+    [Parameter] public string? Label { get; set; }
+
+    /// <summary>The name of the icon of the button (<c>download</c> by default).</summary>
+    [Parameter] public string Icon { get; set; } = "download";
+
+    /// <summary>
+    /// The sources of rows the user can pick from, in the order of the menu. By default this page, the selection and every result; each is offered only while it applies (the selection needs a ticked row,
+    /// every result needs a list of rows in memory or <see cref="LoadAll"/>). With one source left the button exports at once.
+    /// </summary>
+    [Parameter] public IReadOnlyList<DataListExportScope>? Scopes { get; set; }
+
+    /// <summary>The name of the file, with or without <c>.csv</c>. Without it the label of the list, else <c>export</c>.</summary>
+    [Parameter] public string? FileName { get; set; }
+
+    /// <summary>How the file is written: delimiter, byte order mark, header, protection against formulas. Its culture defaults to the culture of the page, and the delimiter follows it (<c>;</c> where the decimal separator is a comma).</summary>
+    [Parameter] public DataListCsvOptions? CsvOptions { get; set; }
+
+    /// <summary>
+    /// Loads every row a request matches, for <see cref="DataListExportScope.All"/> on a list over a provider or a queryable (the list never holds those rows). It receives the request without paging and facets,
+    /// as the list sent it: send it to your server and apply it there with <c>schema.Apply(query, request)</c>. A list of rows in memory does not need it.
+    /// </summary>
+    [Parameter] public Func<DataListRequest, CancellationToken, Task<IReadOnlyList<TItem>>>? LoadAll { get; set; }
+
+    /// <summary>
+    /// Raised with the finished file instead of the browser's download: save it yourself (a file picker in a MAUI app, an upload, a copy to the clipboard). Without a handler the browser downloads the file.
+    /// </summary>
+    [Parameter] public EventCallback<DataListExportResult> OnExport { get; set; }
+
+    /// <summary>Raised when loading the rows or saving the file threw. Without a handler the failure is logged.</summary>
+    [Parameter] public EventCallback<Exception> OnError { get; set; }
+
+    protected override void OnParametersSet() =>
+        _slots = ResolveSlots(ToolsOptions.DataList, new Dictionary<string, string?>(), Ui, "export");
+
+    private List<DataListExportScope> AvailableScopes()
+    {
+        var wanted = Scopes ?? [DataListExportScope.Page, DataListExportScope.Selection, DataListExportScope.All];
+        var result = new List<DataListExportScope>();
+        foreach (var scope in wanted.Distinct())
+        {
+            var applies = scope switch
+            {
+                DataListExportScope.Selection => Context.SelectionEnabled && Context.SelectedCount > 0,
+                DataListExportScope.All => (Context.HoldsAllRows || LoadAll is not null) && Context.Rows.Count > 0,
+                _ => Context.Rows.Count > 0,
+            };
+            if (applies) result.Add(scope);
+        }
+        return result;
+    }
+
+    private string ScopeText(DataListExportScope scope) => scope switch
+    {
+        DataListExportScope.Selection => string.Format(FormatCulture, ToolsMessages.ExportSelection, Context.SelectedCount.ToString("N0", FormatCulture)),
+        DataListExportScope.All => Context.MatchingCount is { } total
+            ? string.Format(FormatCulture, ToolsMessages.ExportAll, total.ToString("N0", FormatCulture))
+            : ToolsMessages.ExportAllUnknown,
+        _ => ToolsMessages.ExportPage,
+    };
+
+    private List<KlyMenuItem> MenuItems(List<DataListExportScope> scopes) =>
+        [.. scopes.Select(scope => new KlyMenuItem { Label = ScopeText(scope), Value = scope.ToString(), Disabled = _busy })];
+
+    private Task OnSelect(KlyMenuItem item) =>
+        Enum.TryParse<DataListExportScope>(item.Value, out var scope) ? RunAsync(scope) : Task.CompletedTask;
+
+    private async Task RunAsync(DataListExportScope scope)
+    {
+        if (_busy) return;
+        _busy = true;
+        StateHasChanged();
+        try
+        {
+            var rows = await RowsAsync(scope);
+            var options = (CsvOptions ?? new DataListCsvOptions()) with { Culture = CsvOptions?.Culture ?? FormatCulture };
+            var content = Context.ToCsv(rows, options);
+            var name = DataListCsv.FileName(FileName ?? Context.Label);
+            var result = new DataListExportResult(name, content, rows.Count, scope);
+            if (OnExport.HasDelegate) await OnExport.InvokeAsync(result);
+            else await DownloadAsync(result);
+        }
+        catch (Exception exception) when (!(exception is OperationCanceledException && Context.LifetimeToken.IsCancellationRequested))
+        {
+            Context.Logger?.LogError(exception, "The data list export failed.");
+            if (OnError.HasDelegate) await OnError.InvokeAsync(exception);
+        }
+        finally
+        {
+            _busy = false;
+            if (!_disposed) await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    // A list of rows in memory resolves "every result" itself; any other needs the function of the app.
+    private async Task<IReadOnlyList<TItem>> RowsAsync(DataListExportScope scope)
+    {
+        if (scope == DataListExportScope.All && !Context.HoldsAllRows)
+        {
+            var request = Context.AllResultsRequest ?? throw new InvalidOperationException("The list has not loaded yet: there is no request to export.");
+            return await LoadAll!(request, Context.LifetimeToken);
+        }
+        return Context.ExportRows(scope);
+    }
+
+    private async Task DownloadAsync(DataListExportResult result)
+    {
+        _module ??= ImportAsync();
+        if (await _module is not { } module) throw new InvalidOperationException("The browser side of the export is not available here: handle OnExport to save the file.");
+        await module.InvokeVoidAsync("downloadText", result.FileName, result.Content, result.MimeType);
+    }
+
+    private async Task<IJSObjectReference?> ImportAsync()
+    {
+        try
+        {
+            return await JS.InvokeAsync<IJSObjectReference>("import", DownloadModulePath);
+        }
+        catch (Exception e) when (e is JSException or JSDisconnectedException or InvalidOperationException or TaskCanceledException)
+        {
+            _module = null;
+            return null;
+        }
+    }
+
+    public override void Dispose()
+    {
+        _disposed = true;
+        if (_module is { } loading) _ = DisposeModuleAsync(loading);
+        base.Dispose();
+
+        static async Task DisposeModuleAsync(Task<IJSObjectReference?> loading)
+        {
+            try
+            {
+                if (await loading is { } module) await module.DisposeAsync();
+            }
+            catch (Exception e) when (e is JSException or JSDisconnectedException or InvalidOperationException or TaskCanceledException or ObjectDisposedException)
+            {
+                // The circuit is gone with the page.
+            }
+        }
+    }
+}

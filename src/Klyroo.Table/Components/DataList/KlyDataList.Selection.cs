@@ -46,6 +46,8 @@ public partial class KlyDataList<TItem>
 
     internal bool SelectionVisible => SelectionEnabled && (RendererInfo.IsInteractive || SelectionWillBeInteractive);
 
+    internal bool HoldsAllRows => Items is not null;
+
     internal bool SelectionAcrossPages => Items is not null && SelectionScope != DataListSelectionScope.Page;
 
     internal int SelectedCount => _selection.Count;

@@ -179,5 +179,10 @@ public static partial class KlyToolsLocales
             DetailExpand = "Показать сведения: {0}",
             DetailCollapse = "Скрыть сведения: {0}",
             DetailColumn = "Сведения",
+            ExportLabel = "Экспорт",
+            ExportPage = "Эта страница",
+            ExportSelection = "Выбранные строки ({0})",
+            ExportAll = "Все результаты ({0})",
+            ExportAllUnknown = "Все результаты",
         };
 }
