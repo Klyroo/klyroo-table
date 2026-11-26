@@ -102,7 +102,7 @@ Troubleshooting first (symptom, cause, fix), then known limitations, then freque
 
 ### A filter marked `WithPersist()` does not come back
 
-**Cause.** The value is restored only on the first interactive render, only when the address has no key for that filter, and only from the `localStorage` of the same browser. A statically rendered page never reads it, a shared link that names the filter wins, and private browsing or blocked site data keeps nothing. Lists of the same row type without a `UrlKey` or `PersistKey` also share one entry per filter key, so the last one to change it wins.
+**Cause.** The value is restored only once the page is interactive (on the first render and on later navigations to the page), only when the address has no key for that filter, and only from the `localStorage` of the same browser. A statically rendered page never reads it, a shared link that names the filter wins, and private browsing or blocked site data keeps nothing. Lists of the same row type without a `UrlKey` or `PersistKey` also share one entry per filter key, so the last one to change it wins.
 
 **Fix.** Give the page an interactive render mode, give each list a distinct `UrlKey` or `PersistKey`, and check the `klyroo-dl-filter:` entries in the storage panel of the browser's developer tools.
 

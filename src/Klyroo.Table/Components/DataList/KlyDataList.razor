@@ -67,6 +67,10 @@
     private string? _timeZone;
     private bool _writeInitialState;
     private bool _stateFromUrl;
+    // The state the list last wrote to the address itself. An address that reads back as it came from the list (a filter the user cleared); any other came from a navigation.
+    private DataListState? _ownUrlState;
+    // Counts the address changes applied, so one that waited for the browser storage does not overwrite a later one.
+    private int _urlChange;
     private bool _disposed;
     private readonly CancellationTokenSource _lifetime = new();
 
@@ -300,7 +304,7 @@
             if (UrlSync && Query.Interactive == true && !restart.Equals(_state))
             {
                 // The URL stays the one source of the state: the write notifies the subscription, which loads.
-                Query.SetMany(Changes(restart), QueryHistory.Replace);
+                WriteUrl(restart, QueryHistory.Replace);
             }
             else
             {
@@ -337,7 +341,7 @@
                 if (UrlSync)
                 {
                     // The URL stays the one source of the state: the write notifies the subscription, which loads.
-                    if (Query.Interactive == true) Query.SetMany(Changes(next), QueryHistory.Push);
+                    if (Query.Interactive == true) WriteUrl(next, QueryHistory.Push);
                 }
                 else if (!reload && controller.TryAdoptLayout(next))
                 {
@@ -394,7 +398,7 @@
                 adopted = false;
             }
             // A remembered filter the address says nothing about takes the value the browser kept (DataListFilter.WithPersist); the address then shows it, as for a normalized one.
-            var remembered = await RestoreRememberedFiltersAsync(_state);
+            var remembered = await RestoreRememberedFiltersAsync(_state, _stateFromUrl);
             if (!ReferenceEquals(remembered, _state))
             {
                 _state = controller.Normalize(remembered);
@@ -418,12 +422,12 @@
         if (_writeInitialState && Query.Interactive == true && !controller.HasError)
         {
             // The state of the parent starts a list whose URL holds nothing: the address says so, without a history entry.
-            Query.SetMany(Changes(_state), QueryHistory.Replace);
+            WriteUrl(_state, QueryHistory.Replace);
         }
         else if (UrlSync && Query.Interactive == true && !controller.HasError && !ReadState().Equals(_state))
         {
             // A typed address that normalization changed (spaces around the search, a page size past the maximum): the address shows what is there, without a history entry.
-            Query.SetMany(Changes(_state), QueryHistory.Replace);
+            WriteUrl(_state, QueryHistory.Replace);
         }
         if ((State is not null && !_state.Equals(State)) || (State is null && restoredFilters)) _ = StateChanged.InvokeAsync(_state);
         // A parameter that changed while this ran (a list without a schema loads when its table renders).
@@ -504,7 +508,7 @@
         {
             _state = loaded;
             changed = true;
-            if (UrlSync && Query.Interactive == true) Query.SetMany(Changes(loaded), QueryHistory.Replace);
+            if (UrlSync && Query.Interactive == true) WriteUrl(loaded, QueryHistory.Replace);
             _ = StateChanged.InvokeAsync(loaded);
         }
         ReconcileSelection();
@@ -522,7 +526,7 @@
         if (UrlSync)
         {
             // The write notifies the subscription below, which loads: the URL stays the one source of the state.
-            Query.SetMany(Changes(next), history);
+            WriteUrl(next, history);
             return;
         }
         _state = next;
@@ -595,6 +599,12 @@
         return changes;
     }
 
+    private void WriteUrl(DataListState state, QueryHistory history)
+    {
+        _ownUrlState = state;
+        Query.SetMany(Changes(state), history);
+    }
+
     private void OnUrlChanged(IReadOnlyList<string> keys)
     {
         if (_disposed || Controller is null || !keys.Any(IsOwned)) return;
@@ -605,9 +615,23 @@
     {
         var controller = Controller;
         if (_disposed || controller is null) return;
+        var change = ++_urlChange;
         var next = controller.Normalize(ReadState());
+        var restored = false;
+        if (!next.Equals(_ownUrlState))
+        {
+            // A navigation to this page (a menu link, Back) that says nothing of a remembered filter takes the value the browser kept, as the first render does; the address then shows it.
+            var remembered = await RestoreRememberedFiltersAsync(next, fromUrl: true);
+            if (_disposed || change != _urlChange) return;
+            if (!ReferenceEquals(remembered, next))
+            {
+                next = controller.Normalize(remembered);
+                restored = true;
+            }
+        }
         if (next.Equals(_state)) return;
         _state = next;
+        if (restored && Query.Interactive == true) WriteUrl(next, QueryHistory.Replace);
         await StateChanged.InvokeAsync(next);
         if (controller.TryAdoptLayout(next))
         {

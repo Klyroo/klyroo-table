@@ -63,9 +63,9 @@ public partial class KlyDataList<TItem>
     }
 
     // Whether the list starts with a value of its own for a filter: a key of it in the address when the state came from there, else rules other than the defaults in the state the parent gave.
-    private bool StartsWithFilterValue(string key, DataListState state)
+    private bool StartsWithFilterValue(string key, DataListState state, bool fromUrl)
     {
-        if (_stateFromUrl)
+        if (fromUrl)
         {
             var prefix = NormalizedUrlKey;
             foreach (var (name, _) in Query.Snapshot(prefix ?? ""))
@@ -85,15 +85,15 @@ public partial class KlyDataList<TItem>
     }
 
     /// <summary>
-    /// The state the first interactive render starts from once the remembered filters are applied: each one the list does not start with a value for takes the stored value (on page 1),
-    /// and the values of the result are what later changes are compared with. Returns <paramref name="state"/> itself when nothing was restored.
+    /// The state the list starts from, on its first interactive render or after a navigation to its page, once the remembered filters are applied: each one the list does not start with a
+    /// value for takes the stored value (on page 1). <paramref name="fromUrl"/> says the state was read from the address. Returns <paramref name="state"/> itself when nothing was restored.
     /// </summary>
-    private async Task<DataListState> RestoreRememberedFiltersAsync(DataListState state)
+    private async Task<DataListState> RestoreRememberedFiltersAsync(DataListState state, bool fromUrl)
     {
         var keys = RememberedFilterKeys();
         if (keys.Count == 0 || !RendererInfo.IsInteractive || _schema is null) return state;
         var next = state;
-        var open = keys.Where(k => !StartsWithFilterValue(k, state)).ToList();
+        var open = keys.Where(k => !StartsWithFilterValue(k, state, fromUrl)).ToList();
         if (open.Count > 0)
         {
             var stored = await ReadRememberedFiltersAsync([.. open.Select(FilterStorageKey)]);

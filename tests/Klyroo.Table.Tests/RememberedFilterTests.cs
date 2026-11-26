@@ -118,6 +118,40 @@ public sealed class RememberedFilterTests : BunitContext
     }
 
     [Fact]
+    public void A_navigation_to_the_page_without_a_value_restores_the_stored_one()
+    {
+        Stored("f.team=Backend");
+        var navigation = Services.GetRequiredService<NavigationManager>();
+        navigation.NavigateTo("/?tasks.f.team=Infra");
+        var cut = RenderList();
+        cut.WaitForAssertion(() => Assert.Equal(["Epsilon Deploy"], Titles(cut)));
+
+        // A menu link back to the page: the address names no team, so the remembered one comes back and the address shows it.
+        cut.InvokeAsync(() => navigation.NavigateTo("/"));
+
+        cut.WaitForAssertion(() => Assert.Equal(["Alpha API", "Delta Tests"], Titles(cut)));
+        Assert.Contains("tasks.f.team=Backend", Uri.UnescapeDataString(navigation.Uri));
+    }
+
+    [Fact]
+    public void Clearing_the_filter_in_the_list_does_not_bring_the_stored_value_back()
+    {
+        Stored("f.team=Backend");
+        var navigation = Services.GetRequiredService<NavigationManager>();
+        navigation.NavigateTo("/?tasks.f.team=Infra");
+        var cut = RenderList();
+        cut.WaitForAssertion(() => Assert.Equal(["Epsilon Deploy"], Titles(cut)));
+
+        cut.InvokeAsync(() => cut.Instance.SetState(s => s with { Filters = [] }, QueryHistory.Push));
+
+        cut.WaitForAssertion(() => Assert.Equal(4, Titles(cut).Count));
+        Assert.DoesNotContain("f.team", navigation.Uri);
+        Assert.DoesNotContain(_storage.Invocations, i => i.Identifier == "readAll");
+        var cleared = Assert.Single(_storage.Invocations, i => i.Identifier == "write");
+        Assert.Equal("", cleared.Arguments[1]);
+    }
+
+    [Fact]
     public void A_stored_value_is_read_like_the_address_and_keeps_only_its_own_filter()
     {
         var rules = KlyDataList<TaskRow>.DecodeRememberedFilter(Schema, "team", "q=x&f.hours.gt=3&f.team=Backend%2CInfra&f.team.bogus=1", null);
