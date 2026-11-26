@@ -2,6 +2,8 @@
 
 This tutorial installs Klyroo.Table, builds a tree without any UI, then builds a customer list in a Blazor page with search, filters, sorting, paging and custom columns. It takes about fifteen minutes and assumes a Blazor Web App on .NET 10 that already uses [Klyroo.UI](https://github.com/klyroo/klyroo-ui).
 
+Check the [prerequisites](../README.md#prerequisites) first: the .NET 10 SDK, and for the components a Blazor app with Klyroo.UI set up.
+
 ## 1. Install
 
 ```bash

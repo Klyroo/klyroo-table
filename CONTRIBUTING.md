@@ -13,7 +13,8 @@ tests, versions and releases, so a change usually belongs to exactly one of them
   ```bash
   mkdir klyroo && cd klyroo
   git clone https://github.com/klyroo/klyroo-table.git
-  # plus the siblings it references, for example:
+  # plus the siblings it references:
+  git clone https://github.com/klyroo/klyroo-query.git
   git clone https://github.com/klyroo/klyroo-ui.git
   ```
 

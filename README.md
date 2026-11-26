@@ -26,6 +26,20 @@ A list page needs search, filters, sort, paging and URL state wired to a data so
 | [`Klyroo.Table.Core`](https://www.nuget.org/packages/Klyroo.Table.Core) | UI-free tree model (`DataListTree<T>`) built on Klyroo.Query.Core. NativeAOT compatible and trimmable. |
 | [`Klyroo.Table`](https://www.nuget.org/packages/Klyroo.Table) | The Blazor components, `AddKlyrooTable()`, themes and 12 message tables. Depends on Klyroo.Table.Core, Klyroo.Query and Klyroo.UI. |
 
+## Prerequisites
+
+To use the library in an app:
+
+- **The .NET 10 SDK**, and an app that targets `net10.0`. The packages are prereleases, so every `dotnet add package` command needs `--prerelease`.
+- **A Blazor app** for `Klyroo.Table`: a Blazor Web App or a .NET MAUI Blazor Hybrid app. Selection, the selection bar and actions need an interactive render mode (Interactive Server, WebAssembly or Auto); in static server rendering, sorting, filtering and paging work through links and GET forms. In a WebAssembly or Auto app, register the services in the server project and in the `.Client` project.
+- **Klyroo.UI set up in the app.** `Klyroo.Table` brings the Klyroo.UI package, and `AddKlyrooTable()` registers its services, but the layout still needs the Klyroo.UI stylesheets in `<head>` and `<KlyApp>` around the body, as described in the [Klyroo.UI installation](https://github.com/klyroo/klyroo-ui#installation).
+- **Klyroo.Query** for the list state; `Klyroo.Table` brings it. To run lists against a database through EF Core, add `Klyroo.Query.EntityFrameworkCore` (EF Core 10.0.15 or later). To cut days in the user's time zone in static server rendering, add `Klyroo.UI.Server` and call `AddKlyrooServer()`.
+- **A browser with the native popover API**, which Klyroo.UI uses: Chrome and Edge 114, Safari 17 or Firefox 125, or later. In a .NET MAUI app, that means iOS or Mac Catalyst 17, or an Android System WebView 114 or later.
+- **Network access on the first build** only if your app self-hosts web fonts (`KlyrooFont`), uses icons outside the built-in set, or compiles Tailwind (`KlyrooTailwind`): the build downloads them once and caches them under `obj/klyroo`. Node.js is not needed.
+- **`Klyroo.Table.Core`** alone (the tree model) runs in any .NET 10 app.
+
+To build this repository you need the .NET 10 SDK (a newer SDK works too, see `global.json`) and clones of `klyroo-query` and `klyroo-ui` in the same parent folder: some projects reference them by relative path (`../klyroo-query/...`). See [Contributing](CONTRIBUTING.md).
+
 ## Installation
 
 ```bash
@@ -120,7 +134,7 @@ Without child content the list renders a default layout: a search field (when th
 | [API reference](docs/api-reference.md) | Every public type and member |
 | [FAQ](docs/faq.md) | Troubleshooting and limitations |
 
-## Requirements
+## Compatibility
 
 - .NET 10 SDK.
 - Blazor Web App in static server rendering, Interactive Server, WebAssembly or Auto. In static rendering the controls are links and GET forms; selection and actions need an interactive render.
