@@ -5,7 +5,7 @@ Each guide solves one task and assumes you finished [Getting started](getting-st
 - [Load rows from your own API](#load-rows-from-your-own-api)
 - [Query a database with EF Core](#query-a-database-with-ef-core)
 - [Filter rows and show counts](#filter-rows-and-show-counts)
-- [Keep the state in the URL, or set it from code](#keep-the-state-in-the-url-or-set-it-from-code)
+- [Keep the state in the URL, or set it from code](#keep-the-state-in-the-url-or-set-it-from-code), including [remembered filters](#remember-a-filter-between-visits)
 - [Select rows and run actions](#select-rows-and-run-actions)
 - [Group rows, total columns and show a tree](#group-rows-total-columns-and-show-a-tree)
 - [Page by cursor and virtualize a long table](#page-by-cursor-and-virtualize-a-long-table)
@@ -262,6 +262,18 @@ Bind `State` to read or set the state from your code. A value you set is written
 ```
 
 With URL sync on, the URL wins at the start: the value you bind only starts the list when the address holds none of its keys. Turn `UrlSync` off for a list in a dialog or a drawer, where the address should not change. To reset from inside the list, `KlyDataList<TItem>.ResetAll()` takes search and filters back to the schema defaults, clears the selection and the tree expansion.
+
+### Remember a filter between visits
+
+Mark a filter with `WithPersist()` and the list keeps its last value in the browser, so a user who always looks at one region finds it selected on the next visit:
+
+```csharp
+.Field(o => o.Country, f => f.Filter(DataListFilter.Option().WithFacets().WithPersist()))
+```
+
+Each change of such a filter is written to `localStorage` under `klyroo-dl-filter:<full name of the row type>:<PersistKey or UrlKey>:<filter key>`, as the URL keys of its rules (`f.country=France%2CSpain`), and clearing the filter or setting it back to its schema default removes the entry. On its first interactive render the list reads the entries of the filters the address says nothing about (with URL sync off, of those the bound `State` leaves at their default), applies them on page 1 and writes them to the address without a history entry; a filter the address does name keeps the address value, and that value is not stored until the user changes it. A stored value is read like an address, so one the schema no longer accepts is dropped.
+
+Storage exists only in the browser: a static render and a prerender neither read nor write it, so a prerendered page first shows the list without the remembered value and the interactive render then loads it with the value. Give lists of the same row type on different pages a `UrlKey` or a `PersistKey` when their filters should not share a value. When the browser refuses storage (private browsing, blocked site data, a full quota) the filter behaves as if it were not marked.
 
 ## Select rows and run actions
 

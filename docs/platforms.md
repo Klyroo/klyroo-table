@@ -92,6 +92,7 @@ Without it, a server-rendered list cuts days in UTC until the page is interactiv
 What the source says about the web view:
 
 - Column preferences (`PreferencesKey`) are stored in `localStorage` of the web view, because there is no server to read a cookie.
+- Remembered filters (`DataListFilter.WithPersist()`) are stored in `localStorage` too, in the web view as in a browser, through the `klyroo-table-storage.js` module of the package.
 - Nothing implements `IKlyRequestCookies` there, so the time zone for date filters comes from the browser engine once the list is interactive.
 
 The stylesheet setup of [Getting started](getting-started.md#4-style-the-list) applies to the project that holds the Razor pages; the build-time Tailwind of Klyroo.UI serves its output to any host that references that project, a MAUI Blazor Hybrid app included.

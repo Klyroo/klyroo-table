@@ -100,6 +100,12 @@ Troubleshooting first (symptom, cause, fix), then known limitations, then freque
 
 **Fix.** Set a `PreferencesKey` on the list and call `AddKlyrooServer()` in the server project.
 
+### A filter marked `WithPersist()` does not come back
+
+**Cause.** The value is restored only on the first interactive render, only when the address has no key for that filter, and only from the `localStorage` of the same browser. A statically rendered page never reads it, a shared link that names the filter wins, and private browsing or blocked site data keeps nothing. Lists of the same row type without a `UrlKey` or `PersistKey` also share one entry per filter key, so the last one to change it wins.
+
+**Fix.** Give the page an interactive render mode, give each list a distinct `UrlKey` or `PersistKey`, and check the `klyroo-dl-filter:` entries in the storage panel of the browser's developer tools.
+
 ### Some texts are in English or read badly in another language
 
 **Cause.** Twelve locales are built in, but only English and French are reviewed by a native speaker. The other tables are drafts.
@@ -119,7 +125,7 @@ Troubleshooting first (symptom, cause, fix), then known limitations, then freque
 - **A tree works on loaded top-level rows.** Children come with their parent item. Search, filters, sort and paging act on the rows the source returns, not inside the hierarchy, and nothing loads children on demand.
 - **Selection across pages needs rows in memory.** Over a provider or a queryable the selection holds the rows of the page on screen; "Select all N results" hands your server the request instead of the rows.
 - **The filtered summary needs a resolver over a provider.** For a provider or a queryable, `DataListSummaries.ResolveAsync` must give the filtered totals, otherwise the list totals the rows it loaded.
-- **State is limited to the address.** Search, filters, sort, page and layout travel in the query string, so a very long filter is a very long URL.
+- **State is limited to the address.** Search, filters, sort, page and layout travel in the query string, so a very long filter is a very long URL. The one exception is a filter marked `WithPersist()`, whose last value the browser also keeps in `localStorage`; it comes back only once the page is interactive, never in a static render or a prerender.
 - **A column compiled from `Property` and the in-memory executor use expression trees.** `Klyroo.Table` does not declare `IsAotCompatible`; see [Platforms](platforms.md#nativeaot-and-trimming).
 - **Ten of the twelve message tables are unreviewed drafts.**
 - **No MAUI app or test in this repository runs the list.** The platforms are declared, not exercised here.

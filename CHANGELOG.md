@@ -6,6 +6,11 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+### Added
+
+- Remembered filters: `KlyDataList` now honors `DataListFilter.WithPersist()`. A change of such a filter is stored in `localStorage` (key scoped by row type, `PersistKey` or `UrlKey` and filter key, value in the URL form of `DataListStateQuery`) through the new `klyroo-table-storage.js` module; clearing the filter removes the entry, and the first interactive render restores the value of every marked filter the address does not name, then writes it to the address. Static renders and prerenders never touch storage, and every storage call is guarded.
+- Tests for the summary scopes (`Filtered`, `Page`, `Selection`), the default sticky position of the selection bar and `DataListController.PagesLoaded` across appends, refreshes, new loads and failed appends.
+
 ## [0.1.0-preview.1] - 2026-11-24
 
 ### Added

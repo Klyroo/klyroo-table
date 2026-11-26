@@ -130,7 +130,10 @@
     /// </summary>
     [Parameter] public JsonTypeInfo<DataListResult<TItem>>? ResultJson { get; set; }
 
-    /// <summary>The key the prerendered result is persisted under, when the list has no <see cref="UrlKey"/> or two lists share it. The row type is part of the key.</summary>
+    /// <summary>
+    /// The key the prerendered result is persisted under, when the list has no <see cref="UrlKey"/> or two lists share it. The row type is part of the key.
+    /// It also scopes the <c>localStorage</c> entries of the filters marked <c>WithPersist()</c> (before <see cref="UrlKey"/>): lists of one row type whose remembered filters must not share a value need distinct keys.
+    /// </summary>
     [Parameter] public string? PersistKey { get; set; }
 
     /// <summary>How tight the rows are.</summary>
@@ -378,6 +381,7 @@
         if (taken?.Labels is { } persistedLabels) _context.AdoptLabels(persistedLabels);
 
         // A result that does not depend on the zone shows at once, before the call to the browser: the render waits for that call, not for the rows.
+        var restoredFilters = false;
         var adopted = taken is { } early && early.Requested.Equals(_state) && !NeedsTimeZone(early.Request.Filter) && Adopt(early);
         if (RendererInfo.IsInteractive)
         {
@@ -389,6 +393,15 @@
                 _state = again;
                 adopted = false;
             }
+            // A remembered filter the address says nothing about takes the value the browser kept (DataListFilter.WithPersist); the address then shows it, as for a normalized one.
+            var remembered = await RestoreRememberedFiltersAsync(_state);
+            if (!ReferenceEquals(remembered, _state))
+            {
+                _state = controller.Normalize(remembered);
+                adopted = false;
+                restoredFilters = true;
+            }
+            StartRememberingFilters(_state);
             // A result whose days were cut in the zone the browser has is as good as a new one.
             if (!adopted && taken is { } late && late.Requested.Equals(_state) && DataListDates.SameZone(late.Zone, _timeZone)) adopted = Adopt(late);
             if (adopted) controller.SetLoadedTimeZone(_timeZone);
@@ -412,7 +425,7 @@
             // A typed address that normalization changed (spaces around the search, a page size past the maximum): the address shows what is there, without a history entry.
             Query.SetMany(Changes(_state), QueryHistory.Replace);
         }
-        if (State is not null && !_state.Equals(State)) _ = StateChanged.InvokeAsync(_state);
+        if ((State is not null && !_state.Equals(State)) || (State is null && restoredFilters)) _ = StateChanged.InvokeAsync(_state);
         // A parameter that changed while this ran (a list without a schema loads when its table renders).
         await ApplyParameterChangesAsync();
     }
@@ -461,6 +474,7 @@
     {
         // The labels of the values in the state do not wait for the rows.
         var labelling = LabelRemoteValuesAsync(state, includeCounted: false, retryFailed: true);
+        SaveRememberedFilters(state);
         await Controller!.LoadAsync(state, refresh);
         if (_disposed) return;
         AfterLoad(force: false);
@@ -731,6 +745,7 @@
         _claim?.Dispose();
         _persistSubscription?.Dispose();
         DisposeColumnPreferences();
+        DisposeFilterStorage();
         if (_claimedKey is not null && PersistedKeys.TryGetValue(Services, out var keys))
         {
             lock (keys) keys.Remove(_claimedKey);
