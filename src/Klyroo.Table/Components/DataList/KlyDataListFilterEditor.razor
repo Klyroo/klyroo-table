@@ -521,11 +521,11 @@
                 <div class="@_slots["filterField"]" data-slot="filter-number">
                     @if (UsesInput)
                     {
-                        <KlyInputNumber Value="@_from" ValueChanged="@OnFrom" Min="_filter.Min" Max="_filter.Max" Step="step" aria-label="@string.Format(FormatCulture, ToolsMessages.FilterValueFor, _label)" />
+                        <KlyInputNumber TNumber="decimal?" Value="@_from" ValueChanged="@OnFrom" Min="_filter.Min" Max="_filter.Max" Step="step" aria-label="@string.Format(FormatCulture, ToolsMessages.FilterValueFor, _label)" />
                     }
                     @if (UsesSlider)
                     {
-                        <KlySlider Value="@((double)(_from ?? _filter.Min ?? 0))" ValueChanged="@OnSlider" Min="min" Max="max" Step="sliderStep" AriaLabel="@string.Format(FormatCulture, ToolsMessages.FilterSliderFor, _label)" />
+                        <KlySlider TNumber="double" Value="@((double)(_from ?? _filter.Min ?? 0))" ValueChanged="@OnSlider" Min="min" Max="max" Step="sliderStep" AriaLabel="@string.Format(FormatCulture, ToolsMessages.FilterSliderFor, _label)" />
                     }
                 </div>
             }
@@ -536,11 +536,11 @@
                     {
                         <div class="@_slots["filterField"]">
                             <span class="@_slots["filterFieldLabel"]" aria-hidden="true">@ToolsMessages.FilterFrom</span>
-                            <KlyInputNumber Value="@_from" ValueChanged="@OnFrom" Min="_filter.Min" Max="_filter.Max" Step="step" aria-label="@string.Format(FormatCulture, ToolsMessages.FilterFromFor, _label)" />
+                            <KlyInputNumber TNumber="decimal?" Value="@_from" ValueChanged="@OnFrom" Min="_filter.Min" Max="_filter.Max" Step="step" aria-label="@string.Format(FormatCulture, ToolsMessages.FilterFromFor, _label)" />
                         </div>
                         <div class="@_slots["filterField"]">
                             <span class="@_slots["filterFieldLabel"]" aria-hidden="true">@ToolsMessages.FilterTo</span>
-                            <KlyInputNumber Value="@_to" ValueChanged="@OnTo" Min="_filter.Min" Max="_filter.Max" Step="step" aria-label="@string.Format(FormatCulture, ToolsMessages.FilterToFor, _label)" />
+                            <KlyInputNumber TNumber="decimal?" Value="@_to" ValueChanged="@OnTo" Min="_filter.Min" Max="_filter.Max" Step="step" aria-label="@string.Format(FormatCulture, ToolsMessages.FilterToFor, _label)" />
                         </div>
                     }
                     @if (UsesSlider)
@@ -567,7 +567,7 @@
             {
                 <div class="@_slots["filterRange"]" data-slot="filter-date">
                     <div class="@_slots["filterField"]">
-                        <KlyInputDate Value="@_day" ValueChanged="@OnDay" aria-label="@string.Format(FormatCulture, ToolsMessages.FilterValueFor, _label)" />
+                        <KlyInputDate TValue="DateOnly?" Value="@_day" ValueChanged="@OnDay" aria-label="@string.Format(FormatCulture, ToolsMessages.FilterValueFor, _label)" />
                     </div>
                     @if (Timed)
                     {
