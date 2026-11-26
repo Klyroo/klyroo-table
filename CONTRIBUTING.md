@@ -78,10 +78,14 @@ Conventional Commit.
 ## Versioning and releases
 
 Klyroo.Table follows [Semantic Versioning](https://semver.org/). While the version is `0.x`, minor versions may contain
-breaking changes, always listed in the changelog. The version lives in `Directory.Build.props`
-(`VersionPrefix` / `VersionSuffix`). Maintainers release by bumping it, moving the `Unreleased` changelog entries
-under the new version, and pushing a `v<version>` tag; the release workflow checks that the tag matches the
-version, builds, tests, packs, and waits for approval before publishing to NuGet and creating the GitHub Release.
+breaking changes, always listed in the changelog. The version lives in `build/Version.props`
+(`VersionPrefix` / `VersionSuffix`) and is the same in the nine Klyroo repositories, which release together.
+Maintainers release by bumping it in each of them, moving the `Unreleased` changelog entries under the new version,
+and running `build/tag-release.sh` from klyroo-stack: it checks that every repository is clean, on an up-to-date
+`main`, at that version and with a changelog section for it, then `--tag` creates the `v<version>` tags without
+pushing them. Pushing the tags starts the release workflows. Each one waits for the same tag in the sibling
+repositories and builds them at that tag, checks that the tag matches the version, builds, tests, packs, and waits
+for approval before publishing to NuGet and creating the GitHub Release.
 
 ## Issues
 
