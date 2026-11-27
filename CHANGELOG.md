@@ -8,6 +8,8 @@ All notable changes to this project are documented in this file. The format foll
 
 ### Fixed
 
+- A table wider than its box shows an edge shadow on the side where columns are out of view, and none at the start of the scroll.
+- The FAQ headings set only the identifiers in code.
 - A summary footer cell no longer throws for a format the number or type rejects: whole numbers are formatted as integers (so `Format="D6"` and `"X"` work on a minimum, a maximum or a custom `SummaryValue`), and a format that still fails gives the default text in the invariant culture. A `Count` summary is a number of rows, so the column `Format` (a date format, say) no longer applies to it; only `SummaryFormat` does. An empty `SummaryFormat` counts as unset on every kind of column.
 - Two group values that print the same (entities without `ToString`, or a custom comparer) no longer share a `DataListGroup.Key`: the later one gets an ordinal (`~2`), which keeps the Blazor `@key` unique and the collapsed state apart.
 - CSV export: a field or column declared `object` is checked by the type of each value again (a number is not escaped, a string is); typed fields keep the declared-type rule.
