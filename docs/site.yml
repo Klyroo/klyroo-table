@@ -27,8 +27,6 @@ lead: >-
 # dark mode are computed from it. Without it: the color of the library in klyroo-stack/docs-site/Klyroo.Docs.Site/libraries.yml.
 accent: "#00d8ff"
 
-# The texture of the ground behind the header and the hero: blueprint-grid, dot-matrix, ruled-rows, baseline-grid, chart-ticks, halftone, cell-grid or node-dots.
-texture: ruled-rows
 
 # What the hero demonstrates. Either board: table | form (a board with feature chips and several results, authored in docs-site), or a simple hero: the code,
 # the lines the leader line starts at (focus) and one result (output: lines of text, or preview: ui-settings | display-stat | spreadsheet-rows).
