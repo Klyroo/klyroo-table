@@ -10,31 +10,31 @@ Troubleshooting first (symptom, cause, fix), then known limitations, then freque
 
 **Fix.** Turn on `<KlyrooTailwind>true</KlyrooTailwind>`: the build then generates the table classes with no other step. If your app compiles Tailwind another way, import `obj/klyroo/klyroo-tools.theme.css` after the Klyroo theme, as in [Getting started](getting-started.md#4-style-the-list). With `Klyroo.Stack`, the precompiled `klyroo-stack.css` already holds them.
 
-### `InvalidOperationException: KlyDataList takes one source` or `needs a source`
+### `InvalidOperationException`: `KlyDataList` takes one source or needs a source
 
 **Cause.** A list takes exactly one of `Items`, `Queryable` and `Provider`.
 
 **Fix.** Pass one. Do not keep an old `Items` next to a new `Provider`.
 
-### `KlyDataList with a Provider or a Queryable needs a Schema`
+### `KlyDataList` with a `Provider` or a `Queryable` needs a `Schema`
 
 **Cause.** Without a schema nothing can drop what a request must not ask for, so only a list of in-memory `Items` may omit it, and then only if its columns name a `Property`.
 
 **Fix.** Build a `DataListSchema<TItem>` once, in a `static readonly` field or a cached service, and pass it as `Schema`.
 
-### `KlyDataList has no Schema and its table has no column with a Property`
+### `KlyDataList` has no `Schema` and its table has no column with a `Property`
 
 **Cause.** An in-memory list without a schema derives one from its columns, and none of them has a `Property` expression.
 
 **Fix.** Give the list a `Schema`, or give the columns a `Property` (`Property="@(c => c.Name)"`).
 
-### `the prefix ... of the query string is already claimed by ...`
+### the prefix ... of the query string is already claimed by ...
 
 **Cause.** Two lists on one page write the same query keys, because both use URL sync and neither has a `UrlKey`.
 
 **Fix.** Give each list a distinct `UrlKey`, or turn `UrlSync` off for one of them (a list in a dialog should). The same applies to `PersistKey` (two lists of the same row type that hand over a prerendered result need distinct keys) and to `PreferencesKey` (each list needs its own).
 
-### `selection needs a RowKey in the schema`
+### selection needs a `RowKey` in the schema
 
 **Cause.** The keys of the selected rows come from the schema's row key. A `KlyDataListSelectionActions` bar, `Selectable` or a bound `SelectedKeys` turns selection on.
 
@@ -64,7 +64,7 @@ Troubleshooting first (symptom, cause, fix), then known limitations, then freque
 
 **Fix.** Register an executor that awaits the database client, as in [Query a database with EF Core](guides.md#query-a-database-with-ef-core).
 
-### `An AsQueryable() over a list is rejected`
+### An `AsQueryable()` over a list is rejected
 
 **Cause.** A `Queryable` source is for a database provider. An in-memory `IQueryable` would throw on a null along a path where a database returns null.
 
@@ -76,7 +76,7 @@ Troubleshooting first (symptom, cause, fix), then known limitations, then freque
 
 **Fix.** Call `services.AddKlyrooServer()` in the server project. See [Platforms](platforms.md#time-zone-and-cookies-on-the-server).
 
-### The interactive render loads the list a second time, or logs `did not hand its prerendered result`
+### The interactive render loads the list a second time, or logs "did not hand its prerendered result"
 
 **Cause.** Without `ResultJson` nothing is persisted from the prerender. With it, a result over `PersistMaxBytes` (24 KB as sent by default), or one that no longer fits in the 28 KB the Klyroo libraries of the page share (`KlyrooOptions.PersistedStateMaxBytes`), is not persisted either. Sizes count the escaping and the two base64 encodings Blazor adds, so the JSON itself is about a third of them.
 
@@ -124,7 +124,7 @@ Troubleshooting first (symptom, cause, fix), then known limitations, then freque
 
 **Fix.** Change a text with `KlyrooTableOptions.Messages` in `AddKlyrooTable`, as in [Change the texts, the look and the delays](guides.md#change-the-texts-the-look-and-the-delays).
 
-### `Messages cannot change once a component has resolved a text`
+### Messages cannot change once a component has resolved a text
 
 **Cause.** The messages and the themes freeze when the first component reads them.
 
