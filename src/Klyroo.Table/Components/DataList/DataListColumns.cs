@@ -4,19 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Klyroo.Table;
 
-/// <summary>Which horizontal edge a column of <see cref="KlyDataListTable{TItem}"/> is pinned to.</summary>
-public enum DataListPin
-{
-    /// <summary>Scrolls horizontally with the table.</summary>
-    None,
-
-    /// <summary>Sticks to the start edge (left in left-to-right languages).</summary>
-    Start,
-
-    /// <summary>Sticks to the end edge (right in left-to-right languages).</summary>
-    End,
-}
-
 /// <summary>The effective state of one column of a data list: visibility, pinning, width and limits.</summary>
 /// <param name="Key">The column key (<see cref="KlyDataListColumnBase{TItem}.EffectiveKey"/>).</param>
 /// <param name="Title">The display title of the column.</param>

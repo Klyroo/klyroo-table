@@ -2,52 +2,6 @@ using Klyroo.Query;
 
 namespace Klyroo.Table;
 
-/// <summary>Which rows a bulk or toolbar action targets.</summary>
-public enum DataListActionScope
-{
-    /// <summary>The rows that are ticked.</summary>
-    Selection,
-
-    /// <summary>Every row the search and the filters match, on every page. A list over a provider or a query does not hold them: the action gets the <see cref="DataListActionContext{TItem}.Request"/> and applies it where the data lives.</summary>
-    All,
-}
-
-/// <summary>Where the rows of a selection survive: across pages, or only on the page they were ticked on.</summary>
-public enum DataListSelectionScope
-{
-    /// <summary>The list decides: a list of rows in memory (<c>Items</c>) keeps the selection across pages, a list over a provider or a queryable keeps it for the rows of the page.</summary>
-    Auto,
-
-    /// <summary>Rows that leave the page (a new page, a new search or filter, another sort) are no longer selected.</summary>
-    Page,
-
-    /// <summary>Selected rows stay selected on other pages while the search and the filters still match them. Only a list of rows in memory (<c>Items</c>) can do it: the others behave as <see cref="Page"/>.</summary>
-    All,
-}
-
-/// <summary>When running an action unticks the rows.</summary>
-public enum DataListSelectionClear
-{
-    /// <summary>The selection is kept (the default).</summary>
-    Never,
-
-    /// <summary>The rows are unticked as the action starts.</summary>
-    Trigger,
-
-    /// <summary>The rows are unticked once the action finished without failing; a failure keeps them so that the user can try again.</summary>
-    Success,
-}
-
-/// <summary>Where the selection bar sits.</summary>
-public enum DataListSelectionBarPosition
-{
-    /// <summary>At the bottom of the window while the list is on screen, and no lower than the end of the list (the default).</summary>
-    Sticky,
-
-    /// <summary>Fixed to the bottom of the window, centered.</summary>
-    Fixed,
-}
-
 /// <summary>What an action receives when it runs: the rows it targets, the scope and the request that stands for "every result".</summary>
 /// <typeparam name="TItem">The row type.</typeparam>
 public sealed class DataListActionContext<TItem>
