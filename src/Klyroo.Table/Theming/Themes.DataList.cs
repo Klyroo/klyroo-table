@@ -51,8 +51,8 @@ internal static partial class ToolsThemes
             .Slot("refreshIconBusy", "size-4 shrink-0 animate-spin motion-reduce:animate-none")
             .Slot("tableRoot", "relative w-full max-w-full overflow-x-auto rounded-(--klyroo-radius) border border-(--klyroo-border) bg-(--klyroo-bg) bg-no-repeat " +
                                // Edge shadows that appear only on the side with columns out of view: the covers scroll with the content and hide the fixed shadows at the ends.
-                               "[background-image:linear-gradient(to_right,var(--klyroo-bg)_35%,transparent),linear-gradient(to_left,var(--klyroo-bg)_35%,transparent),linear-gradient(to_right,color-mix(in_oklab,var(--klyroo-text)_30%,transparent),transparent),linear-gradient(to_left,color-mix(in_oklab,var(--klyroo-text)_30%,transparent),transparent)] " +
-                               "[background-position:left_top,right_top,left_top,right_top] [background-size:2rem_100%,2rem_100%,1.25rem_100%,1.25rem_100%] [background-attachment:local,local,scroll,scroll] " +
+                               "[background-image:linear-gradient(var(--klyroo-bg),var(--klyroo-bg)),linear-gradient(var(--klyroo-bg),var(--klyroo-bg)),linear-gradient(to_right,color-mix(in_oklab,var(--klyroo-text)_30%,transparent),color-mix(in_oklab,var(--klyroo-text)_10%,transparent)_40%,transparent),linear-gradient(to_left,color-mix(in_oklab,var(--klyroo-text)_30%,transparent),color-mix(in_oklab,var(--klyroo-text)_10%,transparent)_40%,transparent)] " +
+                               "[background-position:left_top,right_top,left_top,right_top] [background-size:2.5rem_100%,2.5rem_100%,2.5rem_100%,2.5rem_100%] [background-attachment:local,local,scroll,scroll] " +
                                "focus-visible:outline-2 focus-visible:outline-(--klyroo-primary-text)")
             .Slot("table", "min-w-full text-sm")
             .Slot("caption", "sr-only")
