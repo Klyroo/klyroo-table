@@ -618,7 +618,7 @@ public class KlyDataListTable<TItem> : DataListPartBase<TItem>
         if (RowActions is { Count: > 0 }) grid.Add(NewRowActions(context, item, position), 2);
         var card = new Border { Content = grid, Padding = new Thickness(12, TableBody.RowPadding(context.Density) + 4) };
         card.Apply(new TableSurface(KlyThemeColor.Transparent, KlyTheme.Border, 1, KlyTheme.Text));
-        card.SetRadius(TableSupport.RadiusOf(1.5));
+        card.SetRadius(KlyTheme.RadiusOf(1.5));
         var tap = new TableTap(card);
         tap.Tapped += (_, _) =>
         {

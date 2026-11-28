@@ -157,7 +157,7 @@ public class KlyDataListFilterTags<TItem> : DataListPartBase<TItem>
         var row = new HorizontalStackLayout { Spacing = 0, VerticalOptions = LayoutOptions.Center, Children = { label, remove } };
         var root = new Border { Content = row, Margin = new Thickness(0, 0, 8, 8), HorizontalOptions = LayoutOptions.Start };
         root.Apply(new TableSurface(KlyTheme.BackgroundElevated, KlyTheme.Border, 1, KlyTheme.Text));
-        root.SetRadius(TableSupport.RadiusOf(1));
+        root.SetRadius(KlyTheme.RadiusOf(1));
         tag = new Tag { Root = root, Text = text, Remove = remove, Popover = popover, Editor = editor };
         return tag;
     }

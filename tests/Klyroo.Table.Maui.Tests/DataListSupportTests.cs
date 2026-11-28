@@ -56,7 +56,6 @@ public class DataListSupportTests
         Assert.Equal(set.Fill, TableSurface.For(ButtonVariant.Solid, set).Background);
         Assert.Equal(KlyThemeColor.Transparent, TableSurface.For(ButtonVariant.Outline, set).Background);
         Assert.Equal(set.Fill.WithAlpha(0.10f), TableSurface.For(ButtonVariant.Soft, set).Background);
-        Assert.Equal(KlyTheme.Radius, TableSupport.RadiusOf(1));
     }
 
     [Fact]

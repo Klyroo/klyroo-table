@@ -294,7 +294,7 @@ public class KlyDataListGrid<TItem> : DataListPartBase<TItem>
             View inner = SkeletonTemplate?.Invoke() ?? new VerticalStackLayout { Spacing = 6, Children = { TableBody.Bar(140, 20), TableBody.Bar(200), TableBody.Bar(160) } };
             var card = new Border { Content = inner, Padding = new Thickness(12) };
             card.Apply(new TableSurface(KlyThemeColor.Transparent, KlyTheme.Border, 1, KlyTheme.Text));
-            card.SetRadius(TableSupport.RadiusOf(1.5));
+            card.SetRadius(KlyTheme.RadiusOf(1.5));
             return (View)card;
         });
         var grid = Flow(cards, span);
@@ -350,7 +350,7 @@ public class KlyDataListGrid<TItem> : DataListPartBase<TItem>
         }
         var card = new Border { Content = stack, Padding = new Thickness(12) };
         card.Apply(new TableSurface(KlyThemeColor.Transparent, KlyTheme.Border, 1, KlyTheme.Text));
-        card.SetRadius(TableSupport.RadiusOf(1.5));
+        card.SetRadius(KlyTheme.RadiusOf(1.5));
         return card;
     }
 

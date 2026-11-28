@@ -118,7 +118,7 @@ public class KlyDataListGroupHeader<TItem> : DataListPartBase<TItem>
         row.Children.Add(toggle);
         var bar = new Border { Content = row, Padding = new Thickness(8, 2), HorizontalOptions = LayoutOptions.Fill };
         bar.Apply(new TableSurface(KlyTheme.BackgroundMuted, KlyThemeColor.Transparent, 0, KlyTheme.Text));
-        bar.SetRadius(TableSupport.RadiusOf(0.5));
+        bar.SetRadius(KlyTheme.RadiusOf(0.5));
         SemanticProperties.SetHeadingLevel(bar, SemanticHeadingLevel.Level3);
         Content = bar;
     }

@@ -9,21 +9,6 @@ internal static class TableSupport
     /// <summary>The width below which a table shows cards instead of columns, and a grid shows one column (the <c>sm</c> breakpoint of the web library).</summary>
     public const double PhoneWidth = 640;
 
-    /// <summary>Corner radius of a fraction of <see cref="KlyTheme.Radius"/>: <c>0.5</c> is the web <c>rounded-sm</c>, <c>1</c> <c>lg</c>.</summary>
-    public static double RadiusOf(double fraction) => KlyTheme.Radius * fraction;
-
-    /// <summary>Binds a color property to the light and dark values: it follows the app theme.</summary>
-    public static void SetThemeColor(this BindableObject target, BindableProperty property, KlyThemeColor color) =>
-        target.SetAppThemeColor(property, color.Light, color.Dark);
-
-    /// <summary>Binds the border color to the light and dark values.</summary>
-    public static void SetStroke(this Border border, KlyThemeColor color) =>
-        border.SetAppTheme<Brush>(Border.StrokeProperty, new SolidColorBrush(color.Light), new SolidColorBrush(color.Dark));
-
-    /// <summary>A rounded rectangle border shape.</summary>
-    public static void SetRadius(this Border border, double radius) =>
-        border.StrokeShape = new RoundRectangle { CornerRadius = new CornerRadius(radius) };
-
     /// <summary>Applies a surface (fill, border) to a border.</summary>
     public static void Apply(this Border border, TableSurface surface)
     {

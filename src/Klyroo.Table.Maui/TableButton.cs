@@ -111,7 +111,7 @@ internal sealed class TableButton : Border
         this.Apply(surface);
         _label.SetThemeColor(Label.TextColorProperty, surface.Text);
         _icon.IconColor = surface.Text;
-        this.SetRadius(TableSupport.RadiusOf(1));
+        this.SetRadius(KlyTheme.RadiusOf(1));
         (Padding, _label.FontSize, MinimumHeightRequest) = _size switch
         {
             KlySize.Xs => (new Thickness(8, 4), 12d, 28d),

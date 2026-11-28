@@ -137,7 +137,7 @@ public class KlyDataListSelectionActions<TItem> : DataListActionPartBase<TItem>
 
         var bar = new Border { Padding = new Thickness(12, 8), Content = row, HorizontalOptions = LayoutOptions.Fill };
         bar.Apply(new TableSurface(KlyTheme.BackgroundElevated, KlyTheme.Border, 1, KlyTheme.Text));
-        bar.SetRadius(TableSupport.RadiusOf(1.5));
+        bar.SetRadius(KlyTheme.RadiusOf(1.5));
         SemanticProperties.SetDescription(bar, messages.SelectionActionsLabel);
         if (Position == DataListSelectionBarPosition.Fixed)
         {
