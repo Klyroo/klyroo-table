@@ -1,5 +1,7 @@
 # Klyroo.Table documentation
 
+The documentation follows the [Diátaxis](https://diataxis.fr/) structure: a tutorial for your first data list, how-to guides for common tasks, reference pages for APIs and platforms, and an explanation of the architecture.
+
 ## Tutorial
 
 - [Getting started](getting-started.md): install, register, style, build a headless tree, then a list in a Blazor page.
@@ -11,7 +13,7 @@
 ## Reference
 
 - [API reference](api-reference.md): every public type and member, generated from the code.
-- [Platforms](platforms.md): render modes, .NET MAUI Blazor Hybrid, trimming and NativeAOT.
+- [Platforms](platforms.md): render modes, .NET MAUI (Blazor Hybrid and native views), trimming and NativeAOT.
 - [FAQ](faq.md): troubleshooting, known limitations and frequent questions.
 
 ## Explanation

@@ -100,7 +100,11 @@ The stylesheet setup of [Getting started](getting-started.md#4-style-the-list) a
 
 What this repository does not contain: a MAUI app that uses the list, or a test that runs it in a web view. If you hit a platform-specific problem, please report it with the platform and the version.
 
-For a MAUI app that does not use a `BlazorWebView`, install `Klyroo.Table.Core` alone: it has no ASP.NET Core or Razor dependency, so a view model can use `DataListTree<T>`.
+### Native C# MAUI without a web view
+
+For a MAUI app that does not use a `BlazorWebView`, install `Klyroo.Table.Core` alone if you want to bind your own view models to `DataListTree<T>` and `DataListController<T>`.
+
+The repository also includes [`Klyroo.Table.Maui`](../src/Klyroo.Table.Maui/README.md) (`src/Klyroo.Table.Maui`): native .NET MAUI data list controls (`KlyDataList<TItem>`, table and card layouts, search, filters, sorting, paging, selection, actions and CSV export) over `Klyroo.Table.Core` and `Klyroo.Query.Core`, drawn with the design tokens of `Klyroo.UI.Maui` and no WebView. It requires the MAUI workload and a sibling checkout of `klyroo-ui`, and is built and unit-tested by `.github/workflows/maui.yml`.
 
 ## NativeAOT and trimming
 

@@ -30,6 +30,8 @@ A list page needs search, filters, sort, paging and URL state wired to a data so
 | [`Klyroo.Table.Core`](https://www.nuget.org/packages/Klyroo.Table.Core) | UI-free tree model (`DataListTree<T>`) built on Klyroo.Query.Core. NativeAOT compatible and trimmable. |
 | [`Klyroo.Table`](https://www.nuget.org/packages/Klyroo.Table) | The Blazor components, `AddKlyrooTable()`, themes and 12 message tables. Depends on Klyroo.Table.Core, Klyroo.Query and Klyroo.UI. |
 
+For native .NET MAUI apps without a `BlazorWebView`, the repository also includes [`Klyroo.Table.Maui`](src/Klyroo.Table.Maui/README.md) (built from source over `Klyroo.Table.Core` and `Klyroo.UI.Maui`).
+
 ## Prerequisites
 
 To use the library in an app:
@@ -160,6 +162,7 @@ Klyroo is a family of independent .NET libraries that compose. Each one has its 
 | [Klyroo.Display](https://github.com/klyroo/klyroo-display) | Code highlighting, secret and file list components, media player controls and file preview |
 | [Klyroo.Spreadsheet](https://github.com/klyroo/klyroo-spreadsheet) | Import wizard for CSV, TSV and pasted data, with column and value mapping |
 | [Klyroo.Agent](https://github.com/klyroo/klyroo-agent) | Bridge that lets AI agents read and act on Klyroo forms, dashboards and imports |
+| [Klyroo.Hotkey](https://github.com/klyroo/klyroo-hotkey) | Server-side .NET client for Hotkey cloud browsers, human handoffs and signed webhooks |
 | [Klyroo.Stack](https://github.com/klyroo/klyroo-stack) | Meta-package, MCP documentation server and `dotnet new` templates |
 
 ## Contributing
