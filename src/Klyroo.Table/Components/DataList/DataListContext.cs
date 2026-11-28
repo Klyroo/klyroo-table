@@ -3,50 +3,6 @@ using Microsoft.AspNetCore.Components;
 
 namespace Klyroo.Table;
 
-/// <summary>How a data list pages its rows.</summary>
-public enum DataListPagingMode
-{
-    /// <summary>Numbered pages (<c>p</c>, <c>ps</c>) with <see cref="KlyDataListPagination{TItem}"/>.</summary>
-    Offset,
-
-    /// <summary>Keyset cursor paging (<c>c</c>): pages append in place with <see cref="KlyDataListInfiniteLoader{TItem}"/>, and degrade to a link in static rendering.</summary>
-    Cursor,
-
-    /// <summary>No paging: the source returns every matching row at once. Pairs with <see cref="KlyDataListTable{TItem}.Virtualize"/>.</summary>
-    None,
-}
-
-/// <summary>How tight the rows of a data list are.</summary>
-public enum DataListDensity
-{
-    /// <summary>Normal rows.</summary>
-    Default,
-
-    /// <summary>Little padding, for long lists.</summary>
-    Compact,
-
-    /// <summary>Generous padding.</summary>
-    Comfortable,
-}
-
-/// <summary>Horizontal alignment of a column.</summary>
-public enum DataListAlign
-{
-    /// <summary>At the start of the line: left in a left-to-right language.</summary>
-    Start,
-
-    /// <summary>Centered.</summary>
-    Center,
-
-    /// <summary>At the end of the line, for numbers.</summary>
-    End,
-}
-
-/// <summary>An option offered by <see cref="KlyDataListSortMenu{TItem}"/>.</summary>
-/// <param name="Key">The key of the sortable field in the schema.</param>
-/// <param name="Label">The display label; when <see langword="null"/>, uses the title of the matching column or the humanized key.</param>
-public sealed record DataListSortOption(string Key, string? Label = null);
-
 /// <summary>
 /// What the parts of a <see cref="KlyDataList{TItem}"/> (the table, the pagination, the result count...) read and change: the state of the list, its
 /// rows and its loading flags. The list cascades one for its whole life (the value is fixed), so a part subscribes to <see cref="Changed"/> once and renders

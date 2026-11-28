@@ -1,6 +1,6 @@
 # Klyroo.Table.Core
 
-The UI-free part of [Klyroo.Table](https://github.com/klyroo/klyroo-table): `DataListTree<TItem>`, a tree model that flattens rows carrying their children into nodes with depth, parent and rail information. It builds on `Klyroo.Query.Core`, targets .NET 10 and is NativeAOT compatible and trimmable.
+The UI-free part of [Klyroo.Table](https://github.com/klyroo/klyroo-table): `DataListController<TItem>` (loads the rows of a state from an in-memory list, a query or a provider, cancels what a newer request replaces, pages by offset or cursor), `DataListTree<TItem>` (a tree model that flattens rows carrying their children into nodes with depth, parent and rail information), the CSV writer and the message tables of the components in 12 languages. The Blazor components and the native MAUI controls (`Klyroo.Table.Maui`) are views over it. It builds on `Klyroo.Query.Core`, targets .NET 10 and is NativeAOT compatible and trimmable.
 
 ## Install
 

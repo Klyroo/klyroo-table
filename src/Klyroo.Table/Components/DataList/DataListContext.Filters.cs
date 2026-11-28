@@ -4,16 +4,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Klyroo.Table;
 
-/// <summary>How a filter editor applies what the user changes.</summary>
-public enum DataListApplyMode
-{
-    /// <summary>Each change applies at once (a text filter after a pause in the typing). The history gets an entry per change.</summary>
-    Live,
-
-    /// <summary>Changes wait in the editor until the Apply button; Cancel, Escape or a click outside drop them.</summary>
-    Submit,
-}
-
 /// <summary>An option an option filter editor lists: a value, what to show for it and, when the list asked for them, how many rows have it.</summary>
 /// <param name="Value">The value a rule carries.</param>
 /// <param name="Label">The text shown.</param>

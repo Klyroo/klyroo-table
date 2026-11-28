@@ -1,15 +1,15 @@
 namespace Klyroo.Table;
 
 /// <summary>
-/// The message tables of Klyroo.Table, one per locale of <see cref="KlyLocales.All"/> and keyed by the same codes. A component picks the table
-/// of the current <see cref="KlyLocale.Code"/> with <see cref="KlyLocales.ResolveCode"/>, so "pt-PT" gets "pt" and an unknown language gets English.
-/// Change a table with <see cref="KlyrooTableOptions.Messages"/>.
+/// The message tables of Klyroo.Table, one per locale of <c>KlyLocales.All</c> and keyed by the same codes. A component picks the table
+/// of the current <c>KlyLocale.Code</c> with <c>KlyLocales.ResolveCode</c>, so "pt-PT" gets "pt" and an unknown language gets English.
+/// Change a table with <c>KlyrooTableOptions.Messages</c>.
 /// </summary>
 public static partial class KlyToolsLocales
 {
     private static IReadOnlyDictionary<string, KlyToolsMessages>? _tables;
 
-    /// <summary>Every table by locale code: the codes of <see cref="KlyLocales.All"/>.</summary>
+    /// <summary>Every table by locale code: the codes of <c>KlyLocales.All</c>.</summary>
     public static IReadOnlyDictionary<string, KlyToolsMessages> Tables => _tables ??= new Dictionary<string, KlyToolsMessages>(StringComparer.OrdinalIgnoreCase)
     {
         ["en"] = En,

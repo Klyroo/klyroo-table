@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Native .NET MAUI data list (no WebView, no Blazor): the views over Klyroo.Table.Core, drawn with the Klyroo.UI.Maui design tokens. -->
+  <PropertyGroup>
+    <!-- The plain framework target is what the unit tests run on; the platform targets are what an app uses. -->
+    <TargetFrameworks>$(KlyrooMauiTfm);$(KlyrooMauiTfm)-android</TargetFrameworks>
+    <TargetFrameworks Condition="!$([MSBuild]::IsOSPlatform('linux'))">$(TargetFrameworks);$(KlyrooMauiTfm)-ios;$(KlyrooMauiTfm)-maccatalyst</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);$(KlyrooMauiTfm)-windows10.0.19041.0</TargetFrameworks>
+
+    <UseMaui>true</UseMaui>
+    <SingleProject>false</SingleProject>
+    <RootNamespace>Klyroo.Table.Maui</RootNamespace>
+    <PackageId>Klyroo.Table.Maui</PackageId>
+    <Description>Native .NET MAUI data list (no WebView): table and card layouts, search, filters, sorting, paging, selection, actions and CSV export over Klyroo.Table.Core, with the Klyroo.UI.Maui design tokens.</Description>
+    <PackageTags>maui;dotnet-maui;android;ios;datagrid;table;filter;paging;design-system</PackageTags>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
+    <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Klyroo.Table.Core\Klyroo.Table.Core.csproj" />
+    <ProjectReference Include="..\..\..\klyroo-ui\src\Klyroo.UI.Maui\Klyroo.UI.Maui.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Klyroo.UI.Maui" />
+    <Using Include="Klyroo.Query" />
+    <Using Include="Klyroo.Table" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Klyroo.Table.Maui.Tests" />
+  </ItemGroup>
+
+</Project>

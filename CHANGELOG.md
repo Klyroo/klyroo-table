@@ -6,6 +6,14 @@ All notable changes to this project are documented in this file. The format foll
 
 ## [Unreleased]
 
+### Added
+
+- `Klyroo.Table.Maui` (source only for now): native .NET MAUI controls (no WebView) for every data list component, `KlyDataList<TItem>` and its parts, over the same engine as the Blazor ones.
+
+### Changed
+
+- `DataListController`, `IDataListQueryExecutor` and its default, `DataListSelection`, `DataListDates`, `FilterDraftScope` and the message tables moved from `Klyroo.Table` into `Klyroo.Table.Core` so the native controls share them. The namespace is unchanged, so source that uses them still compiles; an assembly built against the earlier `Klyroo.Table` must be rebuilt.
+
 ### Fixed
 
 - A table wider than its box shows an edge shadow on the side where columns are out of view, and none at the start of the scroll.
